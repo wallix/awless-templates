@@ -8,4 +8,4 @@ Read more about [awless Templates](https://github.com/wallix/awless/wiki/Templat
 
 By running the following command we ensure all templates in this repo can compile against the vendored `awless` lib:
 
-    go test verifyall_test.go
+    go test verifyall_test.go -v
