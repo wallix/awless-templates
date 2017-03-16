@@ -1,2 +1,2 @@
 subnet = create subnet cidr={subnet.cidr} vpc={subnet.vpc}
-create tag resource=$subnet Name={subnet.name}
+create tag resource=$subnet key=Name value={subnet.name}
