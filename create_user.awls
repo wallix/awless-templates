@@ -1,0 +1,2 @@
+create user name={user.name}
+create accesskey user={user.name}
