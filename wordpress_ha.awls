@@ -10,8 +10,8 @@ create listener actiontype=forward loadbalancer=$lb port=80 protocol=HTTP target
 
 # Wordpress application servers
 ## Create the wordpress servers
-inst1 = create instance subnet={instance1.privatesubnet} image=ami-3b36fe54 type={instance.type} count=1 name=wordpress-server-1 # AMI WordPress powered by Bitnami in eu-central-1
-inst2 = create instance subnet={instance2.privatesubnet} image=ami-3b36fe54 type={instance.type} count=1 name=wordpress-server-2
+inst1 = create instance subnet={instance1.private.subnet} image=ami-3b36fe54 type={instance.type} count=1 name=wordpress-server-1 # AMI WordPress powered by Bitnami in eu-central-1
+inst2 = create instance subnet={instance2.private.subnet} image=ami-3b36fe54 type={instance.type} count=1 name=wordpress-server-2
 ## Register the servers in the targetgroup 
 check instance id=$inst1 state=running timeout=180
 check instance id=$inst2 state=running timeout=180
