@@ -38,7 +38,7 @@ func TestCompileAllTemplates(t *testing.T) {
 
 	for name, tpl := range templates {
 		env := template.NewEnv()
-		env.DefLookupFunc = func(key string) (tpl template.TemplateDefinition, ok bool) {
+		env.DefLookupFunc = func(key string) (tpl template.Definition, ok bool) {
 			tpl, ok = aws.AWSTemplatesDefinitions[key]
 			return
 		}

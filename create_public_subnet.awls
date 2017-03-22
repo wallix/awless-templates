@@ -3,4 +3,4 @@ create tag resource=$subnet key=Name value={subnet.name}
 update subnet id=$subnet public=true
 rtable = create routetable vpc={subnet.vpc}
 attach routetable id=$rtable subnet=$subnet
-route = create route cidr=0.0.0.0/0 gateway={vpc.gateway} table=$rtable
+create route cidr=0.0.0.0/0 gateway={vpc.gateway} table=$rtable
