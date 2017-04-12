@@ -15,5 +15,5 @@ inst2 = create instance subnet={instance2.private.subnet} image=ami-3b36fe54 typ
 ## Register the servers in the targetgroup 
 check instance id=$inst1 state=running timeout=180
 check instance id=$inst2 state=running timeout=180
-attach instance id=$inst1 group=$targetgroup
-attach instance id=$inst2 group=$targetgroup
+attach instance id=$inst1 targetgroup=$targetgroup
+attach instance id=$inst2 targetgroup=$targetgroup
