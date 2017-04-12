@@ -1,4 +1,3 @@
-vpc = create vpc cidr={vpc.cidr}
-create tag resource=$vpc key=Name value={vpc.name}
+vpc = create vpc cidr={vpc.cidr} name={vpc.name}
 gateway = create internetgateway
 attach internetgateway id=$gateway vpc=$vpc

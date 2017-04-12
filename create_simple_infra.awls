@@ -1,3 +1,3 @@
-myvpc = create vpc cidr=10.0.0.0/24
-mysubnet = create subnet cidr=10.0.0.0/25 vpc=$myvpc
-create instance subnet=$mysubnet image={instance.image} type={instance.type} count={instance.count}
+myvpc = create vpc cidr={vpc.cidr} name={vpc.name}
+mysubnet = create subnet cidr={subnet.cidr} vpc=$myvpc
+create instance subnet=$mysubnet image={instance.image} type={instance.type} count={instance.count} name={instance.name}
