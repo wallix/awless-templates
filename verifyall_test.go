@@ -12,7 +12,7 @@ import (
 )
 
 func TestCompileAllTemplates(t *testing.T) {
-	path := filepath.Join(".", "*.awls")
+	path := filepath.Join(".", "*.aws")
 	files, err := filepath.Glob(path)
 	if err != nil {
 		t.Fatal(err)
