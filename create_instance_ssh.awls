@@ -1,4 +1,4 @@
 secgroup = create secgroup vpc={instance.vpc} description={secgroup.description} name=ssh-from-internet
 update secgroup id=$secgroup inbound=authorize protocol=tcp cidr=0.0.0.0/0 portrange=22
-keypair = create keypair name={keypair.name}
+keypair = create key name={keypair.name}
 create instance subnet={instance.subnet} image={instance.image} type={instance.type} key=$keypair name={instance.name} count=1 secgroup=$secgroup

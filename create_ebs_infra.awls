@@ -1,6 +1,6 @@
 myvpc = create vpc cidr=10.0.0.0/24
 mysubnet = create subnet cidr=10.0.0.0/25 vpc=$myvpc zone=eu-west-1a
 update subnet id=$mysubnet public=true
-create keypair name=demo-awless-keypair
+create key name=demo-awless-keypair
 create instance subnet=$mysubnet image={instance.image} type={instance.type} key=demo-awless-keypair name=demo-ebs count={instance.count}
 create volume zone=eu-west-1a size=1
