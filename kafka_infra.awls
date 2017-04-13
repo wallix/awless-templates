@@ -13,16 +13,16 @@ update secgroup id=$api-secgroup inbound=authorize protocol=tcp cidr=0.0.0.0/0 p
 update secgroup id=$api-secgroup inbound=authorize protocol=tcp cidr=0.0.0.0/0 portrange=80
 
 # Create Kafka broker instances
-broker_1 = create instance name=broker_1 image=ami-3f1bd150 key=simon subnet={main.subnet} secgroup=$ssh-secgroup userdata="./launchinstance.sh"
-broker_2 = create instance name=broker_2 image=ami-3f1bd150 key=simon subnet={main.subnet} secgroup=$ssh-secgroup userdata="./launchinstance.sh"
-broker_3 = create instance name=broker_3 image=ami-3f1bd150 key=simon subnet={main.subnet} secgroup=$ssh-secgroup userdata="./launchinstance.sh"
+broker_1 = create instance name=broker_1 image=ami-3f1bd150 key={ssh.key} subnet={main.subnet} secgroup=$ssh-secgroup userdata="./launchinstance.sh"
+broker_2 = create instance name=broker_2 image=ami-3f1bd150 key={ssh.key} subnet={main.subnet} secgroup=$ssh-secgroup userdata="./launchinstance.sh"
+broker_3 = create instance name=broker_3 image=ami-3f1bd150 key={ssh.key} subnet={main.subnet} secgroup=$ssh-secgroup userdata="./launchinstance.sh"
 
 # Create Zookeeper instance
-zookeeper = create instance name=zookeeper image=ami-3f1bd150 key=simon subnet={main.subnet} secgroup=$ssh-secgroup userdata="./launchinstance.sh"
+zookeeper = create instance name=zookeeper image=ami-3f1bd150 key={ssh.key} subnet={main.subnet} secgroup=$ssh-secgroup userdata="./launchinstance.sh"
 
 # Create collector and consumer instance
-collector = create instance name=collector image=ami-3f1bd150 key=simon subnet={main.subnet} secgroup=$ssh-secgroup userdata="./launchinstance.sh"
-create instance name=consumers image=ami-3f1bd150 key=simon subnet={main.subnet} userdata="./launchinstance.sh"
+collector = create instance name=collector image=ami-3f1bd150 key={ssh.key} subnet={main.subnet} secgroup=$ssh-secgroup userdata="./launchinstance.sh"
+create instance name=consumers image=ami-3f1bd150 key={ssh.key} subnet={main.subnet} userdata="./launchinstance.sh"
 
 # Update instances with corresponding secgroups
 attach secgroup id=$kafka-secgroup instance=$broker_1
