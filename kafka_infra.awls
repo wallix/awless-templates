@@ -1,0 +1,32 @@
+# Create secgroup for SSH: opening port 22 for all IPs
+ssh-secgroup = create secgroup vpc={main.vpc} description=ssh-secgroup name=ssh-secgroup
+update secgroup id=$ssh-secgroup inbound=authorize protocol=tcp cidr=0.0.0.0/0 portrange=22
+
+# Create secgroup for Kafka instances: opening port 9092, 2181 for all IPs
+kafka-secgroup = create secgroup vpc={main.vpc} description=kafka-secgroup name=kafka-secgroup
+update secgroup id=$kafka-secgroup inbound=authorize protocol=tcp cidr=0.0.0.0/0 portrange=2181
+update secgroup id=$kafka-secgroup inbound=authorize protocol=tcp cidr=0.0.0.0/0 portrange=9092
+
+# Create secgroup for API instances: opening port 80, 443 for all IPs
+api-secgroup = create secgroup vpc={main.vpc} description=api-secgroup name=api-secgroup
+update secgroup id=$api-secgroup inbound=authorize protocol=tcp cidr=0.0.0.0/0 portrange=443
+update secgroup id=$api-secgroup inbound=authorize protocol=tcp cidr=0.0.0.0/0 portrange=80
+
+# Create Kafka broker instances
+broker_1 = create instance name=broker_1 image=ami-3f1bd150 key=simon subnet={main.subnet} secgroup=$ssh-secgroup userdata="./launchinstance.sh"
+broker_2 = create instance name=broker_2 image=ami-3f1bd150 key=simon subnet={main.subnet} secgroup=$ssh-secgroup userdata="./launchinstance.sh"
+broker_3 = create instance name=broker_3 image=ami-3f1bd150 key=simon subnet={main.subnet} secgroup=$ssh-secgroup userdata="./launchinstance.sh"
+
+# Create Zookeeper instance
+zookeeper = create instance name=zookeeper image=ami-3f1bd150 key=simon subnet={main.subnet} secgroup=$ssh-secgroup userdata="./launchinstance.sh"
+
+# Create collector and consumer instance
+collector = create instance name=collector image=ami-3f1bd150 key=simon subnet={main.subnet} secgroup=$ssh-secgroup userdata="./launchinstance.sh"
+create instance name=consumers image=ami-3f1bd150 key=simon subnet={main.subnet} userdata="./launchinstance.sh"
+
+# Update instances with corresponding secgroups
+attach secgroup id=$kafka-secgroup instance=$broker_1
+attach secgroup id=$kafka-secgroup instance=$broker_2
+attach secgroup id=$kafka-secgroup instance=$broker_3
+attach secgroup id=$kafka-secgroup instance=$zookeeper
+attach secgroup id=$api-secgroup instance=$collector
