@@ -1,32 +1,32 @@
-# Create secgroup for SSH: opening port 22 for all IPs
-ssh-secgroup = create secgroup vpc={main.vpc} description=ssh-secgroup name=ssh-secgroup
-update secgroup id=$ssh-secgroup inbound=authorize protocol=tcp cidr=0.0.0.0/0 portrange=22
+# Create securitygroup for SSH: opening port 22 for all IPs
+ssh-firewall = create securitygroup vpc={main.vpc} description=ssh-firewall name=ssh-firewall
+update securitygroup id=$ssh-firewall inbound=authorize protocol=tcp cidr=0.0.0.0/0 portrange=22
 
-# Create secgroup for Kafka instances: opening port 9092, 2181 for all IPs
-kafka-secgroup = create secgroup vpc={main.vpc} description=kafka-secgroup name=kafka-secgroup
-update secgroup id=$kafka-secgroup inbound=authorize protocol=tcp cidr=0.0.0.0/0 portrange=2181
-update secgroup id=$kafka-secgroup inbound=authorize protocol=tcp cidr=0.0.0.0/0 portrange=9092
+# Create securitygroup for Kafka instances: opening port 9092, 2181 for all IPs
+kafka-firewall = create securitygroup vpc={main.vpc} description=kafka-firewall name=kafka-firewall
+update securitygroup id=$kafka-firewall inbound=authorize protocol=tcp cidr=0.0.0.0/0 portrange=2181
+update securitygroup id=$kafka-firewall inbound=authorize protocol=tcp cidr=0.0.0.0/0 portrange=9092
 
-# Create secgroup for API instances: opening port 80, 443 for all IPs
-api-secgroup = create secgroup vpc={main.vpc} description=api-secgroup name=api-secgroup
-update secgroup id=$api-secgroup inbound=authorize protocol=tcp cidr=0.0.0.0/0 portrange=443
-update secgroup id=$api-secgroup inbound=authorize protocol=tcp cidr=0.0.0.0/0 portrange=80
+# Create securitygroup for API instances: opening port 80, 443 for all IPs
+api-firewall = create securitygroup vpc={main.vpc} description=api-firewall name=api-firewall
+update securitygroup id=$api-firewall inbound=authorize protocol=tcp cidr=0.0.0.0/0 portrange=443
+update securitygroup id=$api-firewall inbound=authorize protocol=tcp cidr=0.0.0.0/0 portrange=80
 
 # Create Kafka broker instances
-broker_1 = create instance name=broker_1 image=ami-3f1bd150 key={ssh.key} subnet={main.subnet} secgroup=$ssh-secgroup userdata="./launchinstance.sh"
-broker_2 = create instance name=broker_2 image=ami-3f1bd150 key={ssh.key} subnet={main.subnet} secgroup=$ssh-secgroup userdata="./launchinstance.sh"
-broker_3 = create instance name=broker_3 image=ami-3f1bd150 key={ssh.key} subnet={main.subnet} secgroup=$ssh-secgroup userdata="./launchinstance.sh"
+broker_1 = create instance name=broker_1 image=ami-3f1bd150 keypair={keypair.name} subnet={main.subnet} securitygroup=$ssh-firewall userdata="https://gist.github.com/simcap/360dffae4c6d76ab0e89621dd824a244"
+broker_2 = create instance name=broker_2 image=ami-3f1bd150 keypair={keypair.name} subnet={main.subnet} securitygroup=$ssh-firewall userdata="https://gist.github.com/simcap/360dffae4c6d76ab0e89621dd824a244"
+broker_3 = create instance name=broker_3 image=ami-3f1bd150 keypair={keypair.name} subnet={main.subnet} securitygroup=$ssh-firewall userdata="https://gist.github.com/simcap/360dffae4c6d76ab0e89621dd824a244"
 
 # Create Zookeeper instance
-zookeeper = create instance name=zookeeper image=ami-3f1bd150 key={ssh.key} subnet={main.subnet} secgroup=$ssh-secgroup userdata="./launchinstance.sh"
+zookeeper = create instance name=zookeeper image=ami-3f1bd150 keypair={keypair.name} subnet={main.subnet} securitygroup=$ssh-firewall userdata="https://gist.github.com/simcap/360dffae4c6d76ab0e89621dd824a244"
 
 # Create collector and consumer instance
-collector = create instance name=collector image=ami-3f1bd150 key={ssh.key} subnet={main.subnet} secgroup=$ssh-secgroup userdata="./launchinstance.sh"
-create instance name=consumers image=ami-3f1bd150 key={ssh.key} subnet={main.subnet} userdata="./launchinstance.sh"
+collector = create instance name=collector image=ami-3f1bd150 keypair={keypair.name} subnet={main.subnet} securitygroup=$ssh-firewall userdata="https://gist.github.com/simcap/360dffae4c6d76ab0e89621dd824a244"
+create instance name=consumers image=ami-3f1bd150 keypair={keypair.name} subnet={main.subnet} userdata="https://gist.github.com/simcap/360dffae4c6d76ab0e89621dd824a244"
 
-# Update instances with corresponding secgroups
-attach secgroup id=$kafka-secgroup instance=$broker_1
-attach secgroup id=$kafka-secgroup instance=$broker_2
-attach secgroup id=$kafka-secgroup instance=$broker_3
-attach secgroup id=$kafka-secgroup instance=$zookeeper
-attach secgroup id=$api-secgroup instance=$collector
+# Update instances with corresponding securitygroups
+attach securitygroup id=$kafka-firewall instance=$broker_1
+attach securitygroup id=$kafka-firewall instance=$broker_2
+attach securitygroup id=$kafka-firewall instance=$broker_3
+attach securitygroup id=$kafka-firewall instance=$zookeeper
+attach securitygroup id=$api-firewall instance=$collector
