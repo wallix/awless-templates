@@ -5,7 +5,7 @@ update secgroup id=$loadbalancerfw inbound=authorize protocol=tcp cidr=0.0.0.0/0
 ## Create the target group for EC2 wordpress servers
 targetgroup = create targetgroup name=wordpress-workers port=80 protocol=HTTP vpc={wordpress.vpc}
 ## Create the application load balancer that will redirect flows to the servers
-lb = create loadbalancer name=wordpress-loadbalancer subnets={wordpress.subnets} groups=$loadbalancerfw
+lb = create loadbalancer name=wordpress-loadbalancer subnets={wordpress.subnets} secgroups=$loadbalancerfw
 create listener actiontype=forward loadbalancer=$lb port=80 protocol=HTTP target=$targetgroup
 
 # Wordpress application servers
