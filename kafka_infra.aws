@@ -13,16 +13,16 @@ update securitygroup id=$api-firewall inbound=authorize protocol=tcp cidr=0.0.0.
 update securitygroup id=$api-firewall inbound=authorize protocol=tcp cidr=0.0.0.0/0 portrange=80
 
 # Create Kafka broker instances
-broker_1 = create instance name=broker_1 image=ami-3f1bd150 keypair={keypair.name} subnet={main.subnet} securitygroup=$ssh-firewall userdata="https://gist.github.com/simcap/360dffae4c6d76ab0e89621dd824a244"
-broker_2 = create instance name=broker_2 image=ami-3f1bd150 keypair={keypair.name} subnet={main.subnet} securitygroup=$ssh-firewall userdata="https://gist.github.com/simcap/360dffae4c6d76ab0e89621dd824a244"
-broker_3 = create instance name=broker_3 image=ami-3f1bd150 keypair={keypair.name} subnet={main.subnet} securitygroup=$ssh-firewall userdata="https://gist.github.com/simcap/360dffae4c6d76ab0e89621dd824a244"
+broker_1 = create instance name=broker_1 image=ami-3f1bd150 keypair={keypair.name} subnet={main.subnet} securitygroup=$ssh-firewall userdata=https://gist.githubusercontent.com/simcap/360dffae4c6d76ab0e89621dd824a244/raw/521712fe118d7656a1d5757db1444bb7596ff5ae/launchinstance.sh
+broker_2 = create instance name=broker_2 image=ami-3f1bd150 keypair={keypair.name} subnet={main.subnet} securitygroup=$ssh-firewall userdata=https://gist.githubusercontent.com/simcap/360dffae4c6d76ab0e89621dd824a244/raw/521712fe118d7656a1d5757db1444bb7596ff5ae/launchinstance.sh
+broker_3 = create instance name=broker_3 image=ami-3f1bd150 keypair={keypair.name} subnet={main.subnet} securitygroup=$ssh-firewall userdata=https://gist.githubusercontent.com/simcap/360dffae4c6d76ab0e89621dd824a244/raw/521712fe118d7656a1d5757db1444bb7596ff5ae/launchinstance.sh
 
 # Create Zookeeper instance
-zookeeper = create instance name=zookeeper image=ami-3f1bd150 keypair={keypair.name} subnet={main.subnet} securitygroup=$ssh-firewall userdata="https://gist.github.com/simcap/360dffae4c6d76ab0e89621dd824a244"
+zookeeper = create instance name=zookeeper image=ami-3f1bd150 keypair={keypair.name} subnet={main.subnet} securitygroup=$ssh-firewall userdata=https://gist.githubusercontent.com/simcap/360dffae4c6d76ab0e89621dd824a244/raw/521712fe118d7656a1d5757db1444bb7596ff5ae/launchinstance.sh
 
 # Create collector and consumer instance
-collector = create instance name=collector image=ami-3f1bd150 keypair={keypair.name} subnet={main.subnet} securitygroup=$ssh-firewall userdata="https://gist.github.com/simcap/360dffae4c6d76ab0e89621dd824a244"
-create instance name=consumers image=ami-3f1bd150 keypair={keypair.name} subnet={main.subnet} userdata="https://gist.github.com/simcap/360dffae4c6d76ab0e89621dd824a244"
+collector = create instance name=collector image=ami-3f1bd150 keypair={keypair.name} subnet={main.subnet} securitygroup=$ssh-firewall userdata=https://gist.githubusercontent.com/simcap/360dffae4c6d76ab0e89621dd824a244/raw/521712fe118d7656a1d5757db1444bb7596ff5ae/launchinstance.sh
+create instance name=consumers image=ami-3f1bd150 keypair={keypair.name} subnet={main.subnet} userdata=https://gist.githubusercontent.com/simcap/360dffae4c6d76ab0e89621dd824a244/raw/521712fe118d7656a1d5757db1444bb7596ff5ae/launchinstance.sh
 
 # Update instances with corresponding securitygroups
 attach securitygroup id=$kafka-firewall instance=$broker_1
