@@ -1,0 +1,18 @@
+# Create a AWS role that has a AWS account id as principal
+# (retrieve the account id with `awless whoami`)
+accountRole = create role name={role-name} principal-account={aws-account-id} 
+
+# Attach policy (set of permissions) to the created role
+attach policy role={role-name} arn=arn:aws:iam::aws:policy/AmazonEC2ReadOnlyAccess 
+attach policy role={role-name} arn=arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess
+attach policy role={role-name} arn=arn:aws:iam::aws:policy/AmazonSNSReadOnlyAccess
+attach policy role={role-name} arn=arn:aws:iam::aws:policy/AmazonSQSReadOnlyAccess 
+attach policy role={role-name} arn=arn:aws:iam::aws:policy/AmazonVPCReadOnlyAccess
+attach policy role={role-name} arn=arn:aws:iam::aws:policy/AutoScalingReadOnlyAccess 
+attach policy role={role-name} arn=arn:aws:iam::aws:policy/IAMReadOnlyAccess 
+attach policy role={role-name} arn=arn:aws:iam::aws:policy/AmazonRDSReadOnlyAccess
+attach policy role={role-name} arn=arn:aws:iam::aws:policy/AmazonRoute53ReadOnlyAccess 
+
+# Create a policy to allow user with this policy to assume only this role
+# You can then attach this policy to a user via `awless attach policy arn=... user=jsmith`
+create policy name={assume-policy-name} effect=Allow action=sts:AssumeRole resource=$accountRole
