@@ -35,8 +35,8 @@ func main() {
 }
 
 type Example struct {
-	Title, Link string
-	Content     string
+	Title, Link, ScriptName string
+	Content                 string
 }
 
 func buildExamples() ([]*Example, error) {
@@ -57,7 +57,7 @@ func buildExamples() ([]*Example, error) {
 		if err != nil {
 			return examples, nil
 		}
-		examples = append(examples, &Example{Title: title, Link: link, Content: content})
+		examples = append(examples, &Example{Title: title, ScriptName: name, Link: link, Content: content})
 	}
 
 	return examples, nil

@@ -44,6 +44,8 @@ create instance subnet=$mysubnet image={instance.image} type={instance.type} key
 create volume availabilityzone=eu-west-1a size=1
 ```
 
+Run it locally with: `awless run repo:create_ebs_infra -v`
+
 ### Create instance ssh
 
 ```sh
@@ -53,11 +55,15 @@ keypair = create keypair name={keypair.name}
 create instance subnet={instance.subnet} image={instance.image} type={instance.type} keypair=$keypair name={instance.name} count=1 securitygroup=$securitygroup
 ```
 
+Run it locally with: `awless run repo:create_instance_ssh -v`
+
 ### Create private subnet
 
 ```sh
 create subnet cidr={subnet.cidr} vpc={subnet.vpc} name={subnet.name}
 ```
+
+Run it locally with: `awless run repo:create_private_subnet -v`
 
 ### Create public subnet
 
@@ -68,6 +74,8 @@ rtable = create routetable vpc={subnet.vpc}
 attach routetable id=$rtable subnet=$subnet
 create route cidr=0.0.0.0/0 gateway={vpc.gateway} table=$rtable
 ```
+
+Run it locally with: `awless run repo:create_public_subnet -v`
 
 ### Create readonly role for instance
  Create a AWS role that that an EC2 instance case assume
@@ -90,6 +98,8 @@ attach policy role={role-name} arn=arn:aws:iam::aws:policy/IAMReadOnlyAccess
 attach policy role={role-name} arn=arn:aws:iam::aws:policy/AmazonRDSReadOnlyAccess
 attach policy role={role-name} arn=arn:aws:iam::aws:policy/AmazonRoute53ReadOnlyAccess
 ```
+
+Run it locally with: `awless run repo:create_readonly_role_for_instance -v`
 
 ### Create readonly role for user
  Create a AWS role that has a AWS account id as principal
@@ -120,6 +130,8 @@ attach policy role={role-name} arn=arn:aws:iam::aws:policy/AmazonRoute53ReadOnly
 create policy name={assume-policy-name} effect=Allow action=sts:AssumeRole resource=$accountRole
 ```
 
+Run it locally with: `awless run repo:create_readonly_role_for_user -v`
+
 ### Create simple infra
 
 ```sh
@@ -128,12 +140,16 @@ mysubnet = create subnet cidr={subnet.cidr} vpc=$myvpc
 create instance subnet=$mysubnet image={instance.image} type={instance.type} count={instance.count} name={instance.name}
 ```
 
+Run it locally with: `awless run repo:create_simple_infra -v`
+
 ### Create user
 
 ```sh
 create user name={user.name}
 create accesskey user={user.name}
 ```
+
+Run it locally with: `awless run repo:create_user -v`
 
 ### Create vpc
 
@@ -142,6 +158,8 @@ vpc = create vpc cidr={vpc.cidr} name={vpc.name}
 gateway = create internetgateway
 attach internetgateway id=$gateway vpc=$vpc
 ```
+
+Run it locally with: `awless run repo:create_vpc -v`
 
 ### Kafka infra
  Create securitygroup for SSH: opening port 22 for all IPs
@@ -198,6 +216,8 @@ attach securitygroup id=$kafka-firewall instance=$zookeeper
 attach securitygroup id=$api-firewall instance=$collector
 ```
 
+Run it locally with: `awless run repo:kafka_infra -v`
+
 ### Wordpress ha
  Loadbalancer
  Create the loadbalancer firewall
@@ -236,3 +256,5 @@ check instance id=$inst2 state=running timeout=180
 attach instance id=$inst1 targetgroup=$targetgroup
 attach instance id=$inst2 targetgroup=$targetgroup
 ```
+
+Run it locally with: `awless run repo:wordpress_ha -v`

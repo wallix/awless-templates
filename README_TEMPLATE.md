@@ -24,4 +24,6 @@ You can run the verification locally with:
 
 {{range $index, $example := .}}
 ### {{$example.Title}}
-{{$example.Content}}{{end}}
+{{$example.Content}}
+Run it locally with: `awless run repo:{{$example.ScriptName}} -v`
+{{end}}
