@@ -1,0 +1,14 @@
+# Create a AWS role that that an EC2 instance case assume
+# (retrieve the account id with `awless whoami`)
+create role name={role-name} principal-service={aws-service} 
+
+# Attach policy (set of permissions) to the created role
+attach policy role={role-name} arn=arn:aws:iam::aws:policy/AmazonEC2ReadOnlyAccess 
+attach policy role={role-name} arn=arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess
+attach policy role={role-name} arn=arn:aws:iam::aws:policy/AmazonSNSReadOnlyAccess
+attach policy role={role-name} arn=arn:aws:iam::aws:policy/AmazonSQSReadOnlyAccess 
+attach policy role={role-name} arn=arn:aws:iam::aws:policy/AmazonVPCReadOnlyAccess
+attach policy role={role-name} arn=arn:aws:iam::aws:policy/AutoScalingReadOnlyAccess 
+attach policy role={role-name} arn=arn:aws:iam::aws:policy/IAMReadOnlyAccess 
+attach policy role={role-name} arn=arn:aws:iam::aws:policy/AmazonRDSReadOnlyAccess
+attach policy role={role-name} arn=arn:aws:iam::aws:policy/AmazonRoute53ReadOnlyAccess 
