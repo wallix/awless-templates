@@ -1,4 +1,4 @@
-# Create a AWS role that that an EC2 instance case assume
+# Create a AWS role that applies on a resource
 # (retrieve the account id with `awless whoami`)
 create role name={role-name} principal-service={aws-service} 
 

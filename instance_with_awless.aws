@@ -1,0 +1,17 @@
+# Create a AWS role that applies on a resource
+# (retrieve the account id with `awless whoami`)
+create role name=AwlessReadonlyRole principal-service="ec2.amazonaws.com"
+
+# Attach typical necessary awless readonly permissions to the role
+attach policy role=AwlessReadonlyRole arn=arn:aws:iam::aws:policy/AmazonEC2ReadOnlyAccess 
+attach policy role=AwlessReadonlyRole arn=arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess
+attach policy role=AwlessReadonlyRole arn=arn:aws:iam::aws:policy/AmazonSNSReadOnlyAccess
+attach policy role=AwlessReadonlyRole arn=arn:aws:iam::aws:policy/AmazonSQSReadOnlyAccess 
+attach policy role=AwlessReadonlyRole arn=arn:aws:iam::aws:policy/AmazonVPCReadOnlyAccess
+attach policy role=AwlessReadonlyRole arn=arn:aws:iam::aws:policy/AutoScalingReadOnlyAccess 
+attach policy role=AwlessReadonlyRole arn=arn:aws:iam::aws:policy/IAMReadOnlyAccess 
+attach policy role=AwlessReadonlyRole arn=arn:aws:iam::aws:policy/AmazonRDSReadOnlyAccess
+attach policy role=AwlessReadonlyRole arn=arn:aws:iam::aws:policy/AmazonRoute53ReadOnlyAccess 
+
+# Launch new instance running remote user data script installing awless
+create instance name=awless-commander type=t2.nano keypair={ssh.keypair} userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/install_awless.sh role=AwlessReadonlyRole

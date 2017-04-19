@@ -24,11 +24,12 @@ You can run the verification locally with:
 * [Create instance ssh](#create-instance-ssh)
 * [Create private subnet](#create-private-subnet)
 * [Create public subnet](#create-public-subnet)
-* [Create readonly role for instance](#create-readonly-role-for-instance)
+* [Create readonly role for resource](#create-readonly-role-for-resource)
 * [Create readonly role for user](#create-readonly-role-for-user)
 * [Create simple infra](#create-simple-infra)
 * [Create user](#create-user)
 * [Create vpc](#create-vpc)
+* [Instance with awless](#instance-with-awless)
 * [Kafka infra](#kafka-infra)
 * [Wordpress ha](#wordpress-ha)
 
@@ -77,8 +78,8 @@ create route cidr=0.0.0.0/0 gateway={vpc.gateway} table=$rtable
 
 Run it locally with: `awless run repo:create_public_subnet -v`
 
-### Create readonly role for instance
- Create a AWS role that that an EC2 instance case assume
+### Create readonly role for resource
+ Create a AWS role that applies on a resource
  (retrieve the account id with `awless whoami`)
 
 ```sh
@@ -99,7 +100,7 @@ attach policy role={role-name} arn=arn:aws:iam::aws:policy/AmazonRDSReadOnlyAcce
 attach policy role={role-name} arn=arn:aws:iam::aws:policy/AmazonRoute53ReadOnlyAccess
 ```
 
-Run it locally with: `awless run repo:create_readonly_role_for_instance -v`
+Run it locally with: `awless run repo:create_readonly_role_for_resource -v`
 
 ### Create readonly role for user
  Create a AWS role that has a AWS account id as principal
@@ -160,6 +161,36 @@ attach internetgateway id=$gateway vpc=$vpc
 ```
 
 Run it locally with: `awless run repo:create_vpc -v`
+
+### Instance with awless
+ Create a AWS role that applies on a resource
+ (retrieve the account id with `awless whoami`)
+
+```sh
+create role name=AwlessReadonlyRole principal-service="ec2.amazonaws.com"
+
+```
+ Attach typical necessary awless readonly permissions to the role
+
+```sh
+attach policy role=AwlessReadonlyRole arn=arn:aws:iam::aws:policy/AmazonEC2ReadOnlyAccess
+attach policy role=AwlessReadonlyRole arn=arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess
+attach policy role=AwlessReadonlyRole arn=arn:aws:iam::aws:policy/AmazonSNSReadOnlyAccess
+attach policy role=AwlessReadonlyRole arn=arn:aws:iam::aws:policy/AmazonSQSReadOnlyAccess
+attach policy role=AwlessReadonlyRole arn=arn:aws:iam::aws:policy/AmazonVPCReadOnlyAccess
+attach policy role=AwlessReadonlyRole arn=arn:aws:iam::aws:policy/AutoScalingReadOnlyAccess
+attach policy role=AwlessReadonlyRole arn=arn:aws:iam::aws:policy/IAMReadOnlyAccess
+attach policy role=AwlessReadonlyRole arn=arn:aws:iam::aws:policy/AmazonRDSReadOnlyAccess
+attach policy role=AwlessReadonlyRole arn=arn:aws:iam::aws:policy/AmazonRoute53ReadOnlyAccess
+
+```
+ Launch new instance running remote user data script installing awless
+
+```sh
+create instance name=awless-commander type=t2.nano keypair={ssh.keypair} userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/install_awless.sh role=AwlessReadonlyRole
+```
+
+Run it locally with: `awless run repo:instance_with_awless -v`
 
 ### Kafka infra
  Create securitygroup for SSH: opening port 22 for all IPs

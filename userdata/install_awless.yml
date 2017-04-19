@@ -1,0 +1,13 @@
+#cloud-config
+repo_update: true
+repo_upgrade: all
+
+packages:
+ - bash-completion
+ - curl
+
+runcmd:
+  - curl -O https://raw.githubusercontent.com/wallix/awless/master/getawless.sh
+  - bash getawless.sh
+  - mv ./awless /usr/local/bin
+  - [echo, 'source <(awless completion bash)', >>, /etc/bashrc]
