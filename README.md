@@ -20,21 +20,21 @@ You can run the verification locally with:
 # Examples
 
 
-* [Create ebs infra](#create-ebs-infra)
-* [Create instance ssh](#create-instance-ssh)
-* [Create private subnet](#create-private-subnet)
-* [Create public subnet](#create-public-subnet)
-* [Create readonly role for resource](#create-readonly-role-for-resource)
-* [Create readonly role for user](#create-readonly-role-for-user)
-* [Create simple infra](#create-simple-infra)
-* [Create user](#create-user)
-* [Create vpc](#create-vpc)
+* [Ebs infra](#ebs-infra)
+* [Instance ssh](#instance-ssh)
 * [Instance with awless](#instance-with-awless)
 * [Kafka infra](#kafka-infra)
+* [Private subnet](#private-subnet)
+* [Public subnet](#public-subnet)
+* [Readonly role for resource](#readonly-role-for-resource)
+* [Readonly role for user](#readonly-role-for-user)
+* [Simple infra](#simple-infra)
+* [User](#user)
+* [Vpc](#vpc)
 * [Wordpress ha](#wordpress-ha)
 
 
-### Create ebs infra
+### Ebs infra
 
 ```sh
 myvpc = create vpc cidr=10.0.0.0/24
@@ -45,9 +45,9 @@ create instance subnet=$mysubnet image={instance.image} type={instance.type} key
 create volume availabilityzone=eu-west-1a size=1
 ```
 
-Run it locally with: `awless run repo:create_ebs_infra -v`
+Run it locally with: `awless run repo:ebs_infra -v`
 
-### Create instance ssh
+### Instance ssh
 
 ```sh
 securitygroup = create securitygroup vpc={instance.vpc} description={securitygroup.description} name=ssh-from-internet
@@ -56,111 +56,7 @@ keypair = create keypair name={keypair.name}
 create instance subnet={instance.subnet} image={instance.image} type={instance.type} keypair=$keypair name={instance.name} count=1 securitygroup=$securitygroup
 ```
 
-Run it locally with: `awless run repo:create_instance_ssh -v`
-
-### Create private subnet
-
-```sh
-create subnet cidr={subnet.cidr} vpc={subnet.vpc} name={subnet.name}
-```
-
-Run it locally with: `awless run repo:create_private_subnet -v`
-
-### Create public subnet
-
-```sh
-subnet = create subnet cidr={subnet.cidr} vpc={subnet.vpc} name={subnet.name}
-update subnet id=$subnet public=true
-rtable = create routetable vpc={subnet.vpc}
-attach routetable id=$rtable subnet=$subnet
-create route cidr=0.0.0.0/0 gateway={vpc.gateway} table=$rtable
-```
-
-Run it locally with: `awless run repo:create_public_subnet -v`
-
-### Create readonly role for resource
- Create a AWS role that applies on a resource
- (retrieve the account id with `awless whoami`)
-
-```sh
-create role name={role-name} principal-service={aws-service}
-
-```
- Attach policy (set of permissions) to the created role
-
-```sh
-attach policy role={role-name} arn=arn:aws:iam::aws:policy/AmazonEC2ReadOnlyAccess
-attach policy role={role-name} arn=arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess
-attach policy role={role-name} arn=arn:aws:iam::aws:policy/AmazonSNSReadOnlyAccess
-attach policy role={role-name} arn=arn:aws:iam::aws:policy/AmazonSQSReadOnlyAccess
-attach policy role={role-name} arn=arn:aws:iam::aws:policy/AmazonVPCReadOnlyAccess
-attach policy role={role-name} arn=arn:aws:iam::aws:policy/AutoScalingReadOnlyAccess
-attach policy role={role-name} arn=arn:aws:iam::aws:policy/IAMReadOnlyAccess
-attach policy role={role-name} arn=arn:aws:iam::aws:policy/AmazonRDSReadOnlyAccess
-attach policy role={role-name} arn=arn:aws:iam::aws:policy/AmazonRoute53ReadOnlyAccess
-```
-
-Run it locally with: `awless run repo:create_readonly_role_for_resource -v`
-
-### Create readonly role for user
- Create a AWS role that has a AWS account id as principal
- (retrieve the account id with `awless whoami`)
-
-```sh
-accountRole = create role name={role-name} principal-account={aws-account-id}
-
-```
- Attach policy (set of permissions) to the created role
-
-```sh
-attach policy role={role-name} arn=arn:aws:iam::aws:policy/AmazonEC2ReadOnlyAccess
-attach policy role={role-name} arn=arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess
-attach policy role={role-name} arn=arn:aws:iam::aws:policy/AmazonSNSReadOnlyAccess
-attach policy role={role-name} arn=arn:aws:iam::aws:policy/AmazonSQSReadOnlyAccess
-attach policy role={role-name} arn=arn:aws:iam::aws:policy/AmazonVPCReadOnlyAccess
-attach policy role={role-name} arn=arn:aws:iam::aws:policy/AutoScalingReadOnlyAccess
-attach policy role={role-name} arn=arn:aws:iam::aws:policy/IAMReadOnlyAccess
-attach policy role={role-name} arn=arn:aws:iam::aws:policy/AmazonRDSReadOnlyAccess
-attach policy role={role-name} arn=arn:aws:iam::aws:policy/AmazonRoute53ReadOnlyAccess
-
-```
- Create a policy to allow user with this policy to assume only this role
- You can then attach this policy to a user via `awless attach policy arn=... user=jsmith`
-
-```sh
-create policy name={assume-policy-name} effect=Allow action=sts:AssumeRole resource=$accountRole
-```
-
-Run it locally with: `awless run repo:create_readonly_role_for_user -v`
-
-### Create simple infra
-
-```sh
-myvpc = create vpc cidr={vpc.cidr} name={vpc.name}
-mysubnet = create subnet cidr={subnet.cidr} vpc=$myvpc
-create instance subnet=$mysubnet image={instance.image} type={instance.type} count={instance.count} name={instance.name}
-```
-
-Run it locally with: `awless run repo:create_simple_infra -v`
-
-### Create user
-
-```sh
-create user name={user.name}
-create accesskey user={user.name}
-```
-
-Run it locally with: `awless run repo:create_user -v`
-
-### Create vpc
-
-```sh
-vpc = create vpc cidr={vpc.cidr} name={vpc.name}
-gateway = create internetgateway
-attach internetgateway id=$gateway vpc=$vpc
-```
-
-Run it locally with: `awless run repo:create_vpc -v`
+Run it locally with: `awless run repo:instance_ssh -v`
 
 ### Instance with awless
  Create a AWS role that applies on a resource
@@ -248,6 +144,110 @@ attach securitygroup id=$api-firewall instance=$collector
 ```
 
 Run it locally with: `awless run repo:kafka_infra -v`
+
+### Private subnet
+
+```sh
+create subnet cidr={subnet.cidr} vpc={subnet.vpc} name={subnet.name}
+```
+
+Run it locally with: `awless run repo:private_subnet -v`
+
+### Public subnet
+
+```sh
+subnet = create subnet cidr={subnet.cidr} vpc={subnet.vpc} name={subnet.name}
+update subnet id=$subnet public=true
+rtable = create routetable vpc={subnet.vpc}
+attach routetable id=$rtable subnet=$subnet
+create route cidr=0.0.0.0/0 gateway={vpc.gateway} table=$rtable
+```
+
+Run it locally with: `awless run repo:public_subnet -v`
+
+### Readonly role for resource
+ Create a AWS role that applies on a resource
+ (retrieve the account id with `awless whoami`)
+
+```sh
+create role name={role-name} principal-service={aws-service}
+
+```
+ Attach policy (set of permissions) to the created role
+
+```sh
+attach policy role={role-name} arn=arn:aws:iam::aws:policy/AmazonEC2ReadOnlyAccess
+attach policy role={role-name} arn=arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess
+attach policy role={role-name} arn=arn:aws:iam::aws:policy/AmazonSNSReadOnlyAccess
+attach policy role={role-name} arn=arn:aws:iam::aws:policy/AmazonSQSReadOnlyAccess
+attach policy role={role-name} arn=arn:aws:iam::aws:policy/AmazonVPCReadOnlyAccess
+attach policy role={role-name} arn=arn:aws:iam::aws:policy/AutoScalingReadOnlyAccess
+attach policy role={role-name} arn=arn:aws:iam::aws:policy/IAMReadOnlyAccess
+attach policy role={role-name} arn=arn:aws:iam::aws:policy/AmazonRDSReadOnlyAccess
+attach policy role={role-name} arn=arn:aws:iam::aws:policy/AmazonRoute53ReadOnlyAccess
+```
+
+Run it locally with: `awless run repo:readonly_role_for_resource -v`
+
+### Readonly role for user
+ Create a AWS role that has a AWS account id as principal
+ (retrieve the account id with `awless whoami`)
+
+```sh
+accountRole = create role name={role-name} principal-account={aws-account-id}
+
+```
+ Attach policy (set of permissions) to the created role
+
+```sh
+attach policy role={role-name} arn=arn:aws:iam::aws:policy/AmazonEC2ReadOnlyAccess
+attach policy role={role-name} arn=arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess
+attach policy role={role-name} arn=arn:aws:iam::aws:policy/AmazonSNSReadOnlyAccess
+attach policy role={role-name} arn=arn:aws:iam::aws:policy/AmazonSQSReadOnlyAccess
+attach policy role={role-name} arn=arn:aws:iam::aws:policy/AmazonVPCReadOnlyAccess
+attach policy role={role-name} arn=arn:aws:iam::aws:policy/AutoScalingReadOnlyAccess
+attach policy role={role-name} arn=arn:aws:iam::aws:policy/IAMReadOnlyAccess
+attach policy role={role-name} arn=arn:aws:iam::aws:policy/AmazonRDSReadOnlyAccess
+attach policy role={role-name} arn=arn:aws:iam::aws:policy/AmazonRoute53ReadOnlyAccess
+
+```
+ Create a policy to allow user with this policy to assume only this role
+ You can then attach this policy to a user via `awless attach policy arn=... user=jsmith`
+
+```sh
+create policy name={assume-policy-name} effect=Allow action=sts:AssumeRole resource=$accountRole
+```
+
+Run it locally with: `awless run repo:readonly_role_for_user -v`
+
+### Simple infra
+
+```sh
+myvpc = create vpc cidr={vpc.cidr} name={vpc.name}
+mysubnet = create subnet cidr={subnet.cidr} vpc=$myvpc
+create instance subnet=$mysubnet image={instance.image} type={instance.type} count={instance.count} name={instance.name}
+```
+
+Run it locally with: `awless run repo:simple_infra -v`
+
+### User
+
+```sh
+create user name={user.name}
+create accesskey user={user.name}
+```
+
+Run it locally with: `awless run repo:user -v`
+
+### Vpc
+
+```sh
+vpc = create vpc cidr={vpc.cidr} name={vpc.name}
+gateway = create internetgateway
+attach internetgateway id=$gateway vpc=$vpc
+```
+
+Run it locally with: `awless run repo:vpc -v`
 
 ### Wordpress ha
  Loadbalancer
