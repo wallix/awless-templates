@@ -1,0 +1,16 @@
+# Here we define a group that allow users in that group
+# to use the `awless` CLI in a readonly mode (i.e. sync, listing).
+#
+# Create the group:
+create group name=AwlessReadOnlyPermissionsGroup
+
+# Attach corresponding readonly AWS policies (set of permissions) on group related to the `awless` services:
+attach policy arn=arn:aws:iam::aws:policy/AmazonEC2ReadOnlyAccess group=AwlessReadOnlyPermissionsGroup
+attach policy arn=arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess group=AwlessReadOnlyPermissionsGroup
+attach policy arn=arn:aws:iam::aws:policy/AmazonSNSReadOnlyAccess group=AwlessReadOnlyPermissionsGroup 
+attach policy arn=arn:aws:iam::aws:policy/AmazonSQSReadOnlyAccess group=AwlessReadOnlyPermissionsGroup 
+attach policy arn=arn:aws:iam::aws:policy/AmazonVPCReadOnlyAccess group=AwlessReadOnlyPermissionsGroup
+attach policy arn=arn:aws:iam::aws:policy/AutoScalingReadOnlyAccess group=AwlessReadOnlyPermissionsGroup
+attach policy arn=arn:aws:iam::aws:policy/IAMReadOnlyAccess group=AwlessReadOnlyPermissionsGroup
+attach policy arn=arn:aws:iam::aws:policy/AmazonRDSReadOnlyAccess group=AwlessReadOnlyPermissionsGroup
+attach policy arn=arn:aws:iam::aws:policy/AmazonRoute53ReadOnlyAccess group=AwlessReadOnlyPermissionsGroup

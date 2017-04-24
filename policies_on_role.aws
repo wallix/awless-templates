@@ -1,0 +1,14 @@
+# When you want your users to have a set of permissions, instead of attaching 
+# permissions directly on users it is a good practice and simpler to define a group having
+# those permissions and then adding/removing as needed users from those groups.
+#
+# Attach a set of readonly AWS policies (set of permissions) on group:
+attach policy arn=arn:aws:iam::aws:policy/AmazonEC2ReadOnlyAccess group={group-name}
+attach policy arn=arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess group={group-name}
+attach policy arn=arn:aws:iam::aws:policy/AmazonSNSReadOnlyAccess group={group-name} 
+attach policy arn=arn:aws:iam::aws:policy/AmazonSQSReadOnlyAccess group={group-name} 
+attach policy arn=arn:aws:iam::aws:policy/AmazonVPCReadOnlyAccess group={group-name}
+attach policy arn=arn:aws:iam::aws:policy/AutoScalingReadOnlyAccess group={group-name}
+attach policy arn=arn:aws:iam::aws:policy/IAMReadOnlyAccess group={group-name}
+attach policy arn=arn:aws:iam::aws:policy/AmazonRDSReadOnlyAccess group={group-name}
+attach policy arn=arn:aws:iam::aws:policy/AmazonRoute53ReadOnlyAccess group={group-name}

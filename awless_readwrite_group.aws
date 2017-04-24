@@ -1,0 +1,17 @@
+# Here we define a group that allow users in that group to use the `awless` CLI in write mode.
+#
+# Create the group:
+create group name=AwlessReadWritePermissionsGroup
+
+# Attach corresponding AWS policies (set of permissions) on group related to the `awless` services:
+attach policy arn=arn:aws:iam::aws:policy/AmazonEC2FullAccess group=AwlessReadWritePermissionsGroup
+attach policy arn=arn:aws:iam::aws:policy/AmazonS3FullAccess group=AwlessReadWritePermissionsGroup
+attach policy arn=arn:aws:iam::aws:policy/AmazonSNSFullAccess group=AwlessReadWritePermissionsGroup 
+attach policy arn=arn:aws:iam::aws:policy/AmazonSQSFullAccess group=AwlessReadWritePermissionsGroup 
+attach policy arn=arn:aws:iam::aws:policy/AmazonVPCFullAccess group=AwlessReadWritePermissionsGroup
+attach policy arn=arn:aws:iam::aws:policy/AutoScalingFullAccess group=AwlessReadWritePermissionsGroup
+attach policy arn=arn:aws:iam::aws:policy/AmazonRDSFullAccess group=AwlessReadWritePermissionsGroup
+attach policy arn=arn:aws:iam::aws:policy/AmazonRoute53FullAccess group=AwlessReadWritePermissionsGroup
+
+# Note that we keep the IAM access readonly
+attach policy arn=arn:aws:iam::aws:policy/IAMReadOnlyAccess group=AwlessReadWritePermissionsGroup
