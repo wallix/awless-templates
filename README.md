@@ -20,19 +20,78 @@ You can run the verification locally with:
 # Examples
 
 
+* [Awless readonly group](#awless-readonly-group)
+* [Awless readwrite group](#awless-readwrite-group)
 * [Ebs infra](#ebs-infra)
 * [Instance ssh](#instance-ssh)
 * [Instance with awless](#instance-with-awless)
 * [Kafka infra](#kafka-infra)
+* [Policies on role](#policies-on-role)
 * [Private subnet](#private-subnet)
 * [Public subnet](#public-subnet)
-* [Readonly role for resource](#readonly-role-for-resource)
-* [Readonly role for user](#readonly-role-for-user)
+* [Role for resource](#role-for-resource)
+* [Role for user](#role-for-user)
 * [Simple infra](#simple-infra)
 * [User](#user)
 * [Vpc](#vpc)
 * [Wordpress ha](#wordpress-ha)
 
+
+### Awless readonly group
+ Here we define a group that allow users in that group
+ to use the `awless` CLI in a readonly mode (i.e. sync, listing).
+
+ Create the group:
+
+```sh
+create group name=AwlessReadOnlyPermissionsGroup
+
+```
+ Attach corresponding readonly AWS policies (set of permissions) on group related to the `awless` services:
+
+```sh
+attach policy arn=arn:aws:iam::aws:policy/AmazonEC2ReadOnlyAccess group=AwlessReadOnlyPermissionsGroup
+attach policy arn=arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess group=AwlessReadOnlyPermissionsGroup
+attach policy arn=arn:aws:iam::aws:policy/AmazonSNSReadOnlyAccess group=AwlessReadOnlyPermissionsGroup
+attach policy arn=arn:aws:iam::aws:policy/AmazonSQSReadOnlyAccess group=AwlessReadOnlyPermissionsGroup
+attach policy arn=arn:aws:iam::aws:policy/AmazonVPCReadOnlyAccess group=AwlessReadOnlyPermissionsGroup
+attach policy arn=arn:aws:iam::aws:policy/AutoScalingReadOnlyAccess group=AwlessReadOnlyPermissionsGroup
+attach policy arn=arn:aws:iam::aws:policy/IAMReadOnlyAccess group=AwlessReadOnlyPermissionsGroup
+attach policy arn=arn:aws:iam::aws:policy/AmazonRDSReadOnlyAccess group=AwlessReadOnlyPermissionsGroup
+attach policy arn=arn:aws:iam::aws:policy/AmazonRoute53ReadOnlyAccess group=AwlessReadOnlyPermissionsGroup
+```
+
+Run it locally with: `awless run repo:awless_readonly_group -v`
+
+### Awless readwrite group
+ Here we define a group that allow users in that group to use the `awless` CLI in write mode.
+
+ Create the group:
+
+```sh
+create group name=AwlessReadWritePermissionsGroup
+
+```
+ Attach corresponding AWS policies (set of permissions) on group related to the `awless` services:
+
+```sh
+attach policy arn=arn:aws:iam::aws:policy/AmazonEC2FullAccess group=AwlessReadWritePermissionsGroup
+attach policy arn=arn:aws:iam::aws:policy/AmazonS3FullAccess group=AwlessReadWritePermissionsGroup
+attach policy arn=arn:aws:iam::aws:policy/AmazonSNSFullAccess group=AwlessReadWritePermissionsGroup
+attach policy arn=arn:aws:iam::aws:policy/AmazonSQSFullAccess group=AwlessReadWritePermissionsGroup
+attach policy arn=arn:aws:iam::aws:policy/AmazonVPCFullAccess group=AwlessReadWritePermissionsGroup
+attach policy arn=arn:aws:iam::aws:policy/AutoScalingFullAccess group=AwlessReadWritePermissionsGroup
+attach policy arn=arn:aws:iam::aws:policy/AmazonRDSFullAccess group=AwlessReadWritePermissionsGroup
+attach policy arn=arn:aws:iam::aws:policy/AmazonRoute53FullAccess group=AwlessReadWritePermissionsGroup
+
+```
+ Note that we keep the IAM access readonly
+
+```sh
+attach policy arn=arn:aws:iam::aws:policy/IAMReadOnlyAccess group=AwlessReadWritePermissionsGroup
+```
+
+Run it locally with: `awless run repo:awless_readwrite_group -v`
 
 ### Ebs infra
 
@@ -63,7 +122,7 @@ Run it locally with: `awless run repo:instance_ssh -v`
  (retrieve the account id with `awless whoami`)
 
 ```sh
-create role name=AwlessReadonlyRole principal-service="ec2.amazonaws.com"
+create role name=AwlessReadonlyRole principal-service="ec2.amazonaws.com" sleep-after=10
 
 ```
  Attach typical necessary awless readonly permissions to the role
@@ -145,6 +204,27 @@ attach securitygroup id=$api-firewall instance=$collector
 
 Run it locally with: `awless run repo:kafka_infra -v`
 
+### Policies on role
+ When you want your users to have a set of permissions, instead of attaching
+ permissions directly on users it is a good practice and simpler to define a group having
+ those permissions and then adding/removing as needed users from those groups.
+
+ Attach a set of readonly AWS policies (set of permissions) on group:
+
+```sh
+attach policy arn=arn:aws:iam::aws:policy/AmazonEC2ReadOnlyAccess group={group-name}
+attach policy arn=arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess group={group-name}
+attach policy arn=arn:aws:iam::aws:policy/AmazonSNSReadOnlyAccess group={group-name}
+attach policy arn=arn:aws:iam::aws:policy/AmazonSQSReadOnlyAccess group={group-name}
+attach policy arn=arn:aws:iam::aws:policy/AmazonVPCReadOnlyAccess group={group-name}
+attach policy arn=arn:aws:iam::aws:policy/AutoScalingReadOnlyAccess group={group-name}
+attach policy arn=arn:aws:iam::aws:policy/IAMReadOnlyAccess group={group-name}
+attach policy arn=arn:aws:iam::aws:policy/AmazonRDSReadOnlyAccess group={group-name}
+attach policy arn=arn:aws:iam::aws:policy/AmazonRoute53ReadOnlyAccess group={group-name}
+```
+
+Run it locally with: `awless run repo:policies_on_role -v`
+
 ### Private subnet
 
 ```sh
@@ -165,7 +245,7 @@ create route cidr=0.0.0.0/0 gateway={vpc.gateway} table=$rtable
 
 Run it locally with: `awless run repo:public_subnet -v`
 
-### Readonly role for resource
+### Role for resource
  Create a AWS role that applies on a resource
  (retrieve the account id with `awless whoami`)
 
@@ -187,9 +267,9 @@ attach policy role={role-name} arn=arn:aws:iam::aws:policy/AmazonRDSReadOnlyAcce
 attach policy role={role-name} arn=arn:aws:iam::aws:policy/AmazonRoute53ReadOnlyAccess
 ```
 
-Run it locally with: `awless run repo:readonly_role_for_resource -v`
+Run it locally with: `awless run repo:role_for_resource -v`
 
-### Readonly role for user
+### Role for user
  Create a AWS role that has a AWS account id as principal
  (retrieve the account id with `awless whoami`)
 
@@ -218,7 +298,7 @@ attach policy role={role-name} arn=arn:aws:iam::aws:policy/AmazonRoute53ReadOnly
 create policy name={assume-policy-name} effect=Allow action=sts:AssumeRole resource=$accountRole
 ```
 
-Run it locally with: `awless run repo:readonly_role_for_user -v`
+Run it locally with: `awless run repo:role_for_user -v`
 
 ### Simple infra
 
