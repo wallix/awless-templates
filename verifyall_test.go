@@ -7,8 +7,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	aws "github.com/wallix/awless/aws/driver"
 	"github.com/wallix/awless/template"
+	"github.com/wallix/awless/aws/driver"
 )
 
 func TestCompileAllTemplates(t *testing.T) {
@@ -37,12 +37,7 @@ func TestCompileAllTemplates(t *testing.T) {
 	}
 
 	for name, tpl := range templates {
-		env := template.NewEnv()
-		env.DefLookupFunc = func(key string) (tpl template.Definition, ok bool) {
-			tpl, ok = aws.AWSTemplatesDefinitions[key]
-			return
-		}
-		if _, _, err := template.Compile(tpl, env); err != nil {
+		if _, _, err := template.Compile(tpl, awsdriver.DefaultTemplateEnv(), template.LenientCompileMode); err != nil {
 			t.Fatalf("cannot compile template '%s'\n%s", name, err)
 		} else {
 			log.Printf("successfully parsed and compiled '%s'\n", name)
