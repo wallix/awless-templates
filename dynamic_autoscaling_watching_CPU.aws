@@ -1,0 +1,21 @@
+# Create an autoscaling group of instance and watch their CPU to dynamically allocate/delete instances when needed.
+
+# Create the instances launch configuration
+launchconfig = create launchconfiguration image={instance.image} keypair={instance.keypair} name=autoscaling-instances-launchconfig type={instance.type}
+
+# Create the scalinggroup
+create scalinggroup desired-capacity=2 launchconfiguration=$launchconfig max-size={instance.max-number} min-size={instance.min-number} name=autoscaling-instances-group subnets={instance.subnets}
+
+# Create a scaling policy to add instances (scale-in) and a scaling policy to remove instances (scale-out)
+scalein = create scalingpolicy adjustment-scaling=1 adjustment-type=ChangeInCapacity name=policy-scaling-in scalinggroup=autoscaling-instances-group
+scaleout = create scalingpolicy adjustment-scaling=-1 adjustment-type=ChangeInCapacity name=policy-step-scaling-2 scalinggroup=autoscaling-instances-group
+
+# Add a monitoring alarm to enable scalein when CPU load is above 75% during 2 * 5 min 
+create alarm namespace=AWS/EC2 dimensions=AutoScalingGroupName:autoscaling-instances-group evaluation-periods=2 metric=CPUUtilization name=monitoring-scaling-group-scalein operator=GreaterThanOrEqualToThreshold period=300 statistic-function=Average threshold=75
+
+attach alarm name=monitoring-scaling-group-scalein action-arn=$scalein
+
+# Add a monitoring alarm to enable scaleout when CPU load is below 75% during 2 * 5 min 
+create alarm namespace=AWS/EC2 dimensions=AutoScalingGroupName:autoscaling-instances-group evaluation-periods=2 metric=CPUUtilization name=monitoring-scaling-group-scaleout operator=LessThanOrEqualToThreshold period=300 statistic-function=Average threshold=75
+
+attach alarm name=monitoring-scaling-group-scaleout action-arn=$scaleout

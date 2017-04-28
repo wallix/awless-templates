@@ -22,6 +22,7 @@ You can run the verification locally with:
 
 * [Awless readonly group](#awless-readonly-group)
 * [Awless readwrite group](#awless-readwrite-group)
+* [Dynamic autoscaling watching CPU](#dynamic-autoscaling-watching-CPU)
 * [Ebs infra](#ebs-infra)
 * [Instance ssh](#instance-ssh)
 * [Instance with awless](#instance-with-awless)
@@ -92,6 +93,43 @@ attach policy arn=arn:aws:iam::aws:policy/IAMReadOnlyAccess group=AwlessReadWrit
 ```
 
 Run it locally with: `awless run repo:awless_readwrite_group -v`
+
+### Dynamic autoscaling watching CPU
+ Create an autoscaling group of instance and watch their CPU to dynamically allocate/delete instances when needed.
+ Create the instances launch configuration
+
+```sh
+launchconfig = create launchconfiguration image={instance.image} keypair={instance.keypair} name=autoscaling-instances-launchconfig type={instance.type}
+
+```
+ Create the scalinggroup
+
+```sh
+create scalinggroup desired-capacity=2 launchconfiguration=$launchconfig max-size={instance.max-number} min-size={instance.min-number} name=autoscaling-instances-group subnets={instance.subnets}
+
+```
+ Create a scaling policy to add instances (scale-in) and a scaling policy to remove instances (scale-out)
+
+```sh
+scalein = create scalingpolicy adjustment-scaling=1 adjustment-type=ChangeInCapacity name=policy-scaling-in scalinggroup=autoscaling-instances-group
+scaleout = create scalingpolicy adjustment-scaling=-1 adjustment-type=ChangeInCapacity name=policy-step-scaling-2 scalinggroup=autoscaling-instances-group
+
+```
+ Add a monitoring alarm to enable scalein when CPU load is above 75% during 2 * 5 min
+
+```sh
+create alarm namespace=AWS/EC2 dimensions=AutoScalingGroupName:autoscaling-instances-group evaluation-periods=2 metric=CPUUtilization name=monitoring-scaling-group-scalein operator=GreaterThanOrEqualToThreshold period=300 statistic-function=Average threshold=75
+attach alarm name=monitoring-scaling-group-scalein action-arn=$scalein
+
+```
+ Add a monitoring alarm to enable scaleout when CPU load is below 75% during 2 * 5 min
+
+```sh
+create alarm namespace=AWS/EC2 dimensions=AutoScalingGroupName:autoscaling-instances-group evaluation-periods=2 metric=CPUUtilization name=monitoring-scaling-group-scaleout operator=LessThanOrEqualToThreshold period=300 statistic-function=Average threshold=75
+attach alarm name=monitoring-scaling-group-scaleout action-arn=$scaleout
+```
+
+Run it locally with: `awless run repo:dynamic_autoscaling_watching_CPU -v`
 
 ### Ebs infra
 
@@ -174,22 +212,22 @@ update securitygroup id=$api-firewall inbound=authorize protocol=tcp cidr=0.0.0.
  Create Kafka broker instances
 
 ```sh
-broker_1 = create instance name=broker_1 image=ami-3f1bd150 keypair={keypair.name} subnet={main.subnet} securitygroup=$ssh-firewall userdata=https://gist.githubusercontent.com/simcap/360dffae4c6d76ab0e89621dd824a244/raw/521712fe118d7656a1d5757db1444bb7596ff5ae/launchinstance.sh
-broker_2 = create instance name=broker_2 image=ami-3f1bd150 keypair={keypair.name} subnet={main.subnet} securitygroup=$ssh-firewall userdata=https://gist.githubusercontent.com/simcap/360dffae4c6d76ab0e89621dd824a244/raw/521712fe118d7656a1d5757db1444bb7596ff5ae/launchinstance.sh
-broker_3 = create instance name=broker_3 image=ami-3f1bd150 keypair={keypair.name} subnet={main.subnet} securitygroup=$ssh-firewall userdata=https://gist.githubusercontent.com/simcap/360dffae4c6d76ab0e89621dd824a244/raw/521712fe118d7656a1d5757db1444bb7596ff5ae/launchinstance.sh
+broker_1 = create instance name=broker_1 image=ami-3f1bd150 keypair={keypair.name} subnet={main.subnet} securitygroup=$ssh-firewall userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/minimal_python.yml
+broker_2 = create instance name=broker_2 image=ami-3f1bd150 keypair={keypair.name} subnet={main.subnet} securitygroup=$ssh-firewall userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/minimal_python.yml
+broker_3 = create instance name=broker_3 image=ami-3f1bd150 keypair={keypair.name} subnet={main.subnet} securitygroup=$ssh-firewall userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/minimal_python.yml
 
 ```
  Create Zookeeper instance
 
 ```sh
-zookeeper = create instance name=zookeeper image=ami-3f1bd150 keypair={keypair.name} subnet={main.subnet} securitygroup=$ssh-firewall userdata=https://gist.githubusercontent.com/simcap/360dffae4c6d76ab0e89621dd824a244/raw/521712fe118d7656a1d5757db1444bb7596ff5ae/launchinstance.sh
+zookeeper = create instance name=zookeeper image=ami-3f1bd150 keypair={keypair.name} subnet={main.subnet} securitygroup=$ssh-firewall userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/minimal_python.yml
 
 ```
  Create collector and consumer instance
 
 ```sh
-collector = create instance name=collector image=ami-3f1bd150 keypair={keypair.name} subnet={main.subnet} securitygroup=$ssh-firewall userdata=https://gist.githubusercontent.com/simcap/360dffae4c6d76ab0e89621dd824a244/raw/521712fe118d7656a1d5757db1444bb7596ff5ae/launchinstance.sh
-create instance name=consumers image=ami-3f1bd150 keypair={keypair.name} subnet={main.subnet} userdata=https://gist.githubusercontent.com/simcap/360dffae4c6d76ab0e89621dd824a244/raw/521712fe118d7656a1d5757db1444bb7596ff5ae/launchinstance.sh
+collector = create instance name=collector image=ami-3f1bd150 keypair={keypair.name} subnet={main.subnet} securitygroup=$ssh-firewall userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/minimal_python.yml
+create instance name=consumers image=ami-3f1bd150 keypair={keypair.name} subnet={main.subnet} userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/minimal_python.yml
 
 ```
  Update instances with corresponding securitygroups
