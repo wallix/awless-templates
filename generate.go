@@ -165,5 +165,5 @@ func humanize(s string) string {
 }
 
 func markdownTitleLink(s string) string {
-	return strings.ToLower(strings.Replace(s, "_", "-", -1))
+	return strings.ToLower(strings.Replace(s, " ", "-", -1))
 }

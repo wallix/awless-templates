@@ -20,7 +20,7 @@ You can run the verification locally with:
 # Examples
 
 {{range $index, $example := .}}
-* [{{$example.Title}}](#{{ MarkdownTitleLink $example.Name }}){{end}}
+* [{{$example.Title}}](#{{ MarkdownTitleLink $example.Title }}){{end}}
 
 {{range $index, $example := .}}
 ### {{$example.Title}}

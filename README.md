@@ -22,7 +22,7 @@ You can run the verification locally with:
 
 * [Awless readonly group](#awless-readonly-group)
 * [Awless readwrite group](#awless-readwrite-group)
-* [Group of instances scaling with CPU consumption](#dynamic-autoscaling-watching-cpu)
+* [Group of instances scaling with CPU consumption](#group-of-instances-scaling-with-cpu-consumption)
 * [Ebs infra](#ebs-infra)
 * [Instance ssh](#instance-ssh)
 * [Instance with awless](#instance-with-awless)
