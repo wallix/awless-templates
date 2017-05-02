@@ -22,7 +22,7 @@ You can run the verification locally with:
 
 * [Awless readonly group](#awless-readonly-group)
 * [Awless readwrite group](#awless-readwrite-group)
-* [Dynamic autoscaling watching CPU](#dynamic-autoscaling-watching-CPU)
+* [Group of instances scaling with CPU consumption](#dynamic-autoscaling-watching-cpu)
 * [Ebs infra](#ebs-infra)
 * [Instance ssh](#instance-ssh)
 * [Instance with awless](#instance-with-awless)
@@ -39,6 +39,12 @@ You can run the verification locally with:
 
 
 ### Awless readonly group
+
+
+
+
+
+
  Here we define a group that allow users in that group
  to use the `awless` CLI in a readonly mode (i.e. sync, listing).
 
@@ -62,9 +68,16 @@ attach policy arn=arn:aws:iam::aws:policy/AmazonRDSReadOnlyAccess group=AwlessRe
 attach policy arn=arn:aws:iam::aws:policy/AmazonRoute53ReadOnlyAccess group=AwlessReadOnlyPermissionsGroup
 ```
 
+
 Run it locally with: `awless run repo:awless_readonly_group -v`
 
 ### Awless readwrite group
+
+
+
+
+
+
  Here we define a group that allow users in that group to use the `awless` CLI in write mode.
 
  Create the group:
@@ -92,46 +105,64 @@ attach policy arn=arn:aws:iam::aws:policy/AmazonRoute53FullAccess group=AwlessRe
 attach policy arn=arn:aws:iam::aws:policy/IAMReadOnlyAccess group=AwlessReadWritePermissionsGroup
 ```
 
+
 Run it locally with: `awless run repo:awless_readwrite_group -v`
 
-### Dynamic autoscaling watching CPU
- Create an autoscaling group of instance and watch their CPU to dynamically allocate/delete instances when needed.
+### Group of instances scaling with CPU consumption
+
+
+*Create an autoscaling group of instances and watch their CPU to dynamically allocate/delete instances when needed.*
+
+
+
+**tags**: 
+infra, autoscaling
+
+
+
  Create the instances launch configuration
 
 ```sh
-launchconfig = create launchconfiguration image={instance.image} keypair={instance.keypair} name=autoscaling-instances-launchconfig type={instance.type}
+launchconfig = create launchconfiguration image={instance.image} keypair={instance.keypair} name=scalingLaunchConf type={instance.type}
 
 ```
  Create the scalinggroup
 
 ```sh
-create scalinggroup desired-capacity=2 launchconfiguration=$launchconfig max-size={instance.max-number} min-size={instance.min-number} name=autoscaling-instances-group subnets={instance.subnets}
+create scalinggroup desired-capacity=2 launchconfiguration=$launchconfig max-size={instance.max-number} min-size={instance.min-number} name=instancesScalingGroup subnets={instance.subnets}
 
 ```
  Create a scaling policy to add instances (scale-in) and a scaling policy to remove instances (scale-out)
 
 ```sh
-scalein = create scalingpolicy adjustment-scaling=1 adjustment-type=ChangeInCapacity name=policy-scaling-in scalinggroup=autoscaling-instances-group
-scaleout = create scalingpolicy adjustment-scaling=-1 adjustment-type=ChangeInCapacity name=policy-step-scaling-2 scalinggroup=autoscaling-instances-group
+scalein = create scalingpolicy adjustment-scaling=1 adjustment-type=ChangeInCapacity name=policy-scaling-in scalinggroup=instancesScalingGroup
+scaleout = create scalingpolicy adjustment-scaling=-1 adjustment-type=ChangeInCapacity name=policy-step-scaling-2 scalinggroup=instancesScalingGroup
 
 ```
  Add a monitoring alarm to enable scalein when CPU load is above 75% during 2 * 5 min
 
 ```sh
-create alarm namespace=AWS/EC2 dimensions=AutoScalingGroupName:autoscaling-instances-group evaluation-periods=2 metric=CPUUtilization name=monitoring-scaling-group-scalein operator=GreaterThanOrEqualToThreshold period=300 statistic-function=Average threshold=75
-attach alarm name=monitoring-scaling-group-scalein action-arn=$scalein
+create alarm namespace=AWS/EC2 dimensions=AutoScalingGroupName:instancesScalingGroup evaluation-periods=2 metric=CPUUtilization name=scaleinAlarm operator=GreaterThanOrEqualToThreshold period=300 statistic-function=Average threshold=75
+attach alarm name=scaleinAlarm action-arn=$scalein
 
 ```
  Add a monitoring alarm to enable scaleout when CPU load is below 75% during 2 * 5 min
 
 ```sh
-create alarm namespace=AWS/EC2 dimensions=AutoScalingGroupName:autoscaling-instances-group evaluation-periods=2 metric=CPUUtilization name=monitoring-scaling-group-scaleout operator=LessThanOrEqualToThreshold period=300 statistic-function=Average threshold=75
-attach alarm name=monitoring-scaling-group-scaleout action-arn=$scaleout
+create alarm namespace=AWS/EC2 dimensions=AutoScalingGroupName:instancesScalingGroup evaluation-periods=2 metric=CPUUtilization name=scaleoutAlarm operator=LessThanOrEqualToThreshold period=300 statistic-function=Average threshold=75
+attach alarm name=scaleoutAlarm action-arn=$scaleout
 ```
+
 
 Run it locally with: `awless run repo:dynamic_autoscaling_watching_CPU -v`
 
 ### Ebs infra
+
+
+
+
+
+
 
 ```sh
 myvpc = create vpc cidr=10.0.0.0/24
@@ -142,9 +173,16 @@ create instance subnet=$mysubnet image={instance.image} type={instance.type} key
 create volume availabilityzone=eu-west-1a size=1
 ```
 
+
 Run it locally with: `awless run repo:ebs_infra -v`
 
 ### Instance ssh
+
+
+
+
+
+
 
 ```sh
 securitygroup = create securitygroup vpc={instance.vpc} description={securitygroup.description} name=ssh-from-internet
@@ -153,9 +191,16 @@ keypair = create keypair name={keypair.name}
 create instance subnet={instance.subnet} image={instance.image} type={instance.type} keypair=$keypair name={instance.name} count=1 securitygroup=$securitygroup
 ```
 
+
 Run it locally with: `awless run repo:instance_ssh -v`
 
 ### Instance with awless
+
+
+
+
+
+
  Create a AWS role that applies on a resource
  (retrieve the account id with `awless whoami`)
 
@@ -183,9 +228,16 @@ attach policy role=AwlessReadonlyRole arn=arn:aws:iam::aws:policy/AmazonRoute53R
 create instance name=awless-commander type=t2.nano keypair={ssh.keypair} userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/install_awless.sh role=AwlessReadonlyRole
 ```
 
+
 Run it locally with: `awless run repo:instance_with_awless -v`
 
 ### Kafka infra
+
+
+
+
+
+
  Create securitygroup for SSH: opening port 22 for all IPs
 
 ```sh
@@ -240,9 +292,16 @@ attach securitygroup id=$kafka-firewall instance=$zookeeper
 attach securitygroup id=$api-firewall instance=$collector
 ```
 
+
 Run it locally with: `awless run repo:kafka_infra -v`
 
 ### Policies on role
+
+
+
+
+
+
  When you want your users to have a set of permissions, instead of attaching
  permissions directly on users it is a good practice and simpler to define a group having
  those permissions and then adding/removing as needed users from those groups.
@@ -261,17 +320,31 @@ attach policy arn=arn:aws:iam::aws:policy/AmazonRDSReadOnlyAccess group={group-n
 attach policy arn=arn:aws:iam::aws:policy/AmazonRoute53ReadOnlyAccess group={group-name}
 ```
 
+
 Run it locally with: `awless run repo:policies_on_role -v`
 
 ### Private subnet
+
+
+
+
+
+
 
 ```sh
 create subnet cidr={subnet.cidr} vpc={subnet.vpc} name={subnet.name}
 ```
 
+
 Run it locally with: `awless run repo:private_subnet -v`
 
 ### Public subnet
+
+
+
+
+
+
 
 ```sh
 subnet = create subnet cidr={subnet.cidr} vpc={subnet.vpc} name={subnet.name}
@@ -281,9 +354,16 @@ attach routetable id=$rtable subnet=$subnet
 create route cidr=0.0.0.0/0 gateway={vpc.gateway} table=$rtable
 ```
 
+
 Run it locally with: `awless run repo:public_subnet -v`
 
 ### Role for resource
+
+
+
+
+
+
  Create a AWS role that applies on a resource
  (retrieve the account id with `awless whoami`)
 
@@ -305,9 +385,16 @@ attach policy role={role-name} arn=arn:aws:iam::aws:policy/AmazonRDSReadOnlyAcce
 attach policy role={role-name} arn=arn:aws:iam::aws:policy/AmazonRoute53ReadOnlyAccess
 ```
 
+
 Run it locally with: `awless run repo:role_for_resource -v`
 
 ### Role for user
+
+
+
+
+
+
  Create a AWS role that has a AWS account id as principal
  (retrieve the account id with `awless whoami`)
 
@@ -336,9 +423,16 @@ attach policy role={role-name} arn=arn:aws:iam::aws:policy/AmazonRoute53ReadOnly
 create policy name={assume-policy-name} effect=Allow action=sts:AssumeRole resource=$accountRole
 ```
 
+
 Run it locally with: `awless run repo:role_for_user -v`
 
 ### Simple infra
+
+
+
+
+
+
 
 ```sh
 myvpc = create vpc cidr={vpc.cidr} name={vpc.name}
@@ -346,18 +440,32 @@ mysubnet = create subnet cidr={subnet.cidr} vpc=$myvpc
 create instance subnet=$mysubnet image={instance.image} type={instance.type} count={instance.count} name={instance.name}
 ```
 
+
 Run it locally with: `awless run repo:simple_infra -v`
 
 ### User
+
+
+
+
+
+
 
 ```sh
 create user name={user.name}
 create accesskey user={user.name}
 ```
 
+
 Run it locally with: `awless run repo:user -v`
 
 ### Vpc
+
+
+
+
+
+
 
 ```sh
 vpc = create vpc cidr={vpc.cidr} name={vpc.name}
@@ -365,9 +473,16 @@ gateway = create internetgateway
 attach internetgateway id=$gateway vpc=$vpc
 ```
 
+
 Run it locally with: `awless run repo:vpc -v`
 
 ### Wordpress ha
+
+
+
+
+
+
  Loadbalancer
  Create the loadbalancer firewall
 
@@ -405,5 +520,6 @@ check instance id=$inst2 state=running timeout=180
 attach instance id=$inst1 targetgroup=$targetgroup
 attach instance id=$inst2 targetgroup=$targetgroup
 ```
+
 
 Run it locally with: `awless run repo:wordpress_ha -v`

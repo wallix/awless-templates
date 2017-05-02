@@ -1,0 +1,87 @@
+[
+ {
+  "Title": "Awless readonly group",
+  "Name": "awless_readonly_group",
+  "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/awless_readonly_group.aws"
+ },
+ {
+  "Title": "Awless readwrite group",
+  "Name": "awless_readwrite_group",
+  "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/awless_readwrite_group.aws"
+ },
+ {
+  "Title": "Group of instances scaling with CPU consumption",
+  "Name": "dynamic_autoscaling_watching_CPU",
+  "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/dynamic_autoscaling_watching_CPU.aws",
+  "Description": "Create an autoscaling group of instances and watch their CPU to dynamically allocate/delete instances when needed.",
+  "Tags": [
+   "infra",
+   "autoscaling"
+  ]
+ },
+ {
+  "Title": "Ebs infra",
+  "Name": "ebs_infra",
+  "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/ebs_infra.aws"
+ },
+ {
+  "Title": "Instance ssh",
+  "Name": "instance_ssh",
+  "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/instance_ssh.aws"
+ },
+ {
+  "Title": "Instance with awless",
+  "Name": "instance_with_awless",
+  "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/instance_with_awless.aws"
+ },
+ {
+  "Title": "Kafka infra",
+  "Name": "kafka_infra",
+  "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/kafka_infra.aws"
+ },
+ {
+  "Title": "Policies on role",
+  "Name": "policies_on_role",
+  "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/policies_on_role.aws"
+ },
+ {
+  "Title": "Private subnet",
+  "Name": "private_subnet",
+  "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/private_subnet.aws"
+ },
+ {
+  "Title": "Public subnet",
+  "Name": "public_subnet",
+  "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/public_subnet.aws"
+ },
+ {
+  "Title": "Role for resource",
+  "Name": "role_for_resource",
+  "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/role_for_resource.aws"
+ },
+ {
+  "Title": "Role for user",
+  "Name": "role_for_user",
+  "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/role_for_user.aws"
+ },
+ {
+  "Title": "Simple infra",
+  "Name": "simple_infra",
+  "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/simple_infra.aws"
+ },
+ {
+  "Title": "User",
+  "Name": "user",
+  "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/user.aws"
+ },
+ {
+  "Title": "Vpc",
+  "Name": "vpc",
+  "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/vpc.aws"
+ },
+ {
+  "Title": "Wordpress ha",
+  "Name": "wordpress_ha",
+  "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/wordpress_ha.aws"
+ }
+]

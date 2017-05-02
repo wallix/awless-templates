@@ -20,10 +20,22 @@ You can run the verification locally with:
 # Examples
 
 {{range $index, $example := .}}
-* [{{$example.Title}}](#{{$example.Link}}){{end}}
+* [{{$example.Title}}](#{{ MarkdownTitleLink $example.Name }}){{end}}
 
 {{range $index, $example := .}}
 ### {{$example.Title}}
-{{$example.Content}}
-Run it locally with: `awless run repo:{{$example.ScriptName}} -v`
+
+{{if $example.Description }}
+*{{ $example.Description }}*
+{{ end }}
+
+{{if $example.Tags }}
+**tags**: 
+{{ Join $example.Tags ", " }}
+{{ end }}
+
+
+{{$example.Documentation}}
+
+Run it locally with: `awless run repo:{{$example.Name}} -v`
 {{end}}
