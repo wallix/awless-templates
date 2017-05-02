@@ -40,6 +40,15 @@
   "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/kafka_infra.aws"
  },
  {
+  "Title": "Create VPC with Linux Bastions",
+  "Name": "linux_bastion",
+  "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/linux_bastion.aws",
+  "Description": "Create an auto-scaling group of Linux bastion instances in 2 public VPC subnets",
+  "Tags": [
+   "infra"
+  ]
+ },
+ {
   "Title": "Policies on role",
   "Name": "policies_on_role",
   "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/policies_on_role.aws"
