@@ -35,6 +35,11 @@
   "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/instance_with_awless.aws"
  },
  {
+  "Title": "Instance with awless scheduler",
+  "Name": "instance_with_awless_scheduler",
+  "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/instance_with_awless_scheduler.aws"
+ },
+ {
   "Title": "Kafka infra",
   "Name": "kafka_infra",
   "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/kafka_infra.aws"
@@ -43,7 +48,7 @@
   "Title": "Create VPC with a Linux host bastion",
   "Name": "linux_bastion",
   "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/linux_bastion.aws",
-  "Description": "This template build this [Architecture](http://docs.aws.amazon.com/quickstart/latest/linux-bastion/architecture.html) expect it only deploys one host bastion on one public subnet",
+  "Description": "This template build this typical Linux bastion [architecture](http://docs.aws.amazon.com/quickstart/latest/linux-bastion/architecture.html) except it only deploys one host bastion on one public subnet",
   "Tags": [
    "infra"
   ]

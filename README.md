@@ -26,6 +26,7 @@ You can run the verification locally with:
 * [Ebs infra](#ebs-infra)
 * [Instance ssh](#instance-ssh)
 * [Instance with awless](#instance-with-awless)
+* [Instance with awless scheduler](#instance-with-awless-scheduler)
 * [Kafka infra](#kafka-infra)
 * [Create VPC with a Linux host bastion](#create-vpc-with-a-linux-host-bastion)
 * [Policies on role](#policies-on-role)
@@ -67,6 +68,7 @@ attach policy arn=arn:aws:iam::aws:policy/AutoScalingReadOnlyAccess group=Awless
 attach policy arn=arn:aws:iam::aws:policy/IAMReadOnlyAccess group=AwlessReadOnlyPermissionsGroup
 attach policy arn=arn:aws:iam::aws:policy/AmazonRDSReadOnlyAccess group=AwlessReadOnlyPermissionsGroup
 attach policy arn=arn:aws:iam::aws:policy/AmazonRoute53ReadOnlyAccess group=AwlessReadOnlyPermissionsGroup
+attach policy arn=arn:aws:iam::aws:policy/AWSLambdaReadOnlyAccess group=AwlessReadOnlyPermissionsGroup
 ```
 
 
@@ -98,6 +100,7 @@ attach policy arn=arn:aws:iam::aws:policy/AmazonVPCFullAccess group=AwlessReadWr
 attach policy arn=arn:aws:iam::aws:policy/AutoScalingFullAccess group=AwlessReadWritePermissionsGroup
 attach policy arn=arn:aws:iam::aws:policy/AmazonRDSFullAccess group=AwlessReadWritePermissionsGroup
 attach policy arn=arn:aws:iam::aws:policy/AmazonRoute53FullAccess group=AwlessReadWritePermissionsGroup
+attach policy arn=arn:aws:iam::aws:policy/AWSLambdaFullAccess group=AwlessReadWritePermissionsGroup
 
 ```
  Note that we keep the IAM access readonly
@@ -221,6 +224,7 @@ attach policy role=AwlessReadonlyRole arn=arn:aws:iam::aws:policy/AutoScalingRea
 attach policy role=AwlessReadonlyRole arn=arn:aws:iam::aws:policy/IAMReadOnlyAccess
 attach policy role=AwlessReadonlyRole arn=arn:aws:iam::aws:policy/AmazonRDSReadOnlyAccess
 attach policy role=AwlessReadonlyRole arn=arn:aws:iam::aws:policy/AmazonRoute53ReadOnlyAccess
+attach policy role=AwlessReadonlyRole arn=arn:aws:iam::aws:policy/AWSLambdaReadOnlyAccess
 
 ```
  Launch new instance running remote user data script installing awless
@@ -231,6 +235,48 @@ create instance name=awless-commander type=t2.nano keypair={ssh.keypair} userdat
 
 
 Run it locally with: `awless run repo:instance_with_awless -v`
+
+### Instance with awless scheduler
+
+
+
+
+
+
+ First we define a role that an EC2 instance can assume to use awless/awless-scheduler (write mode)
+
+```sh
+create role name=AwlessWithSchedulerRole principal-service="ec2.amazonaws.com" sleep-after=10
+
+```
+ Attach typical necessary awless readonly permissions to the role
+
+```sh
+attach policy role=AwlessWithSchedulerRole arn=arn:aws:iam::aws:policy/AmazonEC2FullAccess
+attach policy role=AwlessWithSchedulerRole arn=arn:aws:iam::aws:policy/AmazonS3FullAccess
+attach policy role=AwlessWithSchedulerRole arn=arn:aws:iam::aws:policy/AmazonSNSFullAccess
+attach policy role=AwlessWithSchedulerRole arn=arn:aws:iam::aws:policy/AmazonSQSFullAccess
+attach policy role=AwlessWithSchedulerRole arn=arn:aws:iam::aws:policy/AmazonVPCFullAccess
+attach policy role=AwlessWithSchedulerRole arn=arn:aws:iam::aws:policy/AutoScalingFullAccess
+attach policy role=AwlessWithSchedulerRole arn=arn:aws:iam::aws:policy/AmazonRDSFullAccess
+attach policy role=AwlessWithSchedulerRole arn=arn:aws:iam::aws:policy/AmazonRoute53FullAccess
+attach policy role=AwlessWithSchedulerRole arn=arn:aws:iam::aws:policy/AWSLambdaFullAccess
+
+```
+ We keep IAM on read only mode
+
+```sh
+attach policy role=AwlessWithSchedulerRole arn=arn:aws:iam::aws:policy/IAMReadOnlyAccess
+
+```
+ Launch new instance running remote user data script installing awless
+
+```sh
+create instance name=AwlessWithScheduler type=t2.micro keypair={ssh.keypair} userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/install_awless_suite.sh role=AwlessWithSchedulerRole
+```
+
+
+Run it locally with: `awless run repo:instance_with_awless_scheduler -v`
 
 ### Kafka infra
 
@@ -299,7 +345,7 @@ Run it locally with: `awless run repo:kafka_infra -v`
 ### Create VPC with a Linux host bastion
 
 
-*This template build this [Architecture](http://docs.aws.amazon.com/quickstart/latest/linux-bastion/architecture.html) expect it only deploys one host bastion on one public subnet*
+*This template build this typical Linux bastion [architecture](http://docs.aws.amazon.com/quickstart/latest/linux-bastion/architecture.html) except it only deploys one host bastion on one public subnet*
 
 
 
@@ -317,7 +363,7 @@ attach internetgateway id=$gateway vpc=$vpc
 
 ```
  Create 2 private subnets each on a different availability zone
- That is where you will deploy resources only accessible through the bastions
+ That is where you will deploy resources only accessible through the bastion
 
 ```sh
 create subnet cidr=10.0.0.0/19 name=PrivSubnet1 vpc=$vpc availabilityzone={zone1}
@@ -331,13 +377,13 @@ pubSubnet = create subnet cidr=10.0.128.0/20 name=PubSubnet1 vpc=$vpc availabili
 update subnet id=$pubSubnet public=true
 
 ```
- Make a default route table that has the VPC CIDR by default
+ Create a route table (with routing only allowed within VPC by default)
 
 ```sh
 rtable = create routetable vpc=$vpc
 
 ```
- Make the public subnet use the route table to allow inside traffic
+ Make the public subnet use the route table
 
 ```sh
 attach routetable id=$rtable subnet=$pubSubnet
