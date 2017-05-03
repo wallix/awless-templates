@@ -7,7 +7,7 @@ packages:
  - curl
 
 runcmd:
-  - curl -O https://raw.githubusercontent.com/wallix/awless/master/getawless.sh
-  - bash getawless.sh
-  - mv ./awless /usr/local/bin
+  - [curl, -O, https://raw.githubusercontent.com/wallix/awless/master/getawless.sh]
+  - ./getawless.sh
+  - [mv, ./awless, /usr/local/bin]
   - [echo, 'source <(awless completion bash)', >>, /etc/bashrc]
