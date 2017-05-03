@@ -27,7 +27,7 @@ You can run the verification locally with:
 * [Instance ssh](#instance-ssh)
 * [Instance with awless](#instance-with-awless)
 * [Kafka infra](#kafka-infra)
-* [Create VPC with Linux Bastions](#create-vpc-with-linux-bastions)
+* [Create VPC with a Linux host bastion](#create-vpc-with-a-linux-host-bastion)
 * [Policies on role](#policies-on-role)
 * [Private subnet](#private-subnet)
 * [Public subnet](#public-subnet)
@@ -296,10 +296,10 @@ attach securitygroup id=$api-firewall instance=$collector
 
 Run it locally with: `awless run repo:kafka_infra -v`
 
-### Create VPC with Linux Bastions
+### Create VPC with a Linux host bastion
 
 
-*Create an auto-scaling group of Linux bastion instances in 2 public VPC subnets*
+*This template build this [Architecture](http://docs.aws.amazon.com/quickstart/latest/linux-bastion/architecture.html) expect it only deploys one host bastion on one public subnet*
 
 
 
@@ -308,7 +308,7 @@ infra
 
 
 
- Create a new VPC open to the internet
+ Create a new VPC and make it public with an internet gateway
 
 ```sh
 vpc = create vpc cidr=10.0.0.0/16 name=BastionVpc
@@ -316,7 +316,7 @@ gateway = create internetgateway
 attach internetgateway id=$gateway vpc=$vpc
 
 ```
- Create 2 private subnets each on different availability zone
+ Create 2 private subnets each on a different availability zone
  That is where you will deploy resources only accessible through the bastions
 
 ```sh
@@ -324,26 +324,23 @@ create subnet cidr=10.0.0.0/19 name=PrivSubnet1 vpc=$vpc availabilityzone={zone1
 create subnet cidr=10.0.32.0/19 name=PrivSubnet2 vpc=$vpc availabilityzone={zone2}
 
 ```
- Create one of the public subnet hosting one bastion
+ Create the the public subnet hosting the bastion
 
 ```sh
-pubSubnet1 = create subnet cidr=10.0.128.0/20 name=PubSubnet1 vpc=$vpc availabilityzone={zone1}
-update subnet id=$pubSubnet1 public=true
+pubSubnet = create subnet cidr=10.0.128.0/20 name=PubSubnet1 vpc=$vpc availabilityzone={zone1}
+update subnet id=$pubSubnet public=true
 
 ```
- Create the other public subnet hosting the other bastion
-
-```sh
-pubSubnet2 = create subnet cidr=10.0.144.0/20 name=PubSubnet2 vpc=$vpc availabilityzone={zone2}
-update subnet id=$pubSubnet2 public=true
-
-```
- Make those public subnets reachable
+ Make a default route table that has the VPC CIDR by default
 
 ```sh
 rtable = create routetable vpc=$vpc
-attach routetable id=$rtable subnet=$pubSubnet1
-attach routetable id=$rtable subnet=$pubSubnet2
+
+```
+ Make the public subnet use the route table to allow inside traffic
+
+```sh
+attach routetable id=$rtable subnet=$pubSubnet
 create route cidr=0.0.0.0/0 gateway=$gateway table=$rtable
 
 ```
@@ -355,19 +352,25 @@ update securitygroup id=$bastionSecGroup inbound=authorize protocol=tcp cidr={re
 update securitygroup id=$bastionSecGroup inbound=authorize protocol=icmp cidr={remoteaccess-cidr} portrange=any
 
 ```
- Allow only a set of permissions for the 2 host bastions
+ Allow only a set of permitted actions for the 2 host bastions
 
 ```sh
 create role name=BastionHostRole principal-service=ec2.amazonaws.com sleep-after=30
-bastionEc2Policy = create policy name=BastionEc2Permissions action=ec2:DescribeAddresses,ec2:AssociateAddress resource=all effect=allow
+bastionEc2Policy = create policy name=BastionEc2Permissions action=ec2:DescribeAddresses,ec2:AssociateAddress resource="*" effect=Allow
 attach policy role=BastionHostRole arn=$bastionEc2Policy
+
+```
+ Create one elastic IPs for that will be dynamically aasigned to the host bastion by the bootstrap script
+
+```sh
+create elasticip domain=vpc
 
 ```
  Create the autoscaling group
 
 ```sh
-launchConfig = create launchconfiguration image={bastion.image} keypair={keypair.name} securitygroups=$bastionSecGroup name=BastionHostsLaunchConfig type=t2.micro role=BastionHostRole userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/prepare_bastion.sh
-create scalinggroup desired-capacity=2 launchconfiguration=$launchConfig max-size=2 min-size=2 name=autoscaling-instances-group subnets=$pubSubnet1
+launchConfig = create launchconfiguration image={instance.image} keypair={keypair.name} securitygroups=$bastionSecGroup name=BastionHostsLaunchConfig type=t2.micro role=BastionHostRole userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/prepare_bastion.sh
+scalingGroup = create scalinggroup desired-capacity=1 launchconfiguration=$launchConfig max-size=1 min-size=1 name=autoscaling-instances-group subnets=$pubSubnet
 ```
 
 

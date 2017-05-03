@@ -1,6 +1,6 @@
-# Title: Create VPC with Linux Bastions
+# Title: Create VPC with a Linux host bastion
 # Tags: infra
-# Description: http://docs.aws.amazon.com/quickstart/latest/linux-bastion/architecture.html
+# Description: This template build this [Architecture](http://docs.aws.amazon.com/quickstart/latest/linux-bastion/architecture.html) expect it only deploys one host bastion on one public subnet
 
 # Create a new VPC and make it public with an internet gateway
 vpc = create vpc cidr=10.0.0.0/16 name=BastionVpc
@@ -12,20 +12,15 @@ attach internetgateway id=$gateway vpc=$vpc
 create subnet cidr=10.0.0.0/19 name=PrivSubnet1 vpc=$vpc availabilityzone={zone1}
 create subnet cidr=10.0.32.0/19 name=PrivSubnet2 vpc=$vpc availabilityzone={zone2}
 
-# Create one of the public subnet hosting one bastion
-pubSubnet1 = create subnet cidr=10.0.128.0/20 name=PubSubnet1 vpc=$vpc availabilityzone={zone1}
-update subnet id=$pubSubnet1 public=true
-
-# Create the other public subnet hosting the other bastion
-pubSubnet2 = create subnet cidr=10.0.144.0/20 name=PubSubnet2 vpc=$vpc availabilityzone={zone2}
-update subnet id=$pubSubnet2 public=true
+# Create the the public subnet hosting the bastion
+pubSubnet = create subnet cidr=10.0.128.0/20 name=PubSubnet1 vpc=$vpc availabilityzone={zone1}
+update subnet id=$pubSubnet public=true
 
 # Make a default route table that has the VPC CIDR by default
 rtable = create routetable vpc=$vpc
 
-# Make the 2 public subnets use the route table to allow inside traffic
-attach routetable id=$rtable subnet=$pubSubnet1
-attach routetable id=$rtable subnet=$pubSubnet2
+# Make the public subnet use the route table to allow inside traffic
+attach routetable id=$rtable subnet=$pubSubnet
 
 create route cidr=0.0.0.0/0 gateway=$gateway table=$rtable
 
@@ -36,9 +31,12 @@ update securitygroup id=$bastionSecGroup inbound=authorize protocol=icmp cidr={r
 
 # Allow only a set of permitted actions for the 2 host bastions
 create role name=BastionHostRole principal-service=ec2.amazonaws.com sleep-after=30
-bastionEc2Policy = create policy name=BastionEc2Permissions action=ec2:DescribeAddresses,ec2:AssociateAddress resource=\"*\" effect=allow
+bastionEc2Policy = create policy name=BastionEc2Permissions action=ec2:DescribeAddresses,ec2:AssociateAddress resource="*" effect=Allow
 attach policy role=BastionHostRole arn=$bastionEc2Policy
 
+# Create one elastic IPs for that will be dynamically aasigned to the host bastion by the bootstrap script
+create elasticip domain=vpc
+
 # Create the autoscaling group
-launchConfig = create launchconfiguration image={bastion.image} keypair={keypair.name} securitygroups=$bastionSecGroup name=BastionHostsLaunchConfig type=t2.micro role=BastionHostRole userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/prepare_bastion.sh
-create scalinggroup desired-capacity=2 launchconfiguration=$launchConfig max-size=2 min-size=2 name=autoscaling-instances-group subnets=$pubSubnet1
+launchConfig = create launchconfiguration image={instance.image} keypair={keypair.name} securitygroups=$bastionSecGroup name=BastionHostsLaunchConfig type=t2.micro role=BastionHostRole userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/prepare_bastion.sh
+scalingGroup = create scalinggroup desired-capacity=1 launchconfiguration=$launchConfig max-size=1 min-size=1 name=autoscaling-instances-group subnets=$pubSubnet

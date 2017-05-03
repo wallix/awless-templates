@@ -40,10 +40,10 @@
   "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/kafka_infra.aws"
  },
  {
-  "Title": "Create VPC with Linux Bastions",
+  "Title": "Create VPC with a Linux host bastion",
   "Name": "linux_bastion",
   "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/linux_bastion.aws",
-  "Description": "Create an auto-scaling group of Linux bastion instances in 2 public VPC subnets",
+  "Description": "This template build this [Architecture](http://docs.aws.amazon.com/quickstart/latest/linux-bastion/architecture.html) expect it only deploys one host bastion on one public subnet",
   "Tags": [
    "infra"
   ]
