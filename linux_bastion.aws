@@ -1,6 +1,6 @@
 # Title: Create VPC with a Linux host bastion
 # Tags: infra
-# Description: This template build this [Architecture](http://docs.aws.amazon.com/quickstart/latest/linux-bastion/architecture.html) expect it only deploys one host bastion on one public subnet
+# Description: This template build this typical Linux bastion [architecture](http://docs.aws.amazon.com/quickstart/latest/linux-bastion/architecture.html) except it only deploys one host bastion on one public subnet
 
 # Create a new VPC and make it public with an internet gateway
 vpc = create vpc cidr=10.0.0.0/16 name=BastionVpc
@@ -8,7 +8,7 @@ gateway = create internetgateway
 attach internetgateway id=$gateway vpc=$vpc
 
 # Create 2 private subnets each on a different availability zone
-# That is where you will deploy resources only accessible through the bastions
+# That is where you will deploy resources only accessible through the bastion
 create subnet cidr=10.0.0.0/19 name=PrivSubnet1 vpc=$vpc availabilityzone={zone1}
 create subnet cidr=10.0.32.0/19 name=PrivSubnet2 vpc=$vpc availabilityzone={zone2}
 
@@ -16,10 +16,10 @@ create subnet cidr=10.0.32.0/19 name=PrivSubnet2 vpc=$vpc availabilityzone={zone
 pubSubnet = create subnet cidr=10.0.128.0/20 name=PubSubnet1 vpc=$vpc availabilityzone={zone1}
 update subnet id=$pubSubnet public=true
 
-# Make a default route table that has the VPC CIDR by default
+# Create a route table (with routing only allowed within VPC by default)
 rtable = create routetable vpc=$vpc
 
-# Make the public subnet use the route table to allow inside traffic
+# Make the public subnet use the route table
 attach routetable id=$rtable subnet=$pubSubnet
 
 create route cidr=0.0.0.0/0 gateway=$gateway table=$rtable
