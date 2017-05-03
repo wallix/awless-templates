@@ -14,3 +14,4 @@ attach policy arn=arn:aws:iam::aws:policy/AutoScalingReadOnlyAccess group=Awless
 attach policy arn=arn:aws:iam::aws:policy/IAMReadOnlyAccess group=AwlessReadOnlyPermissionsGroup
 attach policy arn=arn:aws:iam::aws:policy/AmazonRDSReadOnlyAccess group=AwlessReadOnlyPermissionsGroup
 attach policy arn=arn:aws:iam::aws:policy/AmazonRoute53ReadOnlyAccess group=AwlessReadOnlyPermissionsGroup
+attach policy arn=arn:aws:iam::aws:policy/AWSLambdaReadOnlyAccess group=AwlessReadOnlyPermissionsGroup

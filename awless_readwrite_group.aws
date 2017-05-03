@@ -12,6 +12,7 @@ attach policy arn=arn:aws:iam::aws:policy/AmazonVPCFullAccess group=AwlessReadWr
 attach policy arn=arn:aws:iam::aws:policy/AutoScalingFullAccess group=AwlessReadWritePermissionsGroup
 attach policy arn=arn:aws:iam::aws:policy/AmazonRDSFullAccess group=AwlessReadWritePermissionsGroup
 attach policy arn=arn:aws:iam::aws:policy/AmazonRoute53FullAccess group=AwlessReadWritePermissionsGroup
+attach policy arn=arn:aws:iam::aws:policy/AWSLambdaFullAccess group=AwlessReadWritePermissionsGroup
 
 # Note that we keep the IAM access readonly
 attach policy arn=arn:aws:iam::aws:policy/IAMReadOnlyAccess group=AwlessReadWritePermissionsGroup

@@ -12,6 +12,7 @@ attach policy role=AwlessReadonlyRole arn=arn:aws:iam::aws:policy/AutoScalingRea
 attach policy role=AwlessReadonlyRole arn=arn:aws:iam::aws:policy/IAMReadOnlyAccess 
 attach policy role=AwlessReadonlyRole arn=arn:aws:iam::aws:policy/AmazonRDSReadOnlyAccess
 attach policy role=AwlessReadonlyRole arn=arn:aws:iam::aws:policy/AmazonRoute53ReadOnlyAccess 
+attach policy role=AwlessReadonlyRole arn=arn:aws:iam::aws:policy/AWSLambdaReadOnlyAccess 
 
 # Launch new instance running remote user data script installing awless
 create instance name=awless-commander type=t2.nano keypair={ssh.keypair} userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/install_awless.sh role=AwlessReadonlyRole
