@@ -415,7 +415,7 @@ create elasticip domain=vpc
  Create the autoscaling group
 
 ```sh
-launchConfig = create launchconfiguration image={instance.image} keypair={keypair.name} securitygroups=$bastionSecGroup name=BastionHostsLaunchConfig type=t2.micro role=BastionHostRole userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/prepare_bastion.sh
+launchConfig = create launchconfiguration image={instance.image} keypair={keypair.name} securitygroups=$bastionSecGroup name=BastionHostsLaunchConfig type=t2.micro role=BastionHostRole userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/prepare_bastion.yml
 create scalinggroup desired-capacity=1 launchconfiguration=$launchConfig max-size=1 min-size=1 name=autoscaling-instances-group subnets=$pubSubnet
 ```
 
