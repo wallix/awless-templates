@@ -8,9 +8,9 @@ packages:
  - python-pip
 
 runcmd:
-  - [export, "PATH=$PATH:/usr/local/bin"]
-  - [pip, install, --upgrade, pip]
-  - [pip, install, awscli, --ignore-installed, six]
+  - export PATH=$PATH:/usr/local/bin
+  - pip install --upgrade pip
+  - pip install awscli --ignore-installed six
   - [easy_install, "https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-latest.tar.gz"]
   - [curl, -O, "https://s3.amazonaws.com/quickstart-reference/linux/bastion/latest/scripts/bastion_bootstrap.sh"]
-  - [/bin/bash, -s, bastion_bootstrap.sh, --, --tcp-forwarding, true, --enable, false]
+  - /bin/bash bastion_bootstrap.sh -- --tcp-forwarding true --enable false
