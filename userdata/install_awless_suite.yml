@@ -11,6 +11,6 @@ runcmd:
   - [curl, -O, "https://raw.githubusercontent.com/wallix/awless/master/getawless.sh"]
   - [bin/bash, getawless.sh]
   - [mv, ./awless, /usr/local/bin]
-  - [echo, 'source <(awless completion bash)', >>, /etc/bashrc]
+  - [echo, 'source <(awless completion bash)', '>>', /etc/bashrc]
   - [service, docker, start]
   - [docker, run, -d, --name, awless-scheduler, -p, "127.0.0.1:8082:8082", -v, "~/.a:13ws/:/root/.aws:ro", -v, "~/.awless-scheduler:/root/.awless-scheduler", wallix/awless-scheduler]
