@@ -230,7 +230,7 @@ attach policy role=AwlessReadonlyRole arn=arn:aws:iam::aws:policy/AWSLambdaReadO
  Launch new instance running remote user data script installing awless
 
 ```sh
-create instance name=awless-commander type=t2.nano keypair={ssh.keypair} userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/install_awless.sh role=AwlessReadonlyRole
+create instance name=awless-commander type=t2.nano keypair={ssh.keypair} userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/install_awless.yml role=AwlessReadonlyRole
 ```
 
 
@@ -272,7 +272,7 @@ attach policy role=AwlessWithSchedulerRole arn=arn:aws:iam::aws:policy/IAMReadOn
  Launch new instance running remote user data script installing awless
 
 ```sh
-create instance name=AwlessWithScheduler type=t2.micro keypair={ssh.keypair} userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/install_awless_suite.sh role=AwlessWithSchedulerRole
+create instance name=AwlessWithScheduler type=t2.micro keypair={ssh.keypair} userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/install_awless_suite.yml role=AwlessWithSchedulerRole
 ```
 
 
@@ -416,7 +416,7 @@ create elasticip domain=vpc
 
 ```sh
 launchConfig = create launchconfiguration image={instance.image} keypair={keypair.name} securitygroups=$bastionSecGroup name=BastionHostsLaunchConfig type=t2.micro role=BastionHostRole userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/prepare_bastion.sh
-scalingGroup = create scalinggroup desired-capacity=1 launchconfiguration=$launchConfig max-size=1 min-size=1 name=autoscaling-instances-group subnets=$pubSubnet
+create scalinggroup desired-capacity=1 launchconfiguration=$launchConfig max-size=1 min-size=1 name=autoscaling-instances-group subnets=$pubSubnet
 ```
 
 
