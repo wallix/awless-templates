@@ -9,7 +9,7 @@ packages:
 
 runcmd:
   - [curl, -O, "https://raw.githubusercontent.com/wallix/awless/master/getawless.sh"]
-  - /bin/bash, getawless.sh
+  - /bin/bash getawless.sh
   - mv awless /usr/local/bin
   - [sed, -i, "$ a\\source <(awless completion bash)", /etc/bashrc]
   - service docker start
