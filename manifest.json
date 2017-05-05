@@ -84,6 +84,16 @@
   "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/simple_infra.aws"
  },
  {
+  "Title": "Upload Image from local file",
+  "Name": "upload_image",
+  "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/upload_image.aws",
+  "Description": "This template uploads on s3 a local VM file (VHD, OVA, VMDK). Then it creates an AMI from the S3 object.",
+  "Tags": [
+   "infra",
+   "s3"
+  ]
+ },
+ {
   "Title": "User",
   "Name": "user",
   "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/user.aws"

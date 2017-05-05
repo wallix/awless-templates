@@ -35,6 +35,7 @@ You can run the verification locally with:
 * [Role for resource](#role-for-resource)
 * [Role for user](#role-for-user)
 * [Simple infra](#simple-infra)
+* [Upload Image from local file](#upload-image-from-local-file)
 * [User](#user)
 * [Vpc](#vpc)
 * [Wordpress ha](#wordpress-ha)
@@ -569,6 +570,33 @@ create instance subnet=$mysubnet image={instance.image} type={instance.type} cou
 
 
 Run it locally with: `awless run repo:simple_infra -v`
+
+### Upload Image from local file
+
+
+*This template uploads on s3 a local VM file (VHD, OVA, VMDK). Then it creates an AMI from the S3 object.*
+
+
+
+**tags**: 
+infra, s3
+
+
+
+ Upload the image on s3
+
+```sh
+imageObject = create s3object bucket={image.bucket} file={image.filepath}
+
+```
+ Create the AMI from the object on S3
+
+```sh
+import image description={image.description} bucket={image.bucket} s3object=$imageObject
+```
+
+
+Run it locally with: `awless run repo:upload_image -v`
 
 ### User
 
