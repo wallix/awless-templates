@@ -16,4 +16,4 @@ attach policy role=AwlessWithSchedulerRole arn=arn:aws:iam::aws:policy/AWSLambda
 attach policy role=AwlessWithSchedulerRole arn=arn:aws:iam::aws:policy/IAMReadOnlyAccess 
 
 # Launch new instance running remote user data script installing awless
-create instance name=AwlessWithScheduler type=t2.micro keypair={ssh.keypair} userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/install_awless_suite.yml role=AwlessWithSchedulerRole
+create instance name=AwlessWithScheduler type=t2.nano keypair={ssh.keypair} userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/install_awless_suite.yml role=AwlessWithSchedulerRole

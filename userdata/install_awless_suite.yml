@@ -2,6 +2,16 @@
 repo_update: true
 repo_upgrade: all
 
+yum_repos:
+    epel_awless:
+        name: Extra Packages for Enterprise Linux 6 - $basearch
+        baseurl: http://download.fedoraproject.org/pub/epel/6/$basearch
+        mirrorlist: https://mirrors.fedoraproject.org/metalink?repo=epel-6&arch=$basearch
+        failovermethod: priority
+        enabled: true
+        gpgcheck: true
+        gpgkey: file:///etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-6
+
 packages:
  - bash-completion
  - curl
