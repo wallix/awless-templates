@@ -40,9 +40,13 @@
   "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/instance_with_awless_scheduler.aws"
  },
  {
-  "Title": "Kafka infra",
+  "Title": "Create a classic Kafka infra",
   "Name": "kafka_infra",
-  "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/kafka_infra.aws"
+  "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/kafka_infra.aws",
+  "Description": "Create a classic Kafka infra: brokers, 1 zookeeper instance",
+  "Tags": [
+   "infra"
+  ]
  },
  {
   "Title": "Create VPC with a Linux host bastion",

@@ -1,32 +1,25 @@
+# Title: Create a classic Kafka infra
+# Tags: infra
+# Description: Create a classic Kafka infra: brokers, 1 zookeeper instance
+
 # Create securitygroup for SSH: opening port 22 for all IPs
-ssh-firewall = create securitygroup vpc={main.vpc} description=ssh-firewall name=ssh-firewall
-update securitygroup id=$ssh-firewall inbound=authorize protocol=tcp cidr=0.0.0.0/0 portrange=22
+sshsecgroup = create securitygroup vpc={main.vpc} description=SSHSecurityGroup name=SSHSecurityGroup
+update securitygroup id=$sshsecgroup inbound=authorize protocol=tcp cidr={remote-access.cdir} portrange=22
 
-# Create securitygroup for Kafka instances: opening port 9092, 2181 for all IPs
-kafka-firewall = create securitygroup vpc={main.vpc} description=kafka-firewall name=kafka-firewall
-update securitygroup id=$kafka-firewall inbound=authorize protocol=tcp cidr=0.0.0.0/0 portrange=2181
-update securitygroup id=$kafka-firewall inbound=authorize protocol=tcp cidr=0.0.0.0/0 portrange=9092
-
-# Create securitygroup for API instances: opening port 80, 443 for all IPs
-api-firewall = create securitygroup vpc={main.vpc} description=api-firewall name=api-firewall
-update securitygroup id=$api-firewall inbound=authorize protocol=tcp cidr=0.0.0.0/0 portrange=443
-update securitygroup id=$api-firewall inbound=authorize protocol=tcp cidr=0.0.0.0/0 portrange=80
-
-# Create Kafka broker instances
-broker_1 = create instance name=broker_1 image=ami-3f1bd150 keypair={keypair.name} subnet={main.subnet} securitygroup=$ssh-firewall userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/minimal_python.yml
-broker_2 = create instance name=broker_2 image=ami-3f1bd150 keypair={keypair.name} subnet={main.subnet} securitygroup=$ssh-firewall userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/minimal_python.yml
-broker_3 = create instance name=broker_3 image=ami-3f1bd150 keypair={keypair.name} subnet={main.subnet} securitygroup=$ssh-firewall userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/minimal_python.yml
+# Create securitygroup for Kafka instances (brokers & zookeeper)
+kafkasecgroup = create securitygroup vpc={main.vpc} description=KafkaSecurityGroup name=KafkaSecurityGroup
+update securitygroup id=$kafkasecgroup inbound=authorize protocol=tcp cidr={subnet.cdir} portrange=0-65535
 
 # Create Zookeeper instance
-zookeeper = create instance name=zookeeper image=ami-3f1bd150 keypair={keypair.name} subnet={main.subnet} securitygroup=$ssh-firewall userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/minimal_python.yml
+zookeeper = create instance name=zookeeper image={instances-redhat-ami} type={zookeeper-instance-type} keypair={keypair.name} subnet={main.subnet} securitygroup=$sshsecgroup userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/redhat/zookeeper.sh
 
-# Create collector and consumer instance
-collector = create instance name=collector image=ami-3f1bd150 keypair={keypair.name} subnet={main.subnet} securitygroup=$ssh-firewall userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/minimal_python.yml
-create instance name=consumers image=ami-3f1bd150 keypair={keypair.name} subnet={main.subnet} userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/minimal_python.yml
+# Create Kafka broker instances. 
+broker_1 = create instance name=broker_1 image={instances-redhat-ami} type={broker-instance-type} keypair={keypair.name} subnet={main.subnet} securitygroup=$sshsecgroup userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/redhat/kafka.sh
+broker_2 = create instance name=broker_2 image={instances-redhat-ami} type={broker-instance-type} keypair={keypair.name} subnet={main.subnet} securitygroup=$sshsecgroup userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/redhat/kafka.sh
+broker_3 = create instance name=broker_3 image={instances-redhat-ami} type={broker-instance-type} keypair={keypair.name} subnet={main.subnet} securitygroup=$sshsecgroup userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/redhat/kafka.sh
 
 # Update instances with corresponding securitygroups
-attach securitygroup id=$kafka-firewall instance=$broker_1
-attach securitygroup id=$kafka-firewall instance=$broker_2
-attach securitygroup id=$kafka-firewall instance=$broker_3
-attach securitygroup id=$kafka-firewall instance=$zookeeper
-attach securitygroup id=$api-firewall instance=$collector
+attach securitygroup id=$kafkasecgroup instance=$broker_1
+attach securitygroup id=$kafkasecgroup instance=$broker_2
+attach securitygroup id=$kafkasecgroup instance=$broker_3
+attach securitygroup id=$kafkasecgroup instance=$zookeeper

@@ -1,7 +1,0 @@
-#cloud-config
-repo_update: true
-repo_upgrade: all
-
-# A Python (< 3.x) install is useful when using Ansible for provisionning
-packages:
- - python-minimal

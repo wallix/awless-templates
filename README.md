@@ -27,7 +27,7 @@ You can run the verification locally with:
 * [Instance ssh](#instance-ssh)
 * [Instance with awless](#instance-with-awless)
 * [Instance with awless scheduler](#instance-with-awless-scheduler)
-* [Kafka infra](#kafka-infra)
+* [Create a classic Kafka infra](#create-a-classic-kafka-infra)
 * [Create VPC with a Linux host bastion](#create-vpc-with-a-linux-host-bastion)
 * [Policies on role](#policies-on-role)
 * [Private subnet](#private-subnet)
@@ -247,97 +247,85 @@ Run it locally with: `awless run repo:instance_with_awless -v`
  First we define a role that an EC2 instance can assume to use awless/awless-scheduler (write mode)
 
 ```sh
-create role name=AwlessWithSchedulerRole principal-service="ec2.amazonaws.com" sleep-after=10
+create role name={awless-scheduler.role-name} principal-service="ec2.amazonaws.com" sleep-after=10
 
 ```
  Attach typical necessary awless readonly permissions to the role
 
 ```sh
-attach policy role=AwlessWithSchedulerRole arn=arn:aws:iam::aws:policy/AmazonEC2FullAccess
-attach policy role=AwlessWithSchedulerRole arn=arn:aws:iam::aws:policy/AmazonS3FullAccess
-attach policy role=AwlessWithSchedulerRole arn=arn:aws:iam::aws:policy/AmazonSNSFullAccess
-attach policy role=AwlessWithSchedulerRole arn=arn:aws:iam::aws:policy/AmazonSQSFullAccess
-attach policy role=AwlessWithSchedulerRole arn=arn:aws:iam::aws:policy/AmazonVPCFullAccess
-attach policy role=AwlessWithSchedulerRole arn=arn:aws:iam::aws:policy/AutoScalingFullAccess
-attach policy role=AwlessWithSchedulerRole arn=arn:aws:iam::aws:policy/AmazonRDSFullAccess
-attach policy role=AwlessWithSchedulerRole arn=arn:aws:iam::aws:policy/AmazonRoute53FullAccess
-attach policy role=AwlessWithSchedulerRole arn=arn:aws:iam::aws:policy/AWSLambdaFullAccess
+attach policy role={awless-scheduler.role-name} arn=arn:aws:iam::aws:policy/AmazonEC2FullAccess
+attach policy role={awless-scheduler.role-name} arn=arn:aws:iam::aws:policy/AmazonS3FullAccess
+attach policy role={awless-scheduler.role-name} arn=arn:aws:iam::aws:policy/AmazonSNSFullAccess
+attach policy role={awless-scheduler.role-name} arn=arn:aws:iam::aws:policy/AmazonSQSFullAccess
+attach policy role={awless-scheduler.role-name} arn=arn:aws:iam::aws:policy/AmazonVPCFullAccess
+attach policy role={awless-scheduler.role-name} arn=arn:aws:iam::aws:policy/AutoScalingFullAccess
+attach policy role={awless-scheduler.role-name} arn=arn:aws:iam::aws:policy/AmazonRDSFullAccess
+attach policy role={awless-scheduler.role-name} arn=arn:aws:iam::aws:policy/AmazonRoute53FullAccess
+attach policy role={awless-scheduler.role-name} arn=arn:aws:iam::aws:policy/AWSLambdaFullAccess
 
 ```
  We keep IAM on read only mode
 
 ```sh
-attach policy role=AwlessWithSchedulerRole arn=arn:aws:iam::aws:policy/IAMReadOnlyAccess
+attach policy role={awless-scheduler.role-name} arn=arn:aws:iam::aws:policy/IAMReadOnlyAccess
 
 ```
  Launch new instance running remote user data script installing awless
 
 ```sh
-create instance name=AwlessWithScheduler type=t2.micro keypair={ssh.keypair} userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/install_awless_suite.yml role=AwlessWithSchedulerRole
+create instance name=AwlessWithScheduler type=t2.nano keypair={ssh.keypair} userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/install_awless_suite.yml role={awless-scheduler.role-name}
 ```
 
 
 Run it locally with: `awless run repo:instance_with_awless_scheduler -v`
 
-### Kafka infra
+### Create a classic Kafka infra
+
+
+*Create a classic Kafka infra: brokers, 1 zookeeper instance*
 
 
 
+**tags**: 
+infra
 
 
 
  Create securitygroup for SSH: opening port 22 for all IPs
 
 ```sh
-ssh-firewall = create securitygroup vpc={main.vpc} description=ssh-firewall name=ssh-firewall
-update securitygroup id=$ssh-firewall inbound=authorize protocol=tcp cidr=0.0.0.0/0 portrange=22
+sshsecgroup = create securitygroup vpc={main.vpc} description=SSHSecurityGroup name=SSHSecurityGroup
+update securitygroup id=$sshsecgroup inbound=authorize protocol=tcp cidr={remote-access.cdir} portrange=22
 
 ```
- Create securitygroup for Kafka instances: opening port 9092, 2181 for all IPs
+ Create securitygroup for Kafka instances (brokers & zookeeper)
 
 ```sh
-kafka-firewall = create securitygroup vpc={main.vpc} description=kafka-firewall name=kafka-firewall
-update securitygroup id=$kafka-firewall inbound=authorize protocol=tcp cidr=0.0.0.0/0 portrange=2181
-update securitygroup id=$kafka-firewall inbound=authorize protocol=tcp cidr=0.0.0.0/0 portrange=9092
-
-```
- Create securitygroup for API instances: opening port 80, 443 for all IPs
-
-```sh
-api-firewall = create securitygroup vpc={main.vpc} description=api-firewall name=api-firewall
-update securitygroup id=$api-firewall inbound=authorize protocol=tcp cidr=0.0.0.0/0 portrange=443
-update securitygroup id=$api-firewall inbound=authorize protocol=tcp cidr=0.0.0.0/0 portrange=80
-
-```
- Create Kafka broker instances
-
-```sh
-broker_1 = create instance name=broker_1 image=ami-3f1bd150 keypair={keypair.name} subnet={main.subnet} securitygroup=$ssh-firewall userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/minimal_python.yml
-broker_2 = create instance name=broker_2 image=ami-3f1bd150 keypair={keypair.name} subnet={main.subnet} securitygroup=$ssh-firewall userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/minimal_python.yml
-broker_3 = create instance name=broker_3 image=ami-3f1bd150 keypair={keypair.name} subnet={main.subnet} securitygroup=$ssh-firewall userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/minimal_python.yml
+kafkasecgroup = create securitygroup vpc={main.vpc} description=KafkaSecurityGroup name=KafkaSecurityGroup
+update securitygroup id=$kafkasecgroup inbound=authorize protocol=tcp cidr={subnet.cdir} portrange=0-65535
 
 ```
  Create Zookeeper instance
 
 ```sh
-zookeeper = create instance name=zookeeper image=ami-3f1bd150 keypair={keypair.name} subnet={main.subnet} securitygroup=$ssh-firewall userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/minimal_python.yml
+zookeeper = create instance name=zookeeper image={instances-redhat-ami} type={zookeeper-instance-type} keypair={keypair.name} subnet={main.subnet} securitygroup=$sshsecgroup userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/redhat/zookeeper.sh
 
 ```
- Create collector and consumer instance
+ Create Kafka broker instances.
 
 ```sh
-collector = create instance name=collector image=ami-3f1bd150 keypair={keypair.name} subnet={main.subnet} securitygroup=$ssh-firewall userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/minimal_python.yml
-create instance name=consumers image=ami-3f1bd150 keypair={keypair.name} subnet={main.subnet} userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/minimal_python.yml
+broker_1 = create instance name=broker_1 image={instances-redhat-ami} type={broker-instance-type} keypair={keypair.name} subnet={main.subnet} securitygroup=$sshsecgroup userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/redhat/kafka.sh
+broker_2 = create instance name=broker_2 image={instances-redhat-ami} type={broker-instance-type} keypair={keypair.name} subnet={main.subnet} securitygroup=$sshsecgroup userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/redhat/kafka.sh
+broker_3 = create instance name=broker_3 image={instances-redhat-ami} type={broker-instance-type} keypair={keypair.name} subnet={main.subnet} securitygroup=$sshsecgroup userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/redhat/kafka.sh
 
 ```
  Update instances with corresponding securitygroups
 
 ```sh
-attach securitygroup id=$kafka-firewall instance=$broker_1
-attach securitygroup id=$kafka-firewall instance=$broker_2
-attach securitygroup id=$kafka-firewall instance=$broker_3
-attach securitygroup id=$kafka-firewall instance=$zookeeper
-attach securitygroup id=$api-firewall instance=$collector
+attach securitygroup id=$kafkasecgroup instance=$broker_1
+attach securitygroup id=$kafkasecgroup instance=$broker_2
+attach securitygroup id=$kafkasecgroup instance=$broker_3
+attach securitygroup id=$kafkasecgroup instance=$zookeeper
 ```
 
 
