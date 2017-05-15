@@ -1,6 +1,6 @@
 #!/bin/bash
 
-yum -y install java wget
+yum -y install unzip java wget
 
 curl https://raw.githubusercontent.com/wallix/awless/master/getawless.sh | bash
 
@@ -9,7 +9,6 @@ ZOOKEEPER_IP=$(awless ls instances --filter name=zookeeper --format tsv | cut -f
 KAFKA_DOWNLOAD=kafka_2.12-0.10.2.1
 
 wget http://apache.mediamirrors.org/kafka/0.10.2.1/$KAFKA_DOWNLOAD.tgz
-
 
 tar -zxvf $KAFKA_DOWNLOAD.tgz -C /opt
 ln -s /opt/$KAFKA_DOWNLOAD /opt/kafka
