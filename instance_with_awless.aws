@@ -1,5 +1,4 @@
 # Create a AWS role that applies on a resource
-# (retrieve the account id with `awless whoami`)
 create role name=AwlessReadonlyRole principal-service="ec2.amazonaws.com" sleep-after=10
 
 # Attach typical necessary awless readonly permissions to the role
