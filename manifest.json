@@ -43,10 +43,8 @@
   "Title": "Create a classic Kafka infra",
   "Name": "kafka_infra",
   "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/kafka_infra.aws",
-  "Description": "Create a classic Kafka infra: brokers, 1 zookeeper instance",
-  "Tags": [
-   "infra"
-  ]
+  "CLIExample": "awless run repo:kafka_infra redhat-ami=$(awless search images redhat --id-only) remote-access.cidr=$(awless whoami --ip-only)/32 broker-instance-type=t2.medium zookeeper-instance-type=t2.medium",
+  "Description": "Create a classic Kafka infra: brokers, 1 zookeeper instance"
  },
  {
   "Title": "Create VPC with a Linux host bastion",

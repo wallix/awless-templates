@@ -75,6 +75,9 @@ attach policy arn=arn:aws:iam::aws:policy/AWSLambdaReadOnlyAccess group=AwlessRe
 
 Run it locally with: `awless run repo:awless_readonly_group -v`
 
+
+
+
 ### Awless readwrite group
 
 
@@ -112,6 +115,9 @@ attach policy arn=arn:aws:iam::aws:policy/IAMReadOnlyAccess group=AwlessReadWrit
 
 
 Run it locally with: `awless run repo:awless_readwrite_group -v`
+
+
+
 
 ### Group of instances scaling with CPU consumption
 
@@ -161,6 +167,9 @@ attach alarm name=scaleoutAlarm action-arn=$scaleout
 
 Run it locally with: `awless run repo:dynamic_autoscaling_watching_CPU -v`
 
+
+
+
 ### Ebs infra
 
 
@@ -181,6 +190,9 @@ create volume availabilityzone=eu-west-1a size=1
 
 Run it locally with: `awless run repo:ebs_infra -v`
 
+
+
+
 ### Instance ssh
 
 
@@ -199,6 +211,9 @@ create instance subnet={instance.subnet} image={instance.image} type={instance.t
 
 Run it locally with: `awless run repo:instance_ssh -v`
 
+
+
+
 ### Instance with awless
 
 
@@ -207,7 +222,6 @@ Run it locally with: `awless run repo:instance_ssh -v`
 
 
  Create a AWS role that applies on a resource
- (retrieve the account id with `awless whoami`)
 
 ```sh
 create role name=AwlessReadonlyRole principal-service="ec2.amazonaws.com" sleep-after=10
@@ -236,6 +250,9 @@ create instance name=awless-commander type=t2.nano keypair={ssh.keypair} userdat
 
 
 Run it locally with: `awless run repo:instance_with_awless -v`
+
+
+
 
 ### Instance with awless scheduler
 
@@ -279,6 +296,9 @@ create instance name=AwlessWithScheduler type=t2.nano keypair={ssh.keypair} user
 
 Run it locally with: `awless run repo:instance_with_awless_scheduler -v`
 
+
+
+
 ### Create a classic Kafka infra
 
 
@@ -286,37 +306,41 @@ Run it locally with: `awless run repo:instance_with_awless_scheduler -v`
 
 
 
-**tags**: 
-infra
-
 
 
  Create securitygroup for SSH: opening port 22 for all IPs
 
 ```sh
 sshsecgroup = create securitygroup vpc={main.vpc} description=SSHSecurityGroup name=SSHSecurityGroup
-update securitygroup id=$sshsecgroup inbound=authorize protocol=tcp cidr={remote-access.cdir} portrange=22
+update securitygroup id=$sshsecgroup inbound=authorize protocol=tcp cidr={remote-access.cidr} portrange=22
 
 ```
  Create securitygroup for Kafka instances (brokers & zookeeper)
 
 ```sh
 kafkasecgroup = create securitygroup vpc={main.vpc} description=KafkaSecurityGroup name=KafkaSecurityGroup
-update securitygroup id=$kafkasecgroup inbound=authorize protocol=tcp cidr={subnet.cdir} portrange=0-65535
+update securitygroup id=$kafkasecgroup inbound=authorize protocol=tcp cidr={subnet.cidr} portrange=0-65535
+
+```
+ Create a role with policy for ec2 resources so that an instance can list other instances using a local `awless`
+
+```sh
+create role name=AwlessEC2ReadonlyRole principal-service="ec2.amazonaws.com" sleep-after=20
+attach policy role=AwlessEC2ReadonlyRole arn=arn:aws:iam::aws:policy/AmazonEC2ReadOnlyAccess
+
+```
+ Create Kafka broker instances with role created above
+
+```sh
+broker_1 = create instance name=broker_1 image={redhat-ami} type={broker-instance-type} keypair={keypair.name} subnet={main.subnet} role=AwlessEC2ReadonlyRole securitygroup=$sshsecgroup userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/redhat/kafka.sh
+broker_2 = create instance name=broker_2 image={redhat-ami} type={broker-instance-type} keypair={keypair.name} subnet={main.subnet} role=AwlessEC2ReadonlyRole securitygroup=$sshsecgroup userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/redhat/kafka.sh
+broker_3 = create instance name=broker_3 image={redhat-ami} type={broker-instance-type} keypair={keypair.name} subnet={main.subnet} role=AwlessEC2ReadonlyRole securitygroup=$sshsecgroup userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/redhat/kafka.sh
 
 ```
  Create Zookeeper instance
 
 ```sh
-zookeeper = create instance name=zookeeper image={instances-redhat-ami} type={zookeeper-instance-type} keypair={keypair.name} subnet={main.subnet} securitygroup=$sshsecgroup userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/redhat/zookeeper.sh
-
-```
- Create Kafka broker instances.
-
-```sh
-broker_1 = create instance name=broker_1 image={instances-redhat-ami} type={broker-instance-type} keypair={keypair.name} subnet={main.subnet} securitygroup=$sshsecgroup userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/redhat/kafka.sh
-broker_2 = create instance name=broker_2 image={instances-redhat-ami} type={broker-instance-type} keypair={keypair.name} subnet={main.subnet} securitygroup=$sshsecgroup userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/redhat/kafka.sh
-broker_3 = create instance name=broker_3 image={instances-redhat-ami} type={broker-instance-type} keypair={keypair.name} subnet={main.subnet} securitygroup=$sshsecgroup userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/redhat/kafka.sh
+zookeeper = create instance name=zookeeper image={redhat-ami} type={zookeeper-instance-type} keypair={keypair.name} subnet={main.subnet} securitygroup=$sshsecgroup userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/redhat/zookeeper.sh
 
 ```
  Update instances with corresponding securitygroups
@@ -330,6 +354,14 @@ attach securitygroup id=$kafkasecgroup instance=$zookeeper
 
 
 Run it locally with: `awless run repo:kafka_infra -v`
+
+
+Full CLI example:
+```sh
+awless run repo:kafka_infra redhat-ami=$(awless search images redhat --id-only) remote-access.cidr=$(awless whoami --ip-only)/32 broker-instance-type=t2.medium zookeeper-instance-type=t2.medium
+```
+
+
 
 ### Create VPC with a Linux host bastion
 
@@ -411,6 +443,9 @@ create scalinggroup desired-capacity=1 launchconfiguration=$launchConfig max-siz
 
 Run it locally with: `awless run repo:linux_bastion -v`
 
+
+
+
 ### Policies on role
 
 
@@ -439,6 +474,9 @@ attach policy arn=arn:aws:iam::aws:policy/AmazonRoute53ReadOnlyAccess group={gro
 
 Run it locally with: `awless run repo:policies_on_role -v`
 
+
+
+
 ### Private subnet
 
 
@@ -453,6 +491,9 @@ create subnet cidr={subnet.cidr} vpc={subnet.vpc} name={subnet.name}
 
 
 Run it locally with: `awless run repo:private_subnet -v`
+
+
+
 
 ### Public subnet
 
@@ -472,6 +513,9 @@ create route cidr=0.0.0.0/0 gateway={vpc.gateway} table=$rtable
 
 
 Run it locally with: `awless run repo:public_subnet -v`
+
+
+
 
 ### Role for resource
 
@@ -503,6 +547,9 @@ attach policy role={role-name} arn=arn:aws:iam::aws:policy/AmazonRoute53ReadOnly
 
 
 Run it locally with: `awless run repo:role_for_resource -v`
+
+
+
 
 ### Role for user
 
@@ -542,6 +589,9 @@ create policy name={assume-policy-name} effect=Allow action=sts:AssumeRole resou
 
 Run it locally with: `awless run repo:role_for_user -v`
 
+
+
+
 ### Simple infra
 
 
@@ -558,6 +608,9 @@ create instance subnet=$mysubnet image={instance.image} type={instance.type} cou
 
 
 Run it locally with: `awless run repo:simple_infra -v`
+
+
+
 
 ### Upload Image from local file
 
@@ -586,6 +639,9 @@ import image description={image.description} bucket={image.bucket} s3object=$ima
 
 Run it locally with: `awless run repo:upload_image -v`
 
+
+
+
 ### User
 
 
@@ -601,6 +657,9 @@ create accesskey user={user.name}
 
 
 Run it locally with: `awless run repo:user -v`
+
+
+
 
 ### Vpc
 
@@ -618,6 +677,9 @@ attach internetgateway id=$gateway vpc=$vpc
 
 
 Run it locally with: `awless run repo:vpc -v`
+
+
+
 
 ### Wordpress ha
 
@@ -666,3 +728,6 @@ attach instance id=$inst2 targetgroup=$targetgroup
 
 
 Run it locally with: `awless run repo:wordpress_ha -v`
+
+
+

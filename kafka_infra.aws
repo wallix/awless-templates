@@ -1,6 +1,6 @@
 # Title: Create a classic Kafka infra
 # Description: Create a classic Kafka infra: brokers, 1 zookeeper instance
-# Example: awless run repo:kafka_infra redhat-ami=$(aw search images redhat --id-only) remote-access.cidr=$(aw whoami --ip-only)/32 broker-instance-type=t2.medium zookeeper-instance-type=t2.medium
+# CLIExample: awless run repo:kafka_infra redhat-ami=$(awless search images redhat --id-only) remote-access.cidr=$(awless whoami --ip-only)/32 broker-instance-type=t2.medium zookeeper-instance-type=t2.medium
 
 # Create securitygroup for SSH: opening port 22 for all IPs
 sshsecgroup = create securitygroup vpc={main.vpc} description=SSHSecurityGroup name=SSHSecurityGroup

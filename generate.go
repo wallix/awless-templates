@@ -13,7 +13,7 @@ import (
 	"text/template"
 )
 
-var metadataTypes = []string{"Title", "Tags", "Description"}
+var metadataTypes = []string{"Title", "Tags", "Description", "CLIExample"}
 var metadataRegex = regexp.MustCompile(fmt.Sprintf("#\\s*(%s):\\s*(.+)\\s*", strings.Join(metadataTypes, "|")))
 
 func main() {
@@ -47,9 +47,9 @@ func main() {
 }
 
 type Example struct {
-	Title, Name, Link, Description string   `json:",omitempty"`
-	Tags                           []string `json:",omitempty"`
-	Documentation                  string   `json:"-"`
+	Title, Name, Link, CLIExample, Description string   `json:",omitempty"`
+	Tags                                       []string `json:",omitempty"`
+	Documentation                              string   `json:"-"`
 }
 
 func buildExamples() ([]*Example, error) {
@@ -96,7 +96,7 @@ func buildExample(filename string) (*Example, error) {
 		}
 	}
 
-	return &Example{Title: title, Link: link, Name: name, Description: rawMetadata["Description"], Tags: tags, Documentation: doc}, nil
+	return &Example{Title: title, Link: link, Name: name, Description: rawMetadata["Description"], CLIExample: rawMetadata["CLIExample"], Tags: tags, Documentation: doc}, nil
 }
 
 func parseMetadata(content []byte) map[string]string {

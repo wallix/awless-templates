@@ -38,4 +38,12 @@ You can run the verification locally with:
 {{$example.Documentation}}
 
 Run it locally with: `awless run repo:{{$example.Name}} -v`
+
+{{if $example.CLIExample }}
+Full CLI example:
+```sh
+{{ $example.CLIExample }}
+```
+{{ end }}
+
 {{end}}
