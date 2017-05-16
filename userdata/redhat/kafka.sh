@@ -2,7 +2,7 @@
 
 yum -y install unzip java wget
 
-curl https://raw.githubusercontent.com/wallix/awless/master/getawless.sh | bash
+curl https://raw.githubusercontent.com/wallix/awless/master/getawless-tip-linux.sh | bash
 
 ZOOKEEPER_IP=$(./awless ls instances --filter name=zookeeper --format tsv | tail -1 | cut -d, -f6)
 
