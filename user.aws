@@ -1,5 +1,8 @@
 # Title: Create a user with its SDK/Shell access key
 # Tags: access, user
 
-create user name={user.name}
-create accesskey user={user.name}
+username = {user.name}
+
+create user name=$username
+create loginprofile username=$username password={user.console-password}
+create accesskey user=$username
