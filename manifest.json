@@ -115,7 +115,7 @@
   ]
  },
  {
-  "Title": "Create a user with its SDK/Shell access key",
+  "Title": "Create a user with its SDK/Shell access key and console password",
   "Name": "user",
   "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/user.aws",
   "Tags": [

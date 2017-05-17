@@ -33,7 +33,7 @@ You can run the verification locally with:
 * [Create a AWS role with usual readonly policies that applies on a resource](#create-a-aws-role-with-usual-readonly-policies-that-applies-on-a-resource)
 * [Create a AWS role with usual readonly policies that applies on a user](#create-a-aws-role-with-usual-readonly-policies-that-applies-on-a-user)
 * [Upload Image from local file](#upload-image-from-local-file)
-* [Create a user with its SDK/Shell access key](#create-a-user-with-its-sdk/shell-access-key)
+* [Create a user with its SDK/Shell access key and console password](#create-a-user-with-its-sdk/shell-access-key-and-console-password)
 * [Create a VPC with its internet routing gateway](#create-a-vpc-with-its-internet-routing-gateway)
 * [Two instances Bitami wordpress behind a loadbalancer ](#two-instances-bitami-wordpress-behind-a-loadbalancer-)
 
@@ -664,7 +664,7 @@ Run it locally with: `awless run repo:upload_image -v`
 
 
 
-### Create a user with its SDK/Shell access key
+### Create a user with its SDK/Shell access key and console password
 
 
 
@@ -676,8 +676,25 @@ access, user
 
 
 ```sh
-create user name={user.name}
-create accesskey user={user.name}
+username = {user.name}
+
+```
+ Create user
+
+```sh
+create user name=$username
+
+```
+ Create AWS Console password
+
+```sh
+create loginprofile username=$username password={user.console-password}
+
+```
+ Create SDK/shell access key
+
+```sh
+create accesskey user=$username
 ```
 
 

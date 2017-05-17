@@ -1,8 +1,13 @@
-# Title: Create a user with its SDK/Shell access key
+# Title: Create a user with its SDK/Shell access key and console password
 # Tags: access, user
 
 username = {user.name}
 
+# Create user
 create user name=$username
+
+# Create AWS Console password
 create loginprofile username=$username password={user.console-password}
+
+# Create SDK/shell access key
 create accesskey user=$username
