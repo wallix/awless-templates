@@ -23,22 +23,19 @@ You can run the verification locally with:
 * [Awless readonly group](#awless-readonly-group)
 * [Awless readwrite group](#awless-readwrite-group)
 * [Group of instances scaling with CPU consumption](#group-of-instances-scaling-with-cpu-consumption)
-* [Ebs infra](#ebs-infra)
-* [Instance ssh](#instance-ssh)
-* [Instance with awless](#instance-with-awless)
-* [Instance with awless scheduler](#instance-with-awless-scheduler)
+* [Create an instance accessible with ssh with a new keypair](#create-an-instance-accessible-with-ssh-with-a-new-keypair)
+* [Create an instance with preinstalled awless with completion](#create-an-instance-with-preinstalled-awless-with-completion)
+* [Create an instance with preconfigured awless and awless-scheduler](#create-an-instance-with-preconfigured-awless-and-awless-scheduler)
 * [Create a classic Kafka infra](#create-a-classic-kafka-infra)
 * [Create VPC with a Linux host bastion](#create-vpc-with-a-linux-host-bastion)
-* [Policies on role](#policies-on-role)
-* [Private subnet](#private-subnet)
-* [Public subnet](#public-subnet)
-* [Role for resource](#role-for-resource)
-* [Role for user](#role-for-user)
-* [Simple infra](#simple-infra)
+* [Attach usual readonly AWS policies (set of permissions) on group](#attach-usual-readonly-aws-policies-(set-of-permissions)-on-group)
+* [Create a public network enabling routing from the Internet](#create-a-public-network-enabling-routing-from-the-internet)
+* [Create a AWS role with usual readonly policies that applies on a resource](#create-a-aws-role-with-usual-readonly-policies-that-applies-on-a-resource)
+* [Create a AWS role with usual readonly policies that applies on a user](#create-a-aws-role-with-usual-readonly-policies-that-applies-on-a-user)
 * [Upload Image from local file](#upload-image-from-local-file)
-* [User](#user)
-* [Vpc](#vpc)
-* [Wordpress ha](#wordpress-ha)
+* [Create a user with its SDK/Shell access key](#create-a-user-with-its-sdk/shell-access-key)
+* [Create a VPC with its internet routing gateway](#create-a-vpc-with-its-internet-routing-gateway)
+* [Two instances Bitami wordpress behind a loadbalancer ](#two-instances-bitami-wordpress-behind-a-loadbalancer-)
 
 
 ### Awless readonly group
@@ -51,25 +48,31 @@ You can run the verification locally with:
  Here we define a group that allow users in that group
  to use the `awless` CLI in a readonly mode (i.e. sync, listing).
 
+ Create group name variable:
+
+```sh
+groupName = AwlessReadOnlyPermissionsGroup
+
+```
  Create the group:
 
 ```sh
-create group name=AwlessReadOnlyPermissionsGroup
+create group name=$groupName
 
 ```
  Attach corresponding readonly AWS policies (set of permissions) on group related to the `awless` services:
 
 ```sh
-attach policy arn=arn:aws:iam::aws:policy/AmazonEC2ReadOnlyAccess group=AwlessReadOnlyPermissionsGroup
-attach policy arn=arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess group=AwlessReadOnlyPermissionsGroup
-attach policy arn=arn:aws:iam::aws:policy/AmazonSNSReadOnlyAccess group=AwlessReadOnlyPermissionsGroup
-attach policy arn=arn:aws:iam::aws:policy/AmazonSQSReadOnlyAccess group=AwlessReadOnlyPermissionsGroup
-attach policy arn=arn:aws:iam::aws:policy/AmazonVPCReadOnlyAccess group=AwlessReadOnlyPermissionsGroup
-attach policy arn=arn:aws:iam::aws:policy/AutoScalingReadOnlyAccess group=AwlessReadOnlyPermissionsGroup
-attach policy arn=arn:aws:iam::aws:policy/IAMReadOnlyAccess group=AwlessReadOnlyPermissionsGroup
-attach policy arn=arn:aws:iam::aws:policy/AmazonRDSReadOnlyAccess group=AwlessReadOnlyPermissionsGroup
-attach policy arn=arn:aws:iam::aws:policy/AmazonRoute53ReadOnlyAccess group=AwlessReadOnlyPermissionsGroup
-attach policy arn=arn:aws:iam::aws:policy/AWSLambdaReadOnlyAccess group=AwlessReadOnlyPermissionsGroup
+attach policy arn=arn:aws:iam::aws:policy/AmazonEC2ReadOnlyAccess group=$groupName
+attach policy arn=arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess group=$groupName
+attach policy arn=arn:aws:iam::aws:policy/AmazonSNSReadOnlyAccess group=$groupName
+attach policy arn=arn:aws:iam::aws:policy/AmazonSQSReadOnlyAccess group=$groupName
+attach policy arn=arn:aws:iam::aws:policy/AmazonVPCReadOnlyAccess group=$groupName
+attach policy arn=arn:aws:iam::aws:policy/AutoScalingReadOnlyAccess group=$groupName
+attach policy arn=arn:aws:iam::aws:policy/IAMReadOnlyAccess group=$groupName
+attach policy arn=arn:aws:iam::aws:policy/AmazonRDSReadOnlyAccess group=$groupName
+attach policy arn=arn:aws:iam::aws:policy/AmazonRoute53ReadOnlyAccess group=$groupName
+attach policy arn=arn:aws:iam::aws:policy/AWSLambdaReadOnlyAccess group=$groupName
 ```
 
 
@@ -87,30 +90,36 @@ Run it locally with: `awless run repo:awless_readonly_group -v`
 
  Here we define a group that allow users in that group to use the `awless` CLI in write mode.
 
+ Create group name variable:
+
+```sh
+groupName = AwlessReadWritePermissionsGroup
+
+```
  Create the group:
 
 ```sh
-create group name=AwlessReadWritePermissionsGroup
+create group name=$groupName
 
 ```
  Attach corresponding AWS policies (set of permissions) on group related to the `awless` services:
 
 ```sh
-attach policy arn=arn:aws:iam::aws:policy/AmazonEC2FullAccess group=AwlessReadWritePermissionsGroup
-attach policy arn=arn:aws:iam::aws:policy/AmazonS3FullAccess group=AwlessReadWritePermissionsGroup
-attach policy arn=arn:aws:iam::aws:policy/AmazonSNSFullAccess group=AwlessReadWritePermissionsGroup
-attach policy arn=arn:aws:iam::aws:policy/AmazonSQSFullAccess group=AwlessReadWritePermissionsGroup
-attach policy arn=arn:aws:iam::aws:policy/AmazonVPCFullAccess group=AwlessReadWritePermissionsGroup
-attach policy arn=arn:aws:iam::aws:policy/AutoScalingFullAccess group=AwlessReadWritePermissionsGroup
-attach policy arn=arn:aws:iam::aws:policy/AmazonRDSFullAccess group=AwlessReadWritePermissionsGroup
-attach policy arn=arn:aws:iam::aws:policy/AmazonRoute53FullAccess group=AwlessReadWritePermissionsGroup
-attach policy arn=arn:aws:iam::aws:policy/AWSLambdaFullAccess group=AwlessReadWritePermissionsGroup
+attach policy arn=arn:aws:iam::aws:policy/AmazonEC2FullAccess group=$groupName
+attach policy arn=arn:aws:iam::aws:policy/AmazonS3FullAccess group=$groupName
+attach policy arn=arn:aws:iam::aws:policy/AmazonSNSFullAccess group=$groupName
+attach policy arn=arn:aws:iam::aws:policy/AmazonSQSFullAccess group=$groupName
+attach policy arn=arn:aws:iam::aws:policy/AmazonVPCFullAccess group=$groupName
+attach policy arn=arn:aws:iam::aws:policy/AutoScalingFullAccess group=$groupName
+attach policy arn=arn:aws:iam::aws:policy/AmazonRDSFullAccess group=$groupName
+attach policy arn=arn:aws:iam::aws:policy/AmazonRoute53FullAccess group=$groupName
+attach policy arn=arn:aws:iam::aws:policy/AWSLambdaFullAccess group=$groupName
 
 ```
  Note that we keep the IAM access readonly
 
 ```sh
-attach policy arn=arn:aws:iam::aws:policy/IAMReadOnlyAccess group=AwlessReadWritePermissionsGroup
+attach policy arn=arn:aws:iam::aws:policy/IAMReadOnlyAccess group=$groupName
 ```
 
 
@@ -146,21 +155,30 @@ create scalinggroup desired-capacity=2 launchconfiguration=$launchconfig max-siz
  Create a scaling policy to add instances (scale-in) and a scaling policy to remove instances (scale-out)
 
 ```sh
-scalein = create scalingpolicy adjustment-scaling=1 adjustment-type=ChangeInCapacity name=policy-scaling-in scalinggroup=instancesScalingGroup
-scaleout = create scalingpolicy adjustment-scaling=-1 adjustment-type=ChangeInCapacity name=policy-step-scaling-2 scalinggroup=instancesScalingGroup
+adjustmentType = ChangeInCapacity
+scalein = create scalingpolicy adjustment-scaling=1 adjustment-type=$adjustmentType name=policy-scaling-in scalinggroup=instancesScalingGroup
+scaleout = create scalingpolicy adjustment-scaling=-1 adjustment-type=$adjustmentType name=policy-step-scaling-2 scalinggroup=instancesScalingGroup
+
+```
+ metrics statistic functions
+
+```sh
+statFunction = Average
+alarmThreshold = 75
+monitoredMetric = CPUUtilization
 
 ```
  Add a monitoring alarm to enable scalein when CPU load is above 75% during 2 * 5 min
 
 ```sh
-create alarm namespace=AWS/EC2 dimensions=AutoScalingGroupName:instancesScalingGroup evaluation-periods=2 metric=CPUUtilization name=scaleinAlarm operator=GreaterThanOrEqualToThreshold period=300 statistic-function=Average threshold=75
+create alarm namespace=AWS/EC2 dimensions=AutoScalingGroupName:instancesScalingGroup evaluation-periods=2 metric=$monitoredMetric name=scaleinAlarm operator=GreaterThanOrEqualToThreshold period=300 statistic-function=$statFunction threshold=$alarmThreshold
 attach alarm name=scaleinAlarm action-arn=$scalein
 
 ```
  Add a monitoring alarm to enable scaleout when CPU load is below 75% during 2 * 5 min
 
 ```sh
-create alarm namespace=AWS/EC2 dimensions=AutoScalingGroupName:instancesScalingGroup evaluation-periods=2 metric=CPUUtilization name=scaleoutAlarm operator=LessThanOrEqualToThreshold period=300 statistic-function=Average threshold=75
+create alarm namespace=AWS/EC2 dimensions=AutoScalingGroupName:instancesScalingGroup evaluation-periods=2 metric=$monitoredMetric name=scaleoutAlarm operator=LessThanOrEqualToThreshold period=300 statistic-function=$statFunction threshold=$alarmThreshold
 attach alarm name=scaleoutAlarm action-arn=$scaleout
 ```
 
@@ -170,41 +188,37 @@ Run it locally with: `awless run repo:dynamic_autoscaling_watching_CPU -v`
 
 
 
-### Ebs infra
+### Create an instance accessible with ssh with a new keypair
 
 
 
 
+**tags**: 
+infra, ssh
 
 
 
-```sh
-myvpc = create vpc cidr=10.0.0.0/24
-mysubnet = create subnet cidr=10.0.0.0/25 vpc=$myvpc availabilityzone=eu-west-1a
-update subnet id=$mysubnet public=true
-create keypair name=demo-awless-keypair
-create instance subnet=$mysubnet image={instance.image} type={instance.type} keypair=demo-awless-keypair name=demo-ebs count={instance.count}
-create volume availabilityzone=eu-west-1a size=1
-```
-
-
-Run it locally with: `awless run repo:ebs_infra -v`
-
-
-
-
-### Instance ssh
-
-
-
-
-
-
+ Create a new security group for this instance
 
 ```sh
 securitygroup = create securitygroup vpc={instance.vpc} description={securitygroup.description} name=ssh-from-internet
+
+```
+ Authorize access on port 22 to instances in this security group
+
+```sh
 update securitygroup id=$securitygroup inbound=authorize protocol=tcp cidr=0.0.0.0/0 portrange=22
+
+```
+ Create a new keypair
+
+```sh
 keypair = create keypair name={keypair.name}
+
+```
+ Create an instance in this security group accessible with the new keypair
+
+```sh
 create instance subnet={instance.subnet} image={instance.image} type={instance.type} keypair=$keypair name={instance.name} count=1 securitygroup=$securitygroup
 ```
 
@@ -214,38 +228,47 @@ Run it locally with: `awless run repo:instance_ssh -v`
 
 
 
-### Instance with awless
+### Create an instance with preinstalled awless with completion
 
 
 
 
+**tags**: 
+infra, awless
 
 
+
+ role name variable
+
+```sh
+roleName = {awless.role-name}
+
+```
  Create a AWS role that applies on a resource
 
 ```sh
-create role name=AwlessReadonlyRole principal-service="ec2.amazonaws.com" sleep-after=10
+create role name=$roleName principal-service="ec2.amazonaws.com" sleep-after=10
 
 ```
  Attach typical necessary awless readonly permissions to the role
 
 ```sh
-attach policy role=AwlessReadonlyRole arn=arn:aws:iam::aws:policy/AmazonEC2ReadOnlyAccess
-attach policy role=AwlessReadonlyRole arn=arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess
-attach policy role=AwlessReadonlyRole arn=arn:aws:iam::aws:policy/AmazonSNSReadOnlyAccess
-attach policy role=AwlessReadonlyRole arn=arn:aws:iam::aws:policy/AmazonSQSReadOnlyAccess
-attach policy role=AwlessReadonlyRole arn=arn:aws:iam::aws:policy/AmazonVPCReadOnlyAccess
-attach policy role=AwlessReadonlyRole arn=arn:aws:iam::aws:policy/AutoScalingReadOnlyAccess
-attach policy role=AwlessReadonlyRole arn=arn:aws:iam::aws:policy/IAMReadOnlyAccess
-attach policy role=AwlessReadonlyRole arn=arn:aws:iam::aws:policy/AmazonRDSReadOnlyAccess
-attach policy role=AwlessReadonlyRole arn=arn:aws:iam::aws:policy/AmazonRoute53ReadOnlyAccess
-attach policy role=AwlessReadonlyRole arn=arn:aws:iam::aws:policy/AWSLambdaReadOnlyAccess
+attach policy role=$roleName arn=arn:aws:iam::aws:policy/AmazonEC2ReadOnlyAccess
+attach policy role=$roleName arn=arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess
+attach policy role=$roleName arn=arn:aws:iam::aws:policy/AmazonSNSReadOnlyAccess
+attach policy role=$roleName arn=arn:aws:iam::aws:policy/AmazonSQSReadOnlyAccess
+attach policy role=$roleName arn=arn:aws:iam::aws:policy/AmazonVPCReadOnlyAccess
+attach policy role=$roleName arn=arn:aws:iam::aws:policy/AutoScalingReadOnlyAccess
+attach policy role=$roleName arn=arn:aws:iam::aws:policy/IAMReadOnlyAccess
+attach policy role=$roleName arn=arn:aws:iam::aws:policy/AmazonRDSReadOnlyAccess
+attach policy role=$roleName arn=arn:aws:iam::aws:policy/AmazonRoute53ReadOnlyAccess
+attach policy role=$roleName arn=arn:aws:iam::aws:policy/AWSLambdaReadOnlyAccess
 
 ```
  Launch new instance running remote user data script installing awless
 
 ```sh
-create instance name=awless-commander type=t2.nano keypair={ssh.keypair} userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/install_awless.yml role=AwlessReadonlyRole
+create instance name=awless-commander type=t2.nano keypair={ssh.keypair} userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/install_awless.yml role=$roleName
 ```
 
 
@@ -254,43 +277,52 @@ Run it locally with: `awless run repo:instance_with_awless -v`
 
 
 
-### Instance with awless scheduler
+### Create an instance with preconfigured awless and awless-scheduler
 
 
 
 
+**tags**: 
+infra, awless, awless-scheduler
 
 
+
+ Awless scheduler role variable
+
+```sh
+roleName = {awless-scheduler.role-name}
+
+```
  First we define a role that an EC2 instance can assume to use awless/awless-scheduler (write mode)
 
 ```sh
-create role name={awless-scheduler.role-name} principal-service="ec2.amazonaws.com" sleep-after=10
+create role name=$roleName principal-service="ec2.amazonaws.com" sleep-after=10
 
 ```
  Attach typical necessary awless readonly permissions to the role
 
 ```sh
-attach policy role={awless-scheduler.role-name} arn=arn:aws:iam::aws:policy/AmazonEC2FullAccess
-attach policy role={awless-scheduler.role-name} arn=arn:aws:iam::aws:policy/AmazonS3FullAccess
-attach policy role={awless-scheduler.role-name} arn=arn:aws:iam::aws:policy/AmazonSNSFullAccess
-attach policy role={awless-scheduler.role-name} arn=arn:aws:iam::aws:policy/AmazonSQSFullAccess
-attach policy role={awless-scheduler.role-name} arn=arn:aws:iam::aws:policy/AmazonVPCFullAccess
-attach policy role={awless-scheduler.role-name} arn=arn:aws:iam::aws:policy/AutoScalingFullAccess
-attach policy role={awless-scheduler.role-name} arn=arn:aws:iam::aws:policy/AmazonRDSFullAccess
-attach policy role={awless-scheduler.role-name} arn=arn:aws:iam::aws:policy/AmazonRoute53FullAccess
-attach policy role={awless-scheduler.role-name} arn=arn:aws:iam::aws:policy/AWSLambdaFullAccess
+attach policy role=$roleName arn=arn:aws:iam::aws:policy/AmazonEC2FullAccess
+attach policy role=$roleName arn=arn:aws:iam::aws:policy/AmazonS3FullAccess
+attach policy role=$roleName arn=arn:aws:iam::aws:policy/AmazonSNSFullAccess
+attach policy role=$roleName arn=arn:aws:iam::aws:policy/AmazonSQSFullAccess
+attach policy role=$roleName arn=arn:aws:iam::aws:policy/AmazonVPCFullAccess
+attach policy role=$roleName arn=arn:aws:iam::aws:policy/AutoScalingFullAccess
+attach policy role=$roleName arn=arn:aws:iam::aws:policy/AmazonRDSFullAccess
+attach policy role=$roleName arn=arn:aws:iam::aws:policy/AmazonRoute53FullAccess
+attach policy role=$roleName arn=arn:aws:iam::aws:policy/AWSLambdaFullAccess
 
 ```
  We keep IAM on read only mode
 
 ```sh
-attach policy role={awless-scheduler.role-name} arn=arn:aws:iam::aws:policy/IAMReadOnlyAccess
+attach policy role=$roleName arn=arn:aws:iam::aws:policy/IAMReadOnlyAccess
 
 ```
  Launch new instance running remote user data script installing awless
 
 ```sh
-create instance name=AwlessWithScheduler type=t2.nano keypair={ssh.keypair} userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/install_awless_suite.yml role={awless-scheduler.role-name}
+create instance name=AwlessWithScheduler type=t2.nano keypair={ssh.keypair} userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/install_awless_suite.yml role=$roleName
 ```
 
 
@@ -446,29 +478,30 @@ Run it locally with: `awless run repo:linux_bastion -v`
 
 
 
-### Policies on role
+### Attach usual readonly AWS policies (set of permissions) on group
+
+
+*When you want your users to have a set of permissions, instead of attaching permissions directly on users it is a good practice and simpler to define a group having those permissions and then adding/removing as needed users from those groups.*
 
 
 
+**tags**: 
+access, policy, role
 
 
 
- When you want your users to have a set of permissions, instead of attaching
- permissions directly on users it is a good practice and simpler to define a group having
- those permissions and then adding/removing as needed users from those groups.
-
- Attach a set of readonly AWS policies (set of permissions) on group:
 
 ```sh
-attach policy arn=arn:aws:iam::aws:policy/AmazonEC2ReadOnlyAccess group={group-name}
-attach policy arn=arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess group={group-name}
-attach policy arn=arn:aws:iam::aws:policy/AmazonSNSReadOnlyAccess group={group-name}
-attach policy arn=arn:aws:iam::aws:policy/AmazonSQSReadOnlyAccess group={group-name}
-attach policy arn=arn:aws:iam::aws:policy/AmazonVPCReadOnlyAccess group={group-name}
-attach policy arn=arn:aws:iam::aws:policy/AutoScalingReadOnlyAccess group={group-name}
-attach policy arn=arn:aws:iam::aws:policy/IAMReadOnlyAccess group={group-name}
-attach policy arn=arn:aws:iam::aws:policy/AmazonRDSReadOnlyAccess group={group-name}
-attach policy arn=arn:aws:iam::aws:policy/AmazonRoute53ReadOnlyAccess group={group-name}
+groupName = {group-name}
+attach policy arn=arn:aws:iam::aws:policy/AmazonEC2ReadOnlyAccess group=$groupName
+attach policy arn=arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess group=$groupName
+attach policy arn=arn:aws:iam::aws:policy/AmazonSNSReadOnlyAccess group=$groupName
+attach policy arn=arn:aws:iam::aws:policy/AmazonSQSReadOnlyAccess group=$groupName
+attach policy arn=arn:aws:iam::aws:policy/AmazonVPCReadOnlyAccess group=$groupName
+attach policy arn=arn:aws:iam::aws:policy/AutoScalingReadOnlyAccess group=$groupName
+attach policy arn=arn:aws:iam::aws:policy/IAMReadOnlyAccess group=$groupName
+attach policy arn=arn:aws:iam::aws:policy/AmazonRDSReadOnlyAccess group=$groupName
+attach policy arn=arn:aws:iam::aws:policy/AmazonRoute53ReadOnlyAccess group=$groupName
 ```
 
 
@@ -477,38 +510,39 @@ Run it locally with: `awless run repo:policies_on_role -v`
 
 
 
-### Private subnet
+### Create a public network enabling routing from the Internet
 
 
 
 
+**tags**: 
+infra
 
 
 
-```sh
-create subnet cidr={subnet.cidr} vpc={subnet.vpc} name={subnet.name}
-```
-
-
-Run it locally with: `awless run repo:private_subnet -v`
-
-
-
-
-### Public subnet
-
-
-
-
-
-
+ Create the subnet
 
 ```sh
 subnet = create subnet cidr={subnet.cidr} vpc={subnet.vpc} name={subnet.name}
+
+```
+ Allow instances in this network to have public IP addresses
+
+```sh
 update subnet id=$subnet public=true
+
+```
+ Create a route table for this network
+
+```sh
 rtable = create routetable vpc={subnet.vpc}
 attach routetable id=$rtable subnet=$subnet
-create route cidr=0.0.0.0/0 gateway={vpc.gateway} table=$rtable
+
+```
+ Enable routing from the Internet to this subnet
+
+```sh
+create route cidr=0.0.0.0/0 gateway={vpc.internetgateway} table=$rtable
 ```
 
 
@@ -517,32 +551,36 @@ Run it locally with: `awless run repo:public_subnet -v`
 
 
 
-### Role for resource
+### Create a AWS role with usual readonly policies that applies on a resource
+
+
+*Create a AWS role that applies on a resource (retrieve the account id with `awless whoami`)*
 
 
 
+**tags**: 
+access, policy, role
 
 
 
- Create a AWS role that applies on a resource
- (retrieve the account id with `awless whoami`)
 
 ```sh
-create role name={role-name} principal-service={aws-service}
+roleName = {role-name}
+create role name=$roleName principal-service={aws-service}
 
 ```
  Attach policy (set of permissions) to the created role
 
 ```sh
-attach policy role={role-name} arn=arn:aws:iam::aws:policy/AmazonEC2ReadOnlyAccess
-attach policy role={role-name} arn=arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess
-attach policy role={role-name} arn=arn:aws:iam::aws:policy/AmazonSNSReadOnlyAccess
-attach policy role={role-name} arn=arn:aws:iam::aws:policy/AmazonSQSReadOnlyAccess
-attach policy role={role-name} arn=arn:aws:iam::aws:policy/AmazonVPCReadOnlyAccess
-attach policy role={role-name} arn=arn:aws:iam::aws:policy/AutoScalingReadOnlyAccess
-attach policy role={role-name} arn=arn:aws:iam::aws:policy/IAMReadOnlyAccess
-attach policy role={role-name} arn=arn:aws:iam::aws:policy/AmazonRDSReadOnlyAccess
-attach policy role={role-name} arn=arn:aws:iam::aws:policy/AmazonRoute53ReadOnlyAccess
+attach policy role=$roleName arn=arn:aws:iam::aws:policy/AmazonEC2ReadOnlyAccess
+attach policy role=$roleName arn=arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess
+attach policy role=$roleName arn=arn:aws:iam::aws:policy/AmazonSNSReadOnlyAccess
+attach policy role=$roleName arn=arn:aws:iam::aws:policy/AmazonSQSReadOnlyAccess
+attach policy role=$roleName arn=arn:aws:iam::aws:policy/AmazonVPCReadOnlyAccess
+attach policy role=$roleName arn=arn:aws:iam::aws:policy/AutoScalingReadOnlyAccess
+attach policy role=$roleName arn=arn:aws:iam::aws:policy/IAMReadOnlyAccess
+attach policy role=$roleName arn=arn:aws:iam::aws:policy/AmazonRDSReadOnlyAccess
+attach policy role=$roleName arn=arn:aws:iam::aws:policy/AmazonRoute53ReadOnlyAccess
 ```
 
 
@@ -551,15 +589,18 @@ Run it locally with: `awless run repo:role_for_resource -v`
 
 
 
-### Role for user
+### Create a AWS role with usual readonly policies that applies on a user
+
+
+*Create a AWS role that applies on a user (retrieve the id with `awless whoami`)*
 
 
 
+**tags**: 
+access, policy, user
 
 
 
- Create a AWS role that has a AWS account id as principal
- (retrieve the account id with `awless whoami`)
 
 ```sh
 accountRole = create role name={role-name} principal-account={aws-account-id}
@@ -592,26 +633,6 @@ Run it locally with: `awless run repo:role_for_user -v`
 
 
 
-### Simple infra
-
-
-
-
-
-
-
-```sh
-myvpc = create vpc cidr={vpc.cidr} name={vpc.name}
-mysubnet = create subnet cidr={subnet.cidr} vpc=$myvpc
-create instance subnet=$mysubnet image={instance.image} type={instance.type} count={instance.count} name={instance.name}
-```
-
-
-Run it locally with: `awless run repo:simple_infra -v`
-
-
-
-
 ### Upload Image from local file
 
 
@@ -627,13 +648,14 @@ infra, s3
  Upload the image on s3
 
 ```sh
-imageObject = create s3object bucket={image.bucket} file={image.filepath}
+bucket = {image.bucket}
+imageObject = create s3object bucket=$bucket file={image.filepath}
 
 ```
  Create the AMI from the object on S3
 
 ```sh
-import image description={image.description} bucket={image.bucket} s3object=$imageObject
+import image description={image.description} bucket=$bucket s3object=$imageObject
 ```
 
 
@@ -642,10 +664,13 @@ Run it locally with: `awless run repo:upload_image -v`
 
 
 
-### User
+### Create a user with its SDK/Shell access key
 
 
 
+
+**tags**: 
+access, user
 
 
 
@@ -661,10 +686,13 @@ Run it locally with: `awless run repo:user -v`
 
 
 
-### Vpc
+### Create a VPC with its internet routing gateway
 
 
 
+
+**tags**: 
+infra, VPC
 
 
 
@@ -681,10 +709,15 @@ Run it locally with: `awless run repo:vpc -v`
 
 
 
-### Wordpress ha
+### Two instances Bitami wordpress behind a loadbalancer 
+
+
+*Note that the AMI in this template are working only in eu-central-1 region*
 
 
 
+**tags**: 
+infra
 
 
 

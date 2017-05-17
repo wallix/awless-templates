@@ -1,18 +1,22 @@
 # Here we define a group that allow users in that group to use the `awless` CLI in write mode.
 #
+
+# Create group name variable:
+groupName = AwlessReadWritePermissionsGroup
+
 # Create the group:
-create group name=AwlessReadWritePermissionsGroup
+create group name=$groupName
 
 # Attach corresponding AWS policies (set of permissions) on group related to the `awless` services:
-attach policy arn=arn:aws:iam::aws:policy/AmazonEC2FullAccess group=AwlessReadWritePermissionsGroup
-attach policy arn=arn:aws:iam::aws:policy/AmazonS3FullAccess group=AwlessReadWritePermissionsGroup
-attach policy arn=arn:aws:iam::aws:policy/AmazonSNSFullAccess group=AwlessReadWritePermissionsGroup 
-attach policy arn=arn:aws:iam::aws:policy/AmazonSQSFullAccess group=AwlessReadWritePermissionsGroup 
-attach policy arn=arn:aws:iam::aws:policy/AmazonVPCFullAccess group=AwlessReadWritePermissionsGroup
-attach policy arn=arn:aws:iam::aws:policy/AutoScalingFullAccess group=AwlessReadWritePermissionsGroup
-attach policy arn=arn:aws:iam::aws:policy/AmazonRDSFullAccess group=AwlessReadWritePermissionsGroup
-attach policy arn=arn:aws:iam::aws:policy/AmazonRoute53FullAccess group=AwlessReadWritePermissionsGroup
-attach policy arn=arn:aws:iam::aws:policy/AWSLambdaFullAccess group=AwlessReadWritePermissionsGroup
+attach policy arn=arn:aws:iam::aws:policy/AmazonEC2FullAccess group=$groupName
+attach policy arn=arn:aws:iam::aws:policy/AmazonS3FullAccess group=$groupName
+attach policy arn=arn:aws:iam::aws:policy/AmazonSNSFullAccess group=$groupName 
+attach policy arn=arn:aws:iam::aws:policy/AmazonSQSFullAccess group=$groupName 
+attach policy arn=arn:aws:iam::aws:policy/AmazonVPCFullAccess group=$groupName
+attach policy arn=arn:aws:iam::aws:policy/AutoScalingFullAccess group=$groupName
+attach policy arn=arn:aws:iam::aws:policy/AmazonRDSFullAccess group=$groupName
+attach policy arn=arn:aws:iam::aws:policy/AmazonRoute53FullAccess group=$groupName
+attach policy arn=arn:aws:iam::aws:policy/AWSLambdaFullAccess group=$groupName
 
 # Note that we keep the IAM access readonly
-attach policy arn=arn:aws:iam::aws:policy/IAMReadOnlyAccess group=AwlessReadWritePermissionsGroup
+attach policy arn=arn:aws:iam::aws:policy/IAMReadOnlyAccess group=$groupName

@@ -1,2 +1,5 @@
+# Title: Create a user with its SDK/Shell access key
+# Tags: access, user
+
 create user name={user.name}
 create accesskey user={user.name}

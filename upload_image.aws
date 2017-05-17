@@ -3,7 +3,8 @@
 # Description: This template uploads on s3 a local VM file (VHD, OVA, VMDK). Then it creates an AMI from the S3 object.
 
 # Upload the image on s3
-imageObject = create s3object bucket={image.bucket} file={image.filepath}
+bucket = {image.bucket}
+imageObject = create s3object bucket=$bucket file={image.filepath}
 
 # Create the AMI from the object on S3
-import image description={image.description} bucket={image.bucket} s3object=$imageObject
+import image description={image.description} bucket=$bucket s3object=$imageObject

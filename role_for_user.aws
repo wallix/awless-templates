@@ -1,5 +1,8 @@
-# Create a AWS role that has a AWS account id as principal
-# (retrieve the account id with `awless whoami`)
+# Title: Create a AWS role with usual readonly policies that applies on a user
+# Tags: access, policy, user
+# Description: Create a AWS role that applies on a user (retrieve the id with `awless whoami`)
+
+
 accountRole = create role name={role-name} principal-account={aws-account-id} 
 
 # Attach policy (set of permissions) to the created role

@@ -1,5 +1,14 @@
+# Title: Create a public network enabling routing from the Internet
+# Tags: infra
+
+# Create the subnet
 subnet = create subnet cidr={subnet.cidr} vpc={subnet.vpc} name={subnet.name}
+# Allow instances in this network to have public IP addresses
 update subnet id=$subnet public=true
+
+# Create a route table for this network
 rtable = create routetable vpc={subnet.vpc}
 attach routetable id=$rtable subnet=$subnet
-create route cidr=0.0.0.0/0 gateway={vpc.gateway} table=$rtable
+
+# Enable routing from the Internet to this subnet
+create route cidr=0.0.0.0/0 gateway={vpc.internetgateway} table=$rtable

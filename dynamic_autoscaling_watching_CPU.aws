@@ -9,15 +9,21 @@ launchconfig = create launchconfiguration image={instance.image} keypair={instan
 create scalinggroup desired-capacity=2 launchconfiguration=$launchconfig max-size={instance.max-number} min-size={instance.min-number} name=instancesScalingGroup subnets={instance.subnets}
 
 # Create a scaling policy to add instances (scale-in) and a scaling policy to remove instances (scale-out)
-scalein = create scalingpolicy adjustment-scaling=1 adjustment-type=ChangeInCapacity name=policy-scaling-in scalinggroup=instancesScalingGroup
-scaleout = create scalingpolicy adjustment-scaling=-1 adjustment-type=ChangeInCapacity name=policy-step-scaling-2 scalinggroup=instancesScalingGroup
+adjustmentType = ChangeInCapacity
+scalein = create scalingpolicy adjustment-scaling=1 adjustment-type=$adjustmentType name=policy-scaling-in scalinggroup=instancesScalingGroup
+scaleout = create scalingpolicy adjustment-scaling=-1 adjustment-type=$adjustmentType name=policy-step-scaling-2 scalinggroup=instancesScalingGroup
+
+# metrics statistic functions
+statFunction = Average
+alarmThreshold = 75
+monitoredMetric = CPUUtilization
 
 # Add a monitoring alarm to enable scalein when CPU load is above 75% during 2 * 5 min 
-create alarm namespace=AWS/EC2 dimensions=AutoScalingGroupName:instancesScalingGroup evaluation-periods=2 metric=CPUUtilization name=scaleinAlarm operator=GreaterThanOrEqualToThreshold period=300 statistic-function=Average threshold=75
+create alarm namespace=AWS/EC2 dimensions=AutoScalingGroupName:instancesScalingGroup evaluation-periods=2 metric=$monitoredMetric name=scaleinAlarm operator=GreaterThanOrEqualToThreshold period=300 statistic-function=$statFunction threshold=$alarmThreshold
 
 attach alarm name=scaleinAlarm action-arn=$scalein
 
 # Add a monitoring alarm to enable scaleout when CPU load is below 75% during 2 * 5 min 
-create alarm namespace=AWS/EC2 dimensions=AutoScalingGroupName:instancesScalingGroup evaluation-periods=2 metric=CPUUtilization name=scaleoutAlarm operator=LessThanOrEqualToThreshold period=300 statistic-function=Average threshold=75
+create alarm namespace=AWS/EC2 dimensions=AutoScalingGroupName:instancesScalingGroup evaluation-periods=2 metric=$monitoredMetric name=scaleoutAlarm operator=LessThanOrEqualToThreshold period=300 statistic-function=$statFunction threshold=$alarmThreshold
 
 attach alarm name=scaleoutAlarm action-arn=$scaleout

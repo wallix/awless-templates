@@ -1,1 +1,0 @@
-create subnet cidr={subnet.cidr} vpc={subnet.vpc} name={subnet.name}

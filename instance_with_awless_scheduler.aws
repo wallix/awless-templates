@@ -1,19 +1,25 @@
+# Title: Create an instance with preconfigured awless and awless-scheduler
+# Tags: infra, awless, awless-scheduler
+
+# Awless scheduler role variable
+roleName = {awless-scheduler.role-name}
+
 # First we define a role that an EC2 instance can assume to use awless/awless-scheduler (write mode)
-create role name={awless-scheduler.role-name} principal-service="ec2.amazonaws.com" sleep-after=10
+create role name=$roleName principal-service="ec2.amazonaws.com" sleep-after=10
 
 # Attach typical necessary awless readonly permissions to the role
-attach policy role={awless-scheduler.role-name} arn=arn:aws:iam::aws:policy/AmazonEC2FullAccess 
-attach policy role={awless-scheduler.role-name} arn=arn:aws:iam::aws:policy/AmazonS3FullAccess
-attach policy role={awless-scheduler.role-name} arn=arn:aws:iam::aws:policy/AmazonSNSFullAccess
-attach policy role={awless-scheduler.role-name} arn=arn:aws:iam::aws:policy/AmazonSQSFullAccess 
-attach policy role={awless-scheduler.role-name} arn=arn:aws:iam::aws:policy/AmazonVPCFullAccess
-attach policy role={awless-scheduler.role-name} arn=arn:aws:iam::aws:policy/AutoScalingFullAccess 
-attach policy role={awless-scheduler.role-name} arn=arn:aws:iam::aws:policy/AmazonRDSFullAccess
-attach policy role={awless-scheduler.role-name} arn=arn:aws:iam::aws:policy/AmazonRoute53FullAccess 
-attach policy role={awless-scheduler.role-name} arn=arn:aws:iam::aws:policy/AWSLambdaFullAccess 
+attach policy role=$roleName arn=arn:aws:iam::aws:policy/AmazonEC2FullAccess 
+attach policy role=$roleName arn=arn:aws:iam::aws:policy/AmazonS3FullAccess
+attach policy role=$roleName arn=arn:aws:iam::aws:policy/AmazonSNSFullAccess
+attach policy role=$roleName arn=arn:aws:iam::aws:policy/AmazonSQSFullAccess 
+attach policy role=$roleName arn=arn:aws:iam::aws:policy/AmazonVPCFullAccess
+attach policy role=$roleName arn=arn:aws:iam::aws:policy/AutoScalingFullAccess 
+attach policy role=$roleName arn=arn:aws:iam::aws:policy/AmazonRDSFullAccess
+attach policy role=$roleName arn=arn:aws:iam::aws:policy/AmazonRoute53FullAccess 
+attach policy role=$roleName arn=arn:aws:iam::aws:policy/AWSLambdaFullAccess 
 
 # We keep IAM on read only mode
-attach policy role={awless-scheduler.role-name} arn=arn:aws:iam::aws:policy/IAMReadOnlyAccess 
+attach policy role=$roleName arn=arn:aws:iam::aws:policy/IAMReadOnlyAccess 
 
 # Launch new instance running remote user data script installing awless
-create instance name=AwlessWithScheduler type=t2.nano keypair={ssh.keypair} userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/install_awless_suite.yml role={awless-scheduler.role-name}
+create instance name=AwlessWithScheduler type=t2.nano keypair={ssh.keypair} userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/install_awless_suite.yml role=$roleName

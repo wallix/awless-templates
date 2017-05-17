@@ -1,4 +1,13 @@
+# Title: Create an instance accessible with ssh with a new keypair
+# Tags: infra, ssh
+
+# Create a new security group for this instance
 securitygroup = create securitygroup vpc={instance.vpc} description={securitygroup.description} name=ssh-from-internet
+# Authorize access on port 22 to instances in this security group
 update securitygroup id=$securitygroup inbound=authorize protocol=tcp cidr=0.0.0.0/0 portrange=22
+
+# Create a new keypair
 keypair = create keypair name={keypair.name}
+
+# Create an instance in this security group accessible with the new keypair
 create instance subnet={instance.subnet} image={instance.image} type={instance.type} keypair=$keypair name={instance.name} count=1 securitygroup=$securitygroup

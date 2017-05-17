@@ -1,3 +1,7 @@
+# Title: Two instances Bitami wordpress behind a loadbalancer 
+# Tags: infra
+# Description: Note that the AMI in this template are working only in eu-central-1 region
+
 # Loadbalancer
 ## Create the loadbalancer firewall
 loadbalancerfw = create securitygroup vpc={wordpress.vpc} description=wordpress-loadbalancer-securitygroup name=wordpress-lb-securitygroup
