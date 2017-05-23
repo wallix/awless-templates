@@ -2,10 +2,11 @@
 
 yum -y install unzip java wget
 
-curl https://raw.githubusercontent.com/wallix/awless/master/getawless-tip-linux.sh | bash
-source /etc/profile
+curl -O https://raw.githubusercontent.com/wallix/awless/master/getawless.sh
+/bin/bash getawless.sh
+mv awless /usr/local/bin
 
-ZOOKEEPER_IP=$(awless ls instances --filter name=zookeeper --format csv | tail -1 | cut -d, -f6)
+ZOOKEEPER_IP=$(/usr/local/bin/awless ls instances --filter name=zookeeper --format csv | tail -1 | cut -d, -f6)
 
 KAFKA_DOWNLOAD=kafka_2.12-0.10.2.1
 
