@@ -105,6 +105,14 @@
   ]
  },
  {
+  "Title": "Create a static website on S3",
+  "Name": "s3website",
+  "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/s3website.aws",
+  "Tags": [
+   "s3"
+  ]
+ },
+ {
   "Title": "Upload Image from local file",
   "Name": "upload_image",
   "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/upload_image.aws",

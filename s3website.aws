@@ -1,0 +1,11 @@
+# Title: Create a static website on S3
+# Tags: s3
+
+# Create the bucket where files will be stored
+create bucket name={domain.name} acl=public-read
+
+# Publish this s3bucket as a website
+update bucket name={domain.name} public-website=true redirect-hostname={domain.name}
+
+# Add files to the bucket with 
+# awless create s3object bucket={domain.name} file={input-file-path} acl=public-read

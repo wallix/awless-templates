@@ -32,6 +32,7 @@ You can run the verification locally with:
 * [Create a public network enabling routing from the Internet](#create-a-public-network-enabling-routing-from-the-internet)
 * [Create a AWS role with usual readonly policies that applies on a resource](#create-a-aws-role-with-usual-readonly-policies-that-applies-on-a-resource)
 * [Create a AWS role with usual readonly policies that applies on a user](#create-a-aws-role-with-usual-readonly-policies-that-applies-on-a-user)
+* [Create a static website on S3](#create-a-static-website-on-s3)
 * [Upload Image from local file](#upload-image-from-local-file)
 * [Create a user with its SDK/Shell access key and console password](#create-a-user-with-its-sdk/shell-access-key-and-console-password)
 * [Create a VPC with its internet routing gateway](#create-a-vpc-with-its-internet-routing-gateway)
@@ -629,6 +630,37 @@ create policy name={assume-policy-name} effect=Allow action=sts:AssumeRole resou
 
 
 Run it locally with: `awless run repo:role_for_user -v`
+
+
+
+
+### Create a static website on S3
+
+
+
+
+**tags**: 
+s3
+
+
+
+ Create the bucket where files will be stored
+
+```sh
+create bucket name={domain.name} acl=public-read
+
+```
+ Publish this s3bucket as a website
+
+```sh
+update bucket name={domain.name} public-website=true redirect-hostname={domain.name}
+
+```
+ Add files to the bucket with
+ awless create s3object bucket={domain.name} file={input-file-path} acl=public-read
+
+
+Run it locally with: `awless run repo:s3website -v`
 
 
 
