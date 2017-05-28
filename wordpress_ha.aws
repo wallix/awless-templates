@@ -10,7 +10,7 @@ update securitygroup id=$loadbalancerfw inbound=authorize protocol=tcp cidr=0.0.
 targetgroup = create targetgroup name=wordpress-workers port=80 protocol=HTTP vpc={wordpress.vpc}
 ## Create the application load balancer that will redirect flows to the servers
 lb = create loadbalancer name=wordpress-loadbalancer subnets={wordpress.subnets} securitygroups=$loadbalancerfw
-create listener actiontype=forward loadbalancer=$lb port=80 protocol=HTTP target=$targetgroup
+create listener actiontype=forward loadbalancer=$lb port=80 protocol=HTTP targetgroup=$targetgroup
 
 # Wordpress application servers
 ## Create the wordpress servers
