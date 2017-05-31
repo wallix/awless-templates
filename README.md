@@ -788,7 +788,7 @@ targetgroup = create targetgroup name=wordpress-workers port=80 protocol=HTTP vp
 
 ```sh
 lb = create loadbalancer name=wordpress-loadbalancer subnets={wordpress.subnets} securitygroups=$loadbalancerfw
-create listener actiontype=forward loadbalancer=$lb port=80 protocol=HTTP target=$targetgroup
+create listener actiontype=forward loadbalancer=$lb port=80 protocol=HTTP targetgroup=$targetgroup
 
 ```
  Wordpress application servers
