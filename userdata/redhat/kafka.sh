@@ -17,6 +17,10 @@ ln -s /opt/$KAFKA_DOWNLOAD /opt/kafka
 
 mkdir /tmp/kafka-logs
 
-sed -i.bak "s_zookeeper.connect=.*_zookeeper.connect=$ZOOKEEPER_IP:2181_g" /opt/kafka/config/server.properties
+INSTANCE_ID=$(curl http://169.254.169.254/latest/meta-data/instance-id)
+BROKER_ID=$(/usr/local/bin/awless ls instances --filter name=broker --sort name --format tsv | tail -n +2 | grep $INSTANCE_ID -n | cut -d: -f1)
+
+sed -i.bak "s/zookeeper.connect=.*/zookeeper.connect=$ZOOKEEPER_IP:2181/g" /opt/kafka/config/server.properties
+sed -i.bak "s/broker.id=.*/broker.id=$BROKER_ID/g" /opt/kafka/config/server.properties
 
 nohup /opt/kafka/bin/kafka-server-start.sh /opt/kafka/config/server.properties > /dev/null 2>&1 &
