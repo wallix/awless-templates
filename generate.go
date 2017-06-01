@@ -87,7 +87,7 @@ func buildExample(filename string) (*Example, error) {
 	link := fmt.Sprintf("https://raw.githubusercontent.com/wallix/awless-templates/master/%s.aws", name)
 	title := fmt.Sprintf("%s", humanize(name))
 	if mdTitle, ok := rawMetadata["Title"]; ok {
-		title = mdTitle
+		title = strings.TrimSpace(mdTitle)
 	}
 	var tags []string
 	if rawTags, ok := rawMetadata["Tags"]; ok {

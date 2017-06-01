@@ -36,7 +36,7 @@ You can run the verification locally with:
 * [Upload Image from local file](#upload-image-from-local-file)
 * [Create a user with its SDK/Shell access key and console password](#create-a-user-with-its-sdk/shell-access-key-and-console-password)
 * [Create a VPC with its internet routing gateway](#create-a-vpc-with-its-internet-routing-gateway)
-* [Two instances Bitami wordpress behind a loadbalancer ](#two-instances-bitami-wordpress-behind-a-loadbalancer-)
+* [Two instances Bitnami wordpress behind a loadbalancer](#two-instances-bitnami-wordpress-behind-a-loadbalancer)
 
 
 ### Awless readonly group
@@ -758,7 +758,7 @@ Run it locally with: `awless run repo:vpc -v`
 
 
 
-### Two instances Bitami wordpress behind a loadbalancer 
+### Two instances Bitnami wordpress behind a loadbalancer
 
 
 *Note that the AMI in this template are working only in eu-central-1 region*

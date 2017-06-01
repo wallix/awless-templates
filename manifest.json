@@ -141,7 +141,7 @@
   ]
  },
  {
-  "Title": "Two instances Bitami wordpress behind a loadbalancer ",
+  "Title": "Two instances Bitnami wordpress behind a loadbalancer",
   "Name": "wordpress_ha",
   "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/wordpress_ha.aws",
   "Description": "Note that the AMI in this template are working only in eu-central-1 region",
