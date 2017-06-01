@@ -14,13 +14,16 @@ update securitygroup id=$kafkasecgroup inbound=authorize protocol=tcp cidr={subn
 create role name=AwlessEC2ReadonlyRole principal-service="ec2.amazonaws.com" sleep-after=20
 attach policy role=AwlessEC2ReadonlyRole arn=arn:aws:iam::aws:policy/AmazonEC2ReadOnlyAccess 
 
+# Create Zookeeper instance
+zookeeper = create instance name=zookeeper image={redhat-ami} type={zookeeper-instance-type} keypair={keypair.name} subnet={main.subnet} securitygroup=$sshsecgroup userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/redhat/zookeeper.sh
+
+# Wait the Zookeeper instance is up and running
+check instance id=$zookeeper state=running timeout=180
+
 # Create Kafka broker instances with role created above
 broker_1 = create instance name=broker_1 image={redhat-ami} type={broker-instance-type} keypair={keypair.name} subnet={main.subnet} role=AwlessEC2ReadonlyRole securitygroup=$sshsecgroup userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/redhat/kafka.sh
 broker_2 = create instance name=broker_2 image={redhat-ami} type={broker-instance-type} keypair={keypair.name} subnet={main.subnet} role=AwlessEC2ReadonlyRole securitygroup=$sshsecgroup userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/redhat/kafka.sh
 broker_3 = create instance name=broker_3 image={redhat-ami} type={broker-instance-type} keypair={keypair.name} subnet={main.subnet} role=AwlessEC2ReadonlyRole securitygroup=$sshsecgroup userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/redhat/kafka.sh
-
-# Create Zookeeper instance
-zookeeper = create instance name=zookeeper image={redhat-ami} type={zookeeper-instance-type} keypair={keypair.name} subnet={main.subnet} securitygroup=$sshsecgroup userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/redhat/zookeeper.sh
 
 # Update instances with corresponding securitygroups
 attach securitygroup id=$kafkasecgroup instance=$broker_1
