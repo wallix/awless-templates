@@ -6,9 +6,7 @@ curl -O https://raw.githubusercontent.com/wallix/awless/master/getawless.sh
 /bin/bash getawless.sh
 mv awless /usr/local/bin
 
-ZOOKEEPER_IP=$(/usr/local/bin/awless ls instances --filter name=zookeeper --format csv | tail -1 | cut -d, -f7)
-
-echo "Resolved Zookeeper private IP is $ZOOKEEPER_IP"
+ZOOKEEPER_IP=$(/usr/local/bin/awless ls instances --filter name=zookeeper --filter state=run --format csv | tail -1 | cut -d, -f7)
 
 KAFKA_DOWNLOAD=kafka_2.12-0.10.2.1
 
