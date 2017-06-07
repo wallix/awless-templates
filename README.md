@@ -15,12 +15,13 @@ On each change all templates are verified & compiled against the latest version 
 You can run the verification locally with:
 
     go get github.com/wallix/awless  # if needed
-    go test verifyall_test.go -v
+    go test -v
 
 # Examples
 
 
 * [Awless readonly group](#awless-readonly-group)
+* [Pre-defined policies for awless users](#pre-defined-policies-for-awless-users)
 * [Awless readwrite group](#awless-readwrite-group)
 * [Group of instances scaling with CPU consumption](#group-of-instances-scaling-with-cpu-consumption)
 * [Create an instance accessible with ssh with a new keypair](#create-an-instance-accessible-with-ssh-with-a-new-keypair)
@@ -40,6 +41,8 @@ You can run the verification locally with:
 
 
 ### Awless readonly group
+
+
 
 
 
@@ -82,7 +85,88 @@ Run it locally with: `awless run repo:awless_readonly_group -v`
 
 
 
+### Pre-defined policies for awless users
+
+
+**-> Minimal awless version required: 0.1.1**
+
+
+
+*Useful pre-defined readonly & readwrite policies for awless users*
+
+
+
+
+
+ Infra resources
+
+```sh
+create policy name=AwlessInfraReadonlyPolicy effect=Allow resource="*" description="Readonly access to infra resources" action=ec2:Describe*,autoscaling:Describe*,elasticloadbalancing:Describe*
+
+```
+ Access resources
+
+```sh
+create policy name=AwlessAccessReadonlyPolicy effect=Allow resource="*" description="Readonly access to access resources" action=iam:GenerateCredentialReport,iam:GenerateServiceLastAccessedDetails,iam:Get*,iam:List*,sts:Get*
+
+```
+ Storage resources
+
+```sh
+create policy name=AwlessStorageReadonlyPolicy effect=Allow resource="*" description="Readonly access to storage resources" action=s3:Get*,s3:List*
+
+```
+ Notification resources
+
+```sh
+create policy name=AwlessNotificationReadonlyPolicy effect=Allow resource="*" description="Readonly access to notification resources" action=sns:GetTopicAttributes,sns:List*
+
+```
+ Queue resources
+
+```sh
+create policy name=AwlessQueueReadonlyPolicy effect=Allow resource="*" description="Readonly access to queue resources" action=sqs:GetQueueAttributes,sqs:ListQueues
+
+```
+ Lambda resources
+
+```sh
+create policy name=AwlessLambdaReadonlyPolicy effect=Allow resource="*" description="Readonly access to lambda resources" action=cloudwatch:Describe*,cloudwatch:Get*,cloudwatch:List*,cognito-identity:ListIdentityPools,cognito-sync:GetCognitoEvents,dynamodb:BatchGetItem,dynamodb:DescribeStream,dynamodb:DescribeTable,dynamodb:GetItem,dynamodb:ListStreams,dynamodb:ListTables,dynamodb:Query,dynamodb:Scan,events:List*,events:Describe*,iam:ListRoles,kinesis:DescribeStream,kinesis:ListStreams,lambda:List*,lambda:Get*,logs:DescribeMetricFilters,logs:GetLogEvents,logs:DescribeLogGroups,logs:DescribeLogStreams,s3:Get*,s3:List*,sns:ListTopics,sns:ListSubscriptions,sns:ListSubscriptionsByTopic,sqs:ListQueues,tag:GetResources,kms:ListAliases,ec2:DescribeVpcs,ec2:DescribeSubnets,ec2:DescribeSecurityGroups,iot:GetTopicRules,iot:ListTopicRules,iot:ListPolicies,iot:ListThings,iot:DescribeEndpoint
+
+```
+ DNS resources
+
+```sh
+create policy name=AwlessDNSReadonlyPolicy effect=Allow resource="*" description="Readonly access to DNS resources" action=route53:Get*,route53:List*,route53:TestDNSAnswer,route53domains:Get*,route53domains:List*
+
+```
+ Monitoring resources
+
+```sh
+create policy name=AwlessMonitoringReadonlyPolicy effect=Allow resource="*" description="Readonly access to monitoring resources" action=autoscaling:Describe*,cloudwatch:Describe*,cloudwatch:Get*,cloudwatch:List*,logs:Get*,logs:Describe*,logs:TestMetricFilter,sns:Get*,sns:List*
+
+```
+ CDN resources
+
+```sh
+create policy name=AwlessCDNReadonlyPolicy effect=Allow resource="*" description="Readonly access to CDN resources" action=acm:ListCertificates,cloudfront:Get*,cloudfront:List*,iam:ListServerCertificates,route53:List*,waf:ListWebACLs,waf:GetWebACL
+
+```
+ Cloud formation resources
+
+```sh
+create policy name=AwlessCloudFormationReadonlyPolicy effect=Allow resource="*" description="Readonly access to CloudFormation resources" action=cloudformation:DescribeStacks,cloudformation:DescribeStackEvents,cloudformation:DescribeStackResource,cloudformation:DescribeStackResources,cloudformation:GetTemplate,cloudformation:List*
+```
+
+
+Run it locally with: `awless run repo:awless_readonly_policies -v`
+
+
+
+
 ### Awless readwrite group
+
+
 
 
 
@@ -130,6 +214,8 @@ Run it locally with: `awless run repo:awless_readwrite_group -v`
 
 
 ### Group of instances scaling with CPU consumption
+
+
 
 
 *Create an autoscaling group of instances and watch their CPU to dynamically allocate/delete instances when needed.*
@@ -194,6 +280,8 @@ Run it locally with: `awless run repo:dynamic_autoscaling_watching_CPU -v`
 
 
 
+
+
 **tags**: 
 infra, ssh
 
@@ -230,6 +318,8 @@ Run it locally with: `awless run repo:instance_ssh -v`
 
 
 ### Create an instance with preinstalled awless with completion
+
+
 
 
 
@@ -279,6 +369,8 @@ Run it locally with: `awless run repo:instance_with_awless -v`
 
 
 ### Create an instance with preconfigured awless and awless-scheduler
+
+
 
 
 
@@ -335,6 +427,8 @@ Run it locally with: `awless run repo:instance_with_awless_scheduler -v`
 ### Create a classic Kafka infra
 
 
+
+
 *Create a classic Kafka infra: brokers, 1 zookeeper instance*
 
 
@@ -362,18 +456,24 @@ create role name=AwlessEC2ReadonlyRole principal-service="ec2.amazonaws.com" sle
 attach policy role=AwlessEC2ReadonlyRole arn=arn:aws:iam::aws:policy/AmazonEC2ReadOnlyAccess
 
 ```
+ Create Zookeeper instance
+
+```sh
+zookeeper = create instance name=zookeeper image={redhat-ami} type={zookeeper-instance-type} keypair={keypair.name} subnet={main.subnet} securitygroup=$sshsecgroup userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/redhat/zookeeper.sh
+
+```
+ Wait the Zookeeper instance is up and running
+
+```sh
+check instance id=$zookeeper state=running timeout=180
+
+```
  Create Kafka broker instances with role created above
 
 ```sh
 broker_1 = create instance name=broker_1 image={redhat-ami} type={broker-instance-type} keypair={keypair.name} subnet={main.subnet} role=AwlessEC2ReadonlyRole securitygroup=$sshsecgroup userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/redhat/kafka.sh
 broker_2 = create instance name=broker_2 image={redhat-ami} type={broker-instance-type} keypair={keypair.name} subnet={main.subnet} role=AwlessEC2ReadonlyRole securitygroup=$sshsecgroup userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/redhat/kafka.sh
 broker_3 = create instance name=broker_3 image={redhat-ami} type={broker-instance-type} keypair={keypair.name} subnet={main.subnet} role=AwlessEC2ReadonlyRole securitygroup=$sshsecgroup userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/redhat/kafka.sh
-
-```
- Create Zookeeper instance
-
-```sh
-zookeeper = create instance name=zookeeper image={redhat-ami} type={zookeeper-instance-type} keypair={keypair.name} subnet={main.subnet} securitygroup=$sshsecgroup userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/redhat/zookeeper.sh
 
 ```
  Update instances with corresponding securitygroups
@@ -397,6 +497,8 @@ awless run repo:kafka_infra redhat-ami=$(awless search images redhat --id-only) 
 
 
 ### Create VPC with a Linux host bastion
+
+
 
 
 *This template build this typical Linux bastion [architecture](http://docs.aws.amazon.com/quickstart/latest/linux-bastion/architecture.html) except it only deploys one host bastion on one public subnet*
@@ -482,6 +584,8 @@ Run it locally with: `awless run repo:linux_bastion -v`
 ### Attach usual readonly AWS policies (set of permissions) on group
 
 
+
+
 *When you want your users to have a set of permissions, instead of attaching permissions directly on users it is a good practice and simpler to define a group having those permissions and then adding/removing as needed users from those groups.*
 
 
@@ -512,6 +616,8 @@ Run it locally with: `awless run repo:policies_on_role -v`
 
 
 ### Create a public network enabling routing from the Internet
+
+
 
 
 
@@ -555,6 +661,8 @@ Run it locally with: `awless run repo:public_subnet -v`
 ### Create a AWS role with usual readonly policies that applies on a resource
 
 
+
+
 *Create a AWS role that applies on a resource (retrieve the account id with `awless whoami`)*
 
 
@@ -591,6 +699,8 @@ Run it locally with: `awless run repo:role_for_resource -v`
 
 
 ### Create a AWS role with usual readonly policies that applies on a user
+
+
 
 
 *Create a AWS role that applies on a user (retrieve the id with `awless whoami`)*
@@ -639,6 +749,8 @@ Run it locally with: `awless run repo:role_for_user -v`
 
 
 
+
+
 **tags**: 
 s3
 
@@ -666,6 +778,8 @@ Run it locally with: `awless run repo:s3website -v`
 
 
 ### Upload Image from local file
+
+
 
 
 *This template uploads on s3 a local VM file (VHD, OVA, VMDK). Then it creates an AMI from the S3 object.*
@@ -697,6 +811,8 @@ Run it locally with: `awless run repo:upload_image -v`
 
 
 ### Create a user with its SDK/Shell access key and console password
+
+
 
 
 
@@ -740,6 +856,8 @@ Run it locally with: `awless run repo:user -v`
 
 
 
+
+
 **tags**: 
 infra, VPC
 
@@ -759,6 +877,8 @@ Run it locally with: `awless run repo:vpc -v`
 
 
 ### Two instances Bitnami wordpress behind a loadbalancer
+
+
 
 
 *Note that the AMI in this template are working only in eu-central-1 region*

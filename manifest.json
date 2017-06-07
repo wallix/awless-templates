@@ -5,148 +5,155 @@
   "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/awless_readonly_group.aws"
  },
  {
+  "Title": "Pre-defined policies for awless users",
+  "Description": "Useful pre-defined readonly \u0026 readwrite policies for awless users",
+  "MinimalVersion": "0.1.1",
+  "Name": "awless_readonly_policies",
+  "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/awless_readonly_policies.aws"
+ },
+ {
   "Title": "Awless readwrite group",
   "Name": "awless_readwrite_group",
   "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/awless_readwrite_group.aws"
  },
  {
   "Title": "Group of instances scaling with CPU consumption",
-  "Name": "dynamic_autoscaling_watching_CPU",
-  "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/dynamic_autoscaling_watching_CPU.aws",
   "Description": "Create an autoscaling group of instances and watch their CPU to dynamically allocate/delete instances when needed.",
   "Tags": [
    "infra",
    "autoscaling"
-  ]
+  ],
+  "Name": "dynamic_autoscaling_watching_CPU",
+  "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/dynamic_autoscaling_watching_CPU.aws"
  },
  {
   "Title": "Create an instance accessible with ssh with a new keypair",
-  "Name": "instance_ssh",
-  "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/instance_ssh.aws",
   "Tags": [
    "infra",
    "ssh"
-  ]
+  ],
+  "Name": "instance_ssh",
+  "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/instance_ssh.aws"
  },
  {
   "Title": "Create an instance with preinstalled awless with completion",
-  "Name": "instance_with_awless",
-  "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/instance_with_awless.aws",
   "Tags": [
    "infra",
    "awless"
-  ]
+  ],
+  "Name": "instance_with_awless",
+  "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/instance_with_awless.aws"
  },
  {
   "Title": "Create an instance with preconfigured awless and awless-scheduler",
-  "Name": "instance_with_awless_scheduler",
-  "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/instance_with_awless_scheduler.aws",
   "Tags": [
    "infra",
    "awless",
    "awless-scheduler"
-  ]
+  ],
+  "Name": "instance_with_awless_scheduler",
+  "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/instance_with_awless_scheduler.aws"
  },
  {
   "Title": "Create a classic Kafka infra",
-  "Name": "kafka_infra",
-  "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/kafka_infra.aws",
   "CLIExample": "awless run repo:kafka_infra redhat-ami=$(awless search images redhat --id-only) remote-access.cidr=$(awless whoami --ip-only)/32 broker-instance-type=t2.medium zookeeper-instance-type=t2.medium",
-  "Description": "Create a classic Kafka infra: brokers, 1 zookeeper instance"
+  "Description": "Create a classic Kafka infra: brokers, 1 zookeeper instance",
+  "Name": "kafka_infra",
+  "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/kafka_infra.aws"
  },
  {
   "Title": "Create VPC with a Linux host bastion",
-  "Name": "linux_bastion",
-  "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/linux_bastion.aws",
   "Description": "This template build this typical Linux bastion [architecture](http://docs.aws.amazon.com/quickstart/latest/linux-bastion/architecture.html) except it only deploys one host bastion on one public subnet",
   "Tags": [
    "infra"
-  ]
+  ],
+  "Name": "linux_bastion",
+  "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/linux_bastion.aws"
  },
  {
   "Title": "Attach usual readonly AWS policies (set of permissions) on group",
-  "Name": "policies_on_role",
-  "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/policies_on_role.aws",
   "Description": "When you want your users to have a set of permissions, instead of attaching permissions directly on users it is a good practice and simpler to define a group having those permissions and then adding/removing as needed users from those groups.",
   "Tags": [
    "access",
    "policy",
    "role"
-  ]
+  ],
+  "Name": "policies_on_role",
+  "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/policies_on_role.aws"
  },
  {
   "Title": "Create a public network enabling routing from the Internet",
-  "Name": "public_subnet",
-  "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/public_subnet.aws",
   "Tags": [
    "infra"
-  ]
+  ],
+  "Name": "public_subnet",
+  "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/public_subnet.aws"
  },
  {
   "Title": "Create a AWS role with usual readonly policies that applies on a resource",
-  "Name": "role_for_resource",
-  "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/role_for_resource.aws",
   "Description": "Create a AWS role that applies on a resource (retrieve the account id with `awless whoami`)",
   "Tags": [
    "access",
    "policy",
    "role"
-  ]
+  ],
+  "Name": "role_for_resource",
+  "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/role_for_resource.aws"
  },
  {
   "Title": "Create a AWS role with usual readonly policies that applies on a user",
-  "Name": "role_for_user",
-  "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/role_for_user.aws",
   "Description": "Create a AWS role that applies on a user (retrieve the id with `awless whoami`)",
   "Tags": [
    "access",
    "policy",
    "user"
-  ]
+  ],
+  "Name": "role_for_user",
+  "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/role_for_user.aws"
  },
  {
   "Title": "Create a static website on S3",
-  "Name": "s3website",
-  "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/s3website.aws",
   "Tags": [
    "s3"
-  ]
+  ],
+  "Name": "s3website",
+  "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/s3website.aws"
  },
  {
   "Title": "Upload Image from local file",
-  "Name": "upload_image",
-  "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/upload_image.aws",
   "Description": "This template uploads on s3 a local VM file (VHD, OVA, VMDK). Then it creates an AMI from the S3 object.",
   "Tags": [
    "infra",
    "s3"
-  ]
+  ],
+  "Name": "upload_image",
+  "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/upload_image.aws"
  },
  {
   "Title": "Create a user with its SDK/Shell access key and console password",
-  "Name": "user",
-  "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/user.aws",
   "Tags": [
    "access",
    "user"
-  ]
+  ],
+  "Name": "user",
+  "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/user.aws"
  },
  {
   "Title": "Create a VPC with its internet routing gateway",
-  "Name": "vpc",
-  "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/vpc.aws",
   "Tags": [
    "infra",
    "VPC"
-  ]
+  ],
+  "Name": "vpc",
+  "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/vpc.aws"
  },
  {
   "Title": "Two instances Bitnami wordpress behind a loadbalancer",
-  "Name": "wordpress_ha",
-  "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/wordpress_ha.aws",
   "Description": "Note that the AMI in this template are working only in eu-central-1 region",
   "Tags": [
    "infra"
-  ]
+  ],
+  "Name": "wordpress_ha",
+  "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/wordpress_ha.aws"
  }
 ]

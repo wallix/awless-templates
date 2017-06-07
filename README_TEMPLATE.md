@@ -15,7 +15,7 @@ On each change all templates are verified & compiled against the latest version 
 You can run the verification locally with:
 
     go get github.com/wallix/awless  # if needed
-    go test verifyall_test.go -v
+    go test -v
 
 # Examples
 
@@ -24,6 +24,10 @@ You can run the verification locally with:
 
 {{range $index, $example := .}}
 ### {{$example.Title}}
+
+{{if $example.MinimalVersion }}
+**-> Minimal awless version required: {{ $example.MinimalVersion }}**
+{{ end }}
 
 {{if $example.Description }}
 *{{ $example.Description }}*

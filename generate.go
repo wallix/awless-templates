@@ -13,8 +13,10 @@ import (
 	"text/template"
 )
 
-var metadataTypes = []string{"Title", "Tags", "Description", "CLIExample"}
-var metadataRegex = regexp.MustCompile(fmt.Sprintf("#\\s*(%s):\\s*(.+)\\s*", strings.Join(metadataTypes, "|")))
+var (
+	metadataTypes = []string{"Title", "Tags", "Description", "CLIExample", "MinimalVersion"}
+	metadataRegex = regexp.MustCompile(fmt.Sprintf("#\\s*(%s):\\s*(.+)\\s*", strings.Join(metadataTypes, "|")))
+)
 
 func main() {
 	log.SetFlags(0)
@@ -46,10 +48,16 @@ func main() {
 	}
 }
 
+type Metadata struct {
+	Title, CLIExample           string   `json:",omitempty"`
+	Description, MinimalVersion string   `json:",omitempty"`
+	Tags                        []string `json:",omitempty"`
+}
+
 type Example struct {
-	Title, Name, Link, CLIExample, Description string   `json:",omitempty"`
-	Tags                                       []string `json:",omitempty"`
-	Documentation                              string   `json:"-"`
+	*Metadata
+	Name, Link    string `json:",omitempty"`
+	Documentation string `json:"-"`
 }
 
 func buildExamples() ([]*Example, error) {
@@ -81,34 +89,49 @@ func buildExample(filename string) (*Example, error) {
 	if err != nil {
 		return nil, err
 	}
-	rawMetadata := parseMetadata(content)
+	meta, err := parseTemplateMetadata(content)
+	if err != nil {
+		return nil, err
+	}
 
 	name := strings.TrimSuffix(filename, filepath.Ext(filename))
 	link := fmt.Sprintf("https://raw.githubusercontent.com/wallix/awless-templates/master/%s.aws", name)
-	title := fmt.Sprintf("%s", humanize(name))
-	if mdTitle, ok := rawMetadata["Title"]; ok {
-		title = strings.TrimSpace(mdTitle)
+	if strings.TrimSpace(meta.Title) == "" {
+		meta.Title = fmt.Sprintf("%s", humanize(name))
 	}
 	var tags []string
-	if rawTags, ok := rawMetadata["Tags"]; ok {
-		for _, raw := range strings.Split(rawTags, ",") {
-			tags = append(tags, strings.TrimSpace(raw))
-		}
+	for _, raw := range meta.Tags {
+		tags = append(tags, strings.TrimSpace(raw))
 	}
 
-	return &Example{Title: title, Link: link, Name: name, Description: rawMetadata["Description"], CLIExample: rawMetadata["CLIExample"], Tags: tags, Documentation: doc}, nil
+	return &Example{Metadata: meta, Link: link, Name: name, Documentation: doc}, nil
 }
 
-func parseMetadata(content []byte) map[string]string {
-	metadata := make(map[string]string)
+func parseTemplateMetadata(content []byte) (*Metadata, error) {
+	metadata := make(map[string]interface{})
 	scanner := bufio.NewScanner(bytes.NewReader(content))
 	for scanner.Scan() {
 		match := metadataRegex.FindStringSubmatch(scanner.Text())
-		if match != nil {
-			metadata[match[1]] = match[2]
+		if len(match) > 0 {
+			if directive := strings.TrimSpace(match[1]); directive == "Tags" {
+				metadata[directive] = splitTrim(match[2])
+			} else {
+				metadata[match[1]] = match[2]
+			}
 		}
 	}
-	return metadata
+
+	b, err := json.Marshal(metadata)
+	if err != nil {
+		return nil, err
+	}
+
+	out := new(Metadata)
+	if err := json.Unmarshal(b, out); err != nil {
+		return nil, err
+	}
+
+	return out, nil
 }
 
 func buildTemplateDoc(content []byte) (string, error) {
@@ -166,4 +189,11 @@ func humanize(s string) string {
 
 func markdownTitleLink(s string) string {
 	return strings.ToLower(strings.Replace(s, " ", "-", -1))
+}
+
+func splitTrim(s string) (out []string) {
+	for _, e := range strings.Split(s, ",") {
+		out = append(out, strings.TrimSpace(e))
+	}
+	return
 }
