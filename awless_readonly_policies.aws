@@ -1,5 +1,5 @@
 # Title: Pre-defined policies for awless users
-# MinimalVersion: 0.1.1
+# MinimalVersion: v0.1.1
 # Description: Useful pre-defined readonly & readwrite policies for awless users
 
 # Infra resources
