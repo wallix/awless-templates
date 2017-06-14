@@ -1,5 +1,17 @@
 [
  {
+  "Title": "ECS Autoscaling Cluster",
+  "Description": "Note that the AMI in this template are working only in eu-west-1 region",
+  "MinimalVersion": "v0.1.0",
+  "Tags": [
+   "autoscaling",
+   "container",
+   "infra"
+  ],
+  "Name": "ECS_autoscaling_cluster",
+  "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/ECS_autoscaling_cluster.aws"
+ },
+ {
   "Title": "Awless readonly group",
   "Name": "awless_readonly_group",
   "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/awless_readonly_group.aws"

@@ -20,6 +20,7 @@ You can run the verification locally with:
 # Examples
 
 
+* [ECS Autoscaling Cluster](#ecs-autoscaling-cluster)
 * [Awless readonly group](#awless-readonly-group)
 * [Pre-defined policies for awless users](#pre-defined-policies-for-awless-users)
 * [Awless readwrite group](#awless-readwrite-group)
@@ -39,6 +40,70 @@ You can run the verification locally with:
 * [Create a user with its SDK/Shell access key and console password](#create-a-user-with-its-sdk/shell-access-key-and-console-password)
 * [Create a VPC with its internet routing gateway](#create-a-vpc-with-its-internet-routing-gateway)
 * [Two instances Bitnami wordpress behind a loadbalancer](#two-instances-bitnami-wordpress-behind-a-loadbalancer)
+
+
+### ECS Autoscaling Cluster
+
+
+**-> Minimal awless version required: v0.1.0**
+
+
+
+*Note that the AMI in this template are working only in eu-west-1 region*
+
+
+
+**tags**: 
+autoscaling, container, infra
+
+
+
+ First, create the ECS cluster with `awless create containercluster name={cluster.name}`
+ Create ECS policy
+
+```sh
+policy = create policy name=AmazonEC2ContainerServiceforEC2Role effect=Allow resource="*" description="Access for ECS containers" action=ecs:DeregisterContainerInstance,ecs:DiscoverPollEndpoint,ecs:Poll,ecs:RegisterContainerInstance,ecs:StartTelemetrySession,ecs:Submit*,ecr:GetAuthorizationToken,ecr:BatchCheckLayerAvailability,ecr:GetDownloadUrlForLayer,ecr:BatchGetImage,logs:CreateLogStream,logs:PutLogEvent
+
+```
+ role name variable
+
+```sh
+roleName = AmazonEC2ContainerServiceRole
+
+```
+ Create a AWS role that applies on a resource
+
+```sh
+create role name=$roleName principal-service="ec2.amazonaws.com" sleep-after=15
+
+```
+ Attach the policy to the role
+
+```sh
+attach policy arn=$policy role=$roleName
+
+```
+ Create the ECS instances launch configuration
+ The instances must be launched with a userdata file containing:
+ ```sh
+ !/bin/bash
+ echo ECS_CLUSTER=ecs-cluster-name >> /etc/ecs/ecs.config
+ ```
+
+```sh
+launchconfig = create launchconfiguration image=ami-95f8d2f3 keypair={instance.keypair} name=ECSClusterLaunchconfig type={instance.type} userdata={instance.userdata} role=$roleName
+
+```
+ Create the scalinggroup
+
+```sh
+create scalinggroup desired-capacity={scalinggroup.desired-capacity} launchconfiguration=$launchconfig max-size={instance.max-number} min-size={instance.min-number} name=ecsClusterScalingGroup subnets={instance.subnets}
+```
+
+
+Run it locally with: `awless run repo:ECS_autoscaling_cluster -v`
+
+
 
 
 ### Awless readonly group
