@@ -7,7 +7,7 @@
  {
   "Title": "Pre-defined policies for awless users",
   "Description": "Useful pre-defined readonly \u0026 readwrite policies for awless users",
-  "MinimalVersion": "0.1.1",
+  "MinimalVersion": "v0.1.1",
   "Name": "awless_readonly_policies",
   "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/awless_readonly_policies.aws"
  },
@@ -25,6 +25,12 @@
   ],
   "Name": "dynamic_autoscaling_watching_CPU",
   "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/dynamic_autoscaling_watching_CPU.aws"
+ },
+ {
+  "Title": "Install awless scheduler",
+  "CLIExample": "awless run repo:install_awless_scheduler ubuntu.ami=$(aw search images canonical:ubuntu --id-only)",
+  "Name": "install_awless_scheduler",
+  "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/install_awless_scheduler.aws"
  },
  {
   "Title": "Create an instance accessible with ssh with a new keypair",

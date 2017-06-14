@@ -24,6 +24,7 @@ You can run the verification locally with:
 * [Pre-defined policies for awless users](#pre-defined-policies-for-awless-users)
 * [Awless readwrite group](#awless-readwrite-group)
 * [Group of instances scaling with CPU consumption](#group-of-instances-scaling-with-cpu-consumption)
+* [Install awless scheduler](#install-awless-scheduler)
 * [Create an instance accessible with ssh with a new keypair](#create-an-instance-accessible-with-ssh-with-a-new-keypair)
 * [Create an instance with preinstalled awless with completion](#create-an-instance-with-preinstalled-awless-with-completion)
 * [Create an instance with preconfigured awless and awless-scheduler](#create-an-instance-with-preconfigured-awless-and-awless-scheduler)
@@ -88,7 +89,7 @@ Run it locally with: `awless run repo:awless_readonly_group -v`
 ### Pre-defined policies for awless users
 
 
-**-> Minimal awless version required: 0.1.1**
+**-> Minimal awless version required: v0.1.1**
 
 
 
@@ -272,6 +273,32 @@ attach alarm name=scaleoutAlarm action-arn=$scaleout
 
 Run it locally with: `awless run repo:dynamic_autoscaling_watching_CPU -v`
 
+
+
+
+### Install awless scheduler
+
+
+
+
+
+
+
+
+ Launch new instance running remote user data script installing awless
+
+```sh
+create instance name={instance.name} image={ubuntu.ami} type=t2.nano keypair={ssh.keypair} userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/ubuntu/install_awless_scheduler.sh role={role.name}
+```
+
+
+Run it locally with: `awless run repo:install_awless_scheduler -v`
+
+
+Full CLI example:
+```sh
+awless run repo:install_awless_scheduler ubuntu.ami=$(aw search images canonical:ubuntu --id-only)
+```
 
 
 
