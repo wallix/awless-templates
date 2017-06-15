@@ -30,7 +30,7 @@
  },
  {
   "Title": "Create a simple postgres instance",
-  "Description": "Create a basic postgres instance with only basic required properties filled in",
+  "Description": "Create the corresponding secgroup and the basic postgres instance (into a existing dbsubnetgroup). Instance has only basic required properties filled in",
   "Name": "db_public_postgres",
   "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/db_public_postgres.aws"
  },

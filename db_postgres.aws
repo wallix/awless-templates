@@ -1,0 +1,8 @@
+# Title: Create a simple postgres instance
+# Description: Create the corresponding secgroup and the basic postgres instance (into a existing dbsubnetgroup). Instance has only basic required properties filled in
+
+postgres_sg = create securitygroup name=postgres description='Postgres access' vpc={vpc}
+update securitygroup id=$postgres_sg inbound=authorize protocol=tcp portrange=5432 cidr={securitygroup.cidr}
+
+# Create the database and connect to it through: `psql --host=? --port=5432 --username=? --password --dbname=?`
+create database engine=postgres id={database.identifier} subnetgroup={database.dbsubnetgroup}  password={password.minimum8chars} dbname={postgres.database.name} size=5 type=db.t2.small username={database.username} vpcsecuritygroups=$postgres_sg

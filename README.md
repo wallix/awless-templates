@@ -285,7 +285,7 @@ Run it locally with: `awless run repo:awless_readwrite_group -v`
 
 
 
-*Create a basic postgres instance with only basic required properties filled in*
+*Create the corresponding secgroup and the basic postgres instance (into a existing dbsubnetgroup). Instance has only basic required properties filled in*
 
 
 
@@ -294,13 +294,13 @@ Run it locally with: `awless run repo:awless_readwrite_group -v`
 
 ```sh
 postgres_sg = create securitygroup name=postgres description='Postgres access' vpc={vpc}
-update securitygroup id=$postgres_sg inbound=authorize protocol=tcp portrange=5432
+update securitygroup id=$postgres_sg inbound=authorize protocol=tcp portrange=5432 cidr={securitygroup.cidr}
 
 ```
  Create the database and connect to it through: `psql --host=? --port=5432 --username=? --password --dbname=?`
 
 ```sh
-create database engine=postgres id={database.identifier} password={password.minimum8chars} dbname={postgres.database.name} size=5 type=db.t2.small username={database.username} vpcsecuritygroups=$postgres_sg
+create database engine=postgres id={database.identifier} subnetgroup={database.dbsubnetgroup}  password={password.minimum8chars} dbname={postgres.database.name} size=5 type=db.t2.small username={database.username} vpcsecuritygroups=$postgres_sg
 ```
 
 
