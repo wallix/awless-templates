@@ -1,0 +1,8 @@
+# Title: Create a simple postgres instance
+# Description: Create a basic postgres instance with only basic required properties filled in
+
+postgres_sg = create securitygroup name=postgres description='Postgres access' vpc={vpc}
+update securitygroup id=$postgres_sg inbound=authorize protocol=tcp portrange=5432
+
+# Create the database and connect to it through: `psql --host=? --port=5432 --username=? --password --dbname=?`
+create database engine=postgres id={database.identifier} password={password.minimum8chars} dbname={postgres.database.name} size=5 type=db.t2.small username={database.username} vpcsecuritygroups=$postgres_sg
