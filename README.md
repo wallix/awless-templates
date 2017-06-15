@@ -97,7 +97,7 @@ launchconfig = create launchconfiguration image=ami-95f8d2f3 keypair={instance.k
  Create the scalinggroup
 
 ```sh
-create scalinggroup desired-capacity={scalinggroup.desired-capacity} launchconfiguration=$launchconfig max-size={instance.max-number} min-size={instance.min-number} name=ecsClusterScalingGroup subnets={instance.subnets}
+create scalinggroup desired-capacity={scalinggroup.desired-capacity} launchconfiguration=$launchconfig max-size={scalinggroup.desired-capacity} min-size={scalinggroup.desired-capacity} name=ecsClusterScalingGroup subnets={instance.subnets}
 ```
 
 

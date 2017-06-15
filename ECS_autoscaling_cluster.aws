@@ -27,4 +27,4 @@ attach policy arn=$policy role=$roleName
 launchconfig = create launchconfiguration image=ami-95f8d2f3 keypair={instance.keypair} name=ECSClusterLaunchconfig type={instance.type} userdata={instance.userdata} role=$roleName
 
 # Create the scalinggroup
-create scalinggroup desired-capacity={scalinggroup.desired-capacity} launchconfiguration=$launchconfig max-size={instance.max-number} min-size={instance.min-number} name=ecsClusterScalingGroup subnets={instance.subnets}
+create scalinggroup desired-capacity={scalinggroup.desired-capacity} launchconfiguration=$launchconfig max-size={scalinggroup.desired-capacity} min-size={scalinggroup.desired-capacity} name=ecsClusterScalingGroup subnets={instance.subnets}
