@@ -29,6 +29,12 @@
   "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/awless_readwrite_group.aws"
  },
  {
+  "Title": "Create a simple postgres instance",
+  "Description": "Create a basic postgres instance with only basic required properties filled in",
+  "Name": "db_public_postgres",
+  "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/db_public_postgres.aws"
+ },
+ {
   "Title": "Group of instances scaling with CPU consumption",
   "Description": "Create an autoscaling group of instances and watch their CPU to dynamically allocate/delete instances when needed.",
   "Tags": [

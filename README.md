@@ -24,6 +24,7 @@ You can run the verification locally with:
 * [Awless readonly group](#awless-readonly-group)
 * [Pre-defined policies for awless users](#pre-defined-policies-for-awless-users)
 * [Awless readwrite group](#awless-readwrite-group)
+* [Create a simple postgres instance](#create-a-simple-postgres-instance)
 * [Group of instances scaling with CPU consumption](#group-of-instances-scaling-with-cpu-consumption)
 * [Install awless scheduler](#install-awless-scheduler)
 * [Create an instance accessible with ssh with a new keypair](#create-an-instance-accessible-with-ssh-with-a-new-keypair)
@@ -275,6 +276,35 @@ attach policy arn=arn:aws:iam::aws:policy/IAMReadOnlyAccess group=$groupName
 
 
 Run it locally with: `awless run repo:awless_readwrite_group -v`
+
+
+
+
+### Create a simple postgres instance
+
+
+
+
+*Create a basic postgres instance with only basic required properties filled in*
+
+
+
+
+
+
+```sh
+postgres_sg = create securitygroup name=postgres description='Postgres access' vpc={vpc}
+update securitygroup id=$postgres_sg inbound=authorize protocol=tcp portrange=5432
+
+```
+ Create the database and connect to it through: `psql --host=? --port=5432 --username=? --password --dbname=?`
+
+```sh
+create database engine=postgres id={database.identifier} password={password.minimum8chars} dbname={postgres.database.name} size=5 type=db.t2.small username={database.username} vpcsecuritygroups=$postgres_sg
+```
+
+
+Run it locally with: `awless run repo:db_public_postgres -v`
 
 
 
