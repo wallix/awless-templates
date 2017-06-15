@@ -1,15 +1,15 @@
 # Title: ECS Autoscaling Cluster
 # Tags: autoscaling, container, infra
-# Description: Note that the AMI in this template are working only in eu-west-1 region
+# Description: Note that the AMI in this template is working only in eu-west-1 region
 # MinimalVersion: v0.1.0
 
-# First, create the ECS cluster with `awless create containercluster name={cluster.name}`
+# First, create the ECS cluster with `awless create containercluster name={cluster.name}`.
 
 
-# Create ECS policy
+# Then, create a policy to allow to connect to ECS
 policy = create policy name=AmazonEC2ContainerServiceforEC2Role effect=Allow resource="*" description="Access for ECS containers" action=ecs:DeregisterContainerInstance,ecs:DiscoverPollEndpoint,ecs:Poll,ecs:RegisterContainerInstance,ecs:StartTelemetrySession,ecs:Submit*,ecr:GetAuthorizationToken,ecr:BatchCheckLayerAvailability,ecr:GetDownloadUrlForLayer,ecr:BatchGetImage,logs:CreateLogStream,logs:PutLogEvent
 
-# role name variable
+# Set role name variable
 roleName = AmazonEC2ContainerServiceRole
 
 # Create a AWS role that applies on a resource
@@ -18,7 +18,7 @@ create role name=$roleName principal-service="ec2.amazonaws.com" sleep-after=15
 # Attach the policy to the role
 attach policy arn=$policy role=$roleName 
 
-# Create the ECS instances launch configuration
+# Create the ECS instances launch configuration. 
 # The instances must be launched with a userdata file containing:
 # ```sh
 # #!/bin/bash

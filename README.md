@@ -49,7 +49,7 @@ You can run the verification locally with:
 
 
 
-*Note that the AMI in this template are working only in eu-west-1 region*
+*Note that the AMI in this template is working only in eu-west-1 region*
 
 
 
@@ -58,14 +58,14 @@ autoscaling, container, infra
 
 
 
- First, create the ECS cluster with `awless create containercluster name={cluster.name}`
- Create ECS policy
+ First, create the ECS cluster with `awless create containercluster name={cluster.name}`.
+ Then, create a policy to allow to connect to ECS
 
 ```sh
 policy = create policy name=AmazonEC2ContainerServiceforEC2Role effect=Allow resource="*" description="Access for ECS containers" action=ecs:DeregisterContainerInstance,ecs:DiscoverPollEndpoint,ecs:Poll,ecs:RegisterContainerInstance,ecs:StartTelemetrySession,ecs:Submit*,ecr:GetAuthorizationToken,ecr:BatchCheckLayerAvailability,ecr:GetDownloadUrlForLayer,ecr:BatchGetImage,logs:CreateLogStream,logs:PutLogEvent
 
 ```
- role name variable
+ Set role name variable
 
 ```sh
 roleName = AmazonEC2ContainerServiceRole
@@ -83,7 +83,7 @@ create role name=$roleName principal-service="ec2.amazonaws.com" sleep-after=15
 attach policy arn=$policy role=$roleName
 
 ```
- Create the ECS instances launch configuration
+ Create the ECS instances launch configuration.
  The instances must be launched with a userdata file containing:
  ```sh
  !/bin/bash
