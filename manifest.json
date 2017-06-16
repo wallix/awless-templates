@@ -31,8 +31,8 @@
  {
   "Title": "Create a simple postgres instance",
   "Description": "Create the corresponding secgroup and the basic postgres instance (into a existing dbsubnetgroup). Instance has only basic required properties filled in",
-  "Name": "db_public_postgres",
-  "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/db_public_postgres.aws"
+  "Name": "db_postgres",
+  "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/db_postgres.aws"
  },
  {
   "Title": "Group of instances scaling with CPU consumption",
@@ -77,6 +77,12 @@
   ],
   "Name": "instance_with_awless_scheduler",
   "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/instance_with_awless_scheduler.aws"
+ },
+ {
+  "Title": "Create an instance with tags and public IP",
+  "Description": "Create an instance with mulitple tags and attach to it an elastic IP",
+  "Name": "instance_with_tags_and_publicip",
+  "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/instance_with_tags_and_publicip.aws"
  },
  {
   "Title": "Create a classic Kafka infra",

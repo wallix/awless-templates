@@ -30,6 +30,7 @@ You can run the verification locally with:
 * [Create an instance accessible with ssh with a new keypair](#create-an-instance-accessible-with-ssh-with-a-new-keypair)
 * [Create an instance with preinstalled awless with completion](#create-an-instance-with-preinstalled-awless-with-completion)
 * [Create an instance with preconfigured awless and awless-scheduler](#create-an-instance-with-preconfigured-awless-and-awless-scheduler)
+* [Create an instance with tags and public IP](#create-an-instance-with-tags-and-public-ip)
 * [Create a classic Kafka infra](#create-a-classic-kafka-infra)
 * [Create VPC with a Linux host bastion](#create-vpc-with-a-linux-host-bastion)
 * [Attach usual readonly AWS policies (set of permissions) on group](#attach-usual-readonly-aws-policies-(set-of-permissions)-on-group)
@@ -304,7 +305,7 @@ create database engine=postgres id={database.identifier} subnetgroup={database.d
 ```
 
 
-Run it locally with: `awless run repo:db_public_postgres -v`
+Run it locally with: `awless run repo:db_postgres -v`
 
 
 
@@ -542,6 +543,46 @@ create instance name=AwlessWithScheduler type=t2.nano keypair={ssh.keypair} user
 
 
 Run it locally with: `awless run repo:instance_with_awless_scheduler -v`
+
+
+
+
+### Create an instance with tags and public IP
+
+
+
+
+*Create an instance with mulitple tags and attach to it an elastic IP*
+
+
+
+
+
+
+```sh
+inst = create instance subnet={instance.subnet} image={instance.image} type={instance.type} keypair={instance.keypair} name={instance.name} securitygroup={instance.securitygroup}
+
+```
+ Putting a tag on the instance
+
+```sh
+create tag resource=$inst key={instance.tagkey} value={instance.tagvalue}
+
+```
+ Creating a elastic IP
+
+```sh
+pubip = create elasticip domain=vpc
+
+```
+ Attaching the IP onto the instance
+
+```sh
+attach elasticip id=$pubip instance=$inst
+```
+
+
+Run it locally with: `awless run repo:instance_with_tags_and_publicip -v`
 
 
 
