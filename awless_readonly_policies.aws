@@ -11,11 +11,8 @@ create policy name=AwlessAccessReadonlyPolicy effect=Allow resource="*" descript
 # Storage resources
 create policy name=AwlessStorageReadonlyPolicy effect=Allow resource="*" description="Readonly access to storage resources" action=s3:Get*,s3:List*
 
-# Notification resources
-create policy name=AwlessNotificationReadonlyPolicy effect=Allow resource="*" description="Readonly access to notification resources" action=sns:GetTopicAttributes,sns:List*
-
-# Queue resources
-create policy name=AwlessQueueReadonlyPolicy effect=Allow resource="*" description="Readonly access to queue resources" action=sqs:GetQueueAttributes,sqs:ListQueues
+# Messaging resources
+create policy name=AwlessMessagingReadonlyPolicy effect=Allow resource="*" description="Readonly access to notification and queueing for messaging resources" action=sns:GetTopicAttributes,sns:List*,sqs:GetQueueAttributes,sqs:ListQueues
 
 # Lambda resources
 create policy name=AwlessLambdaReadonlyPolicy effect=Allow resource="*" description="Readonly access to lambda resources" action=cloudwatch:Describe*,cloudwatch:Get*,cloudwatch:List*,cognito-identity:ListIdentityPools,cognito-sync:GetCognitoEvents,dynamodb:BatchGetItem,dynamodb:DescribeStream,dynamodb:DescribeTable,dynamodb:GetItem,dynamodb:ListStreams,dynamodb:ListTables,dynamodb:Query,dynamodb:Scan,events:List*,events:Describe*,iam:ListRoles,kinesis:DescribeStream,kinesis:ListStreams,lambda:List*,lambda:Get*,logs:DescribeMetricFilters,logs:GetLogEvents,logs:DescribeLogGroups,logs:DescribeLogStreams,s3:Get*,s3:List*,sns:ListTopics,sns:ListSubscriptions,sns:ListSubscriptionsByTopic,sqs:ListQueues,tag:GetResources,kms:ListAliases,ec2:DescribeVpcs,ec2:DescribeSubnets,ec2:DescribeSecurityGroups,iot:GetTopicRules,iot:ListTopicRules,iot:ListPolicies,iot:ListThings,iot:DescribeEndpoint
