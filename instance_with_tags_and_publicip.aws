@@ -1,0 +1,13 @@
+# Title: Create an instance with tags and public IP
+# Description: Create an instance with mulitple tags and attach to it an elastic IP
+
+inst = create instance subnet={instance.subnet} image={instance.image} type={instance.type} keypair={instance.keypair} name={instance.name} securitygroup={instance.securitygroup}
+
+# Putting a tag on the instance
+create tag resource=$inst key={instance.tagkey} value={instance.tagvalue}
+
+# Creating a elastic IP
+pubip = create elasticip domain=vpc
+
+# Attaching the IP onto the instance
+attach elasticip id=$pubip instance=$inst
