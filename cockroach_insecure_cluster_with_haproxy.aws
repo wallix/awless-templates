@@ -58,16 +58,16 @@ create role name=DiscoverCockroachNodeRole principal-service="ec2.amazonaws.com"
 attach policy role=DiscoverCockroachNodeRole arn=arn:aws:iam::aws:policy/AmazonEC2ReadOnlyAccess 
 
 ## Create the cockroachdb nodes
-node1 = create instance subnet=$subnet_1 keypair={ssh.keypair} image={node.image} type={instance.type} count=1 role=DiscoverCockroachNodeRole name=cockroachdb-node-1 userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/ubuntu/cockroach_insecure_node.sh 
+node1 = create instance subnet=$subnet_1 keypair={ssh.keypair} image={node.image} type=t2.medium count=1 role=DiscoverCockroachNodeRole name=cockroachdb-node-1 userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/ubuntu/cockroach_insecure_node.sh 
 check instance id=$node1 state=running timeout=180
 
-node2 = create instance subnet=$subnet_2 keypair={ssh.keypair} image={node.image} type={instance.type} count=1 role=DiscoverCockroachNodeRole name=cockroachdb-node-2 userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/ubuntu/joining_cockroach_insecure_node.sh
+node2 = create instance subnet=$subnet_2 keypair={ssh.keypair} image={node.image} type=t2.medium count=1 role=DiscoverCockroachNodeRole name=cockroachdb-node-2 userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/ubuntu/joining_cockroach_insecure_node.sh
 check instance id=$node2 state=running timeout=180
 
-node3 = create instance subnet=$subnet_3 keypair={ssh.keypair} image={node.image} type={instance.type} count=1 role=DiscoverCockroachNodeRole name=cockroachdb-node-3 userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/ubuntu/joining_cockroach_insecure_node.sh
+node3 = create instance subnet=$subnet_3 keypair={ssh.keypair} image={node.image} type=t2.medium count=1 role=DiscoverCockroachNodeRole name=cockroachdb-node-3 userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/ubuntu/joining_cockroach_insecure_node.sh
 check instance id=$node3 state=running timeout=180
 
-haproxy = create instance subnet=$subnet_4 keypair={ssh.keypair} image={node.image} type={instance.type} count=1 role=DiscoverCockroachNodeRole name=cockroachdb-haproxy userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/ubuntu/cockroach_haproxy.sh
+haproxy = create instance subnet=$subnet_4 keypair={ssh.keypair} image={node.image} type=t2.micro count=1 role=DiscoverCockroachNodeRole name=cockroachdb-haproxy userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/ubuntu/cockroach_haproxy.sh
 
 # Update instances with firewall definitions
 attach securitygroup id=$sshfirewall instance=$haproxy
