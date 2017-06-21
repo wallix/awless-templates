@@ -1,0 +1,7 @@
+# Title: Create a VPC with 3 internal subnets
+
+# Create a new VPC with private subnets (no internet gateway)
+vpc = create vpc cidr=10.0.0.0/16 name=vpc_10.0.0.0_16
+
+create subnet cidr=10.0.0.0/24 vpc=$vpc name=sub_10.0.0.0_24 availabilityzone={subnet1.zone}
+create subnet cidr=10.0.1.0/24 vpc=$vpc name=sub_10.0.1.0_24 availabilityzone={subnet2.zone}

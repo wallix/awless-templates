@@ -1,0 +1,86 @@
+# Title: Create a simple (insecure) CockroachDB cluster
+# Description: Deploying an insecure multi-node CockroachDB cluster with HAProxy to distribute client traffic. See https://www.cockroachlabs.com/docs/manual-deployment-insecure.html
+
+# Create a new VPC with 3 private subnets and a public one (i.e. with internet gateway)
+vpc = create vpc cidr=10.0.0.0/16 name=vpc_10.0.0.0_16
+gateway = create internetgateway
+attach internetgateway id=$gateway vpc=$vpc
+
+# Private subnets in multi AZ for cockroachdb cluster
+subnet_1 = create subnet cidr=10.0.0.0/24 vpc=$vpc name=sub_10.0.0.0_24 availabilityzone={zone1}
+subnet_2 = create subnet cidr=10.0.1.0/24 vpc=$vpc name=sub_10.0.1.0_24 availabilityzone={zone2}
+subnet_3 = create subnet cidr=10.0.2.0/24 vpc=$vpc name=sub_10.0.2.0_24 availabilityzone={zone1}
+
+# Public subnet that will hosts the HAproxy
+subnet_4 = create subnet cidr=10.0.3.0/24 vpc=$vpc name=sub_10.0.3.0_24 availabilityzone={zone2}
+update subnet id=$subnet_4 public=true
+
+# Routing to attach internet gateway to public subnet
+igw_rtable = create routetable vpc=$vpc
+attach routetable id=$igw_rtable subnet=$subnet_4
+create route cidr=0.0.0.0/0 gateway=$gateway table=$igw_rtable
+
+# Public IP for a NAT Gateway
+pubip = create elasticip domain=vpc
+
+# Add a NAT Gateway to the public subnet 
+natgw = create natgateway elasticip-id=$pubip subnet=$subnet_4
+# Wait for the NAT Gateway
+check natgateway id=$natgw state=available timeout=180
+
+# Routing to attach nat gateway to private subnets
+natgw_rtable = create routetable vpc=$vpc
+attach routetable id=$natgw_rtable subnet=$subnet_1
+attach routetable id=$natgw_rtable subnet=$subnet_2
+attach routetable id=$natgw_rtable subnet=$subnet_3
+create route cidr=0.0.0.0/0 gateway=$natgw table=$natgw_rtable
+
+# Create firewall for SSH access
+sshfirewall = create securitygroup vpc=$vpc description=ssh-access name=AccessSSH
+update securitygroup id=$sshfirewall inbound=authorize protocol=tcp cidr=0.0.0.0/0 portrange=22
+
+# Create firewall for cockroachdb node TCP access
+nodefirewall = create securitygroup vpc=$vpc description=cockroachdb-node-access name=CockroachDBAccess
+update securitygroup id=$nodefirewall inbound=authorize protocol=tcp cidr=10.0.0.0/16 portrange=26257
+
+# Create firewall for UI HTTP access
+uifirewall = create securitygroup vpc=$vpc description=cockroachdb-ui-access name=CockroachUIAccess
+update securitygroup id=$uifirewall inbound=authorize protocol=tcp cidr=10.0.0.0/16 portrange=8080
+
+# Create firewall for HTTP access
+proxyfirewall = create securitygroup vpc=$vpc description=proxy-http-access name=ProxyAccess
+update securitygroup id=$proxyfirewall inbound=authorize protocol=tcp cidr=0.0.0.0/0 portrange=80
+update securitygroup id=$proxyfirewall inbound=authorize protocol=tcp cidr=0.0.0.0/0 portrange=443
+
+# Create a role with policy for ec2 resources so that an instance can list other instances using a local `awless`
+create role name=DiscoverCockroachNodeRole principal-service="ec2.amazonaws.com" sleep-after=20
+attach policy role=DiscoverCockroachNodeRole arn=arn:aws:iam::aws:policy/AmazonEC2ReadOnlyAccess 
+
+## Create the cockroachdb nodes
+node1 = create instance subnet=$subnet_1 keypair={ssh.keypair} image={node.image} type={instance.type} count=1 role=DiscoverCockroachNodeRole name=cockroachdb-node-1 userdata=./userdata/ubuntu/cockroach_insecure_node.sh 
+check instance id=$node1 state=running timeout=180
+
+node2 = create instance subnet=$subnet_2 keypair={ssh.keypair} image={node.image} type={instance.type} count=1 role=DiscoverCockroachNodeRole name=cockroachdb-node-2 userdata=./userdata/ubuntu/joining_cockroach_insecure_node.sh
+check instance id=$node2 state=running timeout=180
+
+node3 = create instance subnet=$subnet_3 keypair={ssh.keypair} image={node.image} type={instance.type} count=1 role=DiscoverCockroachNodeRole name=cockroachdb-node-3 userdata=./userdata/ubuntu/joining_cockroach_insecure_node.sh
+check instance id=$node3 state=running timeout=180
+
+haproxy = create instance subnet=$subnet_4 keypair={ssh.keypair} image={node.image} type={instance.type} count=1 role=DiscoverCockroachNodeRole name=cockroachdb-haproxy userdata=./userdata/ubuntu/cockroach_haproxy.sh
+
+# Update instances with firewall definitions
+attach securitygroup id=$sshfirewall instance=$haproxy
+attach securitygroup id=$proxyfirewall instance=$haproxy
+attach securitygroup id=$nodefirewall instance=$haproxy
+
+attach securitygroup id=$sshfirewall instance=$node1
+attach securitygroup id=$sshfirewall instance=$node2
+attach securitygroup id=$sshfirewall instance=$node3
+
+attach securitygroup id=$nodefirewall instance=$node1
+attach securitygroup id=$nodefirewall instance=$node2
+attach securitygroup id=$nodefirewall instance=$node3
+
+attach securitygroup id=$uifirewall instance=$node1
+attach securitygroup id=$uifirewall instance=$node2
+attach securitygroup id=$uifirewall instance=$node3

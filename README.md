@@ -24,6 +24,7 @@ You can run the verification locally with:
 * [Awless readonly group](#awless-readonly-group)
 * [Pre-defined policies for awless users](#pre-defined-policies-for-awless-users)
 * [Awless readwrite group](#awless-readwrite-group)
+* [Create a simple (insecure) CockroachDB cluster](#create-a-simple-(insecure)-cockroachdb-cluster)
 * [Create a simple postgres instance](#create-a-simple-postgres-instance)
 * [Group of instances scaling with CPU consumption](#group-of-instances-scaling-with-cpu-consumption)
 * [Install awless scheduler](#install-awless-scheduler)
@@ -41,6 +42,7 @@ You can run the verification locally with:
 * [Upload Image from local file](#upload-image-from-local-file)
 * [Create a user with its SDK/Shell access key and console password](#create-a-user-with-its-sdk/shell-access-key-and-console-password)
 * [Create a VPC with its internet routing gateway](#create-a-vpc-with-its-internet-routing-gateway)
+* [Create a VPC with 3 internal subnets](#create-a-vpc-with-3-internal-subnets)
 * [Two instances Bitnami wordpress behind a loadbalancer](#two-instances-bitnami-wordpress-behind-a-loadbalancer)
 
 
@@ -184,16 +186,10 @@ create policy name=AwlessAccessReadonlyPolicy effect=Allow resource="*" descript
 create policy name=AwlessStorageReadonlyPolicy effect=Allow resource="*" description="Readonly access to storage resources" action=s3:Get*,s3:List*
 
 ```
- Notification resources
+ Messaging resources
 
 ```sh
-create policy name=AwlessNotificationReadonlyPolicy effect=Allow resource="*" description="Readonly access to notification resources" action=sns:GetTopicAttributes,sns:List*
-
-```
- Queue resources
-
-```sh
-create policy name=AwlessQueueReadonlyPolicy effect=Allow resource="*" description="Readonly access to queue resources" action=sqs:GetQueueAttributes,sqs:ListQueues
+create policy name=AwlessMessagingReadonlyPolicy effect=Allow resource="*" description="Readonly access to notification and queueing for messaging resources" action=sns:GetTopicAttributes,sns:List*,sqs:GetQueueAttributes,sqs:ListQueues
 
 ```
  Lambda resources
@@ -277,6 +273,147 @@ attach policy arn=arn:aws:iam::aws:policy/IAMReadOnlyAccess group=$groupName
 
 
 Run it locally with: `awless run repo:awless_readwrite_group -v`
+
+
+
+
+### Create a simple (insecure) CockroachDB cluster
+
+
+
+
+*Deploying an insecure multi-node CockroachDB cluster with HAProxy to distribute client traffic. See https://www.cockroachlabs.com/docs/manual-deployment-insecure.html*
+
+
+
+
+
+ Create a new VPC with 3 private subnets and a public one (i.e. with internet gateway)
+
+```sh
+vpc = create vpc cidr=10.0.0.0/16 name=vpc_10.0.0.0_16
+gateway = create internetgateway
+attach internetgateway id=$gateway vpc=$vpc
+
+```
+ Private subnets in multi AZ for cockroachdb cluster
+
+```sh
+subnet_1 = create subnet cidr=10.0.0.0/24 vpc=$vpc name=sub_10.0.0.0_24 availabilityzone={zone1}
+subnet_2 = create subnet cidr=10.0.1.0/24 vpc=$vpc name=sub_10.0.1.0_24 availabilityzone={zone2}
+subnet_3 = create subnet cidr=10.0.2.0/24 vpc=$vpc name=sub_10.0.2.0_24 availabilityzone={zone1}
+
+```
+ Public subnet that will hosts the HAproxy
+
+```sh
+subnet_4 = create subnet cidr=10.0.3.0/24 vpc=$vpc name=sub_10.0.3.0_24 availabilityzone={zone2}
+update subnet id=$subnet_4 public=true
+
+```
+ Routing to attach internet gateway to public subnet
+
+```sh
+igw_rtable = create routetable vpc=$vpc
+attach routetable id=$igw_rtable subnet=$subnet_4
+create route cidr=0.0.0.0/0 gateway=$gateway table=$igw_rtable
+
+```
+ Public IP for a NAT Gateway
+
+```sh
+pubip = create elasticip domain=vpc
+
+```
+ Add a NAT Gateway to the public subnet
+
+```sh
+natgw = create natgateway elasticip-id=$pubip subnet=$subnet_4
+
+```
+ Wait for the NAT Gateway
+
+```sh
+check natgateway id=$natgw state=available timeout=180
+
+```
+ Routing to attach nat gateway to private subnets
+
+```sh
+natgw_rtable = create routetable vpc=$vpc
+attach routetable id=$natgw_rtable subnet=$subnet_1
+attach routetable id=$natgw_rtable subnet=$subnet_2
+attach routetable id=$natgw_rtable subnet=$subnet_3
+create route cidr=0.0.0.0/0 gateway=$natgw table=$natgw_rtable
+
+```
+ Create firewall for SSH access
+
+```sh
+sshfirewall = create securitygroup vpc=$vpc description=ssh-access name=AccessSSH
+update securitygroup id=$sshfirewall inbound=authorize protocol=tcp cidr=0.0.0.0/0 portrange=22
+
+```
+ Create firewall for cockroachdb node TCP access
+
+```sh
+nodefirewall = create securitygroup vpc=$vpc description=cockroachdb-node-access name=CockroachDBAccess
+update securitygroup id=$nodefirewall inbound=authorize protocol=tcp cidr=10.0.0.0/16 portrange=26257
+
+```
+ Create firewall for UI HTTP access
+
+```sh
+uifirewall = create securitygroup vpc=$vpc description=cockroachdb-ui-access name=CockroachUIAccess
+update securitygroup id=$uifirewall inbound=authorize protocol=tcp cidr=10.0.0.0/16 portrange=8080
+
+```
+ Create firewall for HTTP access
+
+```sh
+proxyfirewall = create securitygroup vpc=$vpc description=proxy-http-access name=ProxyAccess
+update securitygroup id=$proxyfirewall inbound=authorize protocol=tcp cidr=0.0.0.0/0 portrange=80
+update securitygroup id=$proxyfirewall inbound=authorize protocol=tcp cidr=0.0.0.0/0 portrange=443
+
+```
+ Create a role with policy for ec2 resources so that an instance can list other instances using a local `awless`
+
+```sh
+create role name=DiscoverCockroachNodeRole principal-service="ec2.amazonaws.com" sleep-after=20
+attach policy role=DiscoverCockroachNodeRole arn=arn:aws:iam::aws:policy/AmazonEC2ReadOnlyAccess
+
+```
+ Create the cockroachdb nodes
+
+```sh
+node1 = create instance subnet=$subnet_1 keypair={ssh.keypair} image={node.image} type={instance.type} count=1 role=DiscoverCockroachNodeRole name=cockroachdb-node-1 userdata=./userdata/ubuntu/cockroach_insecure_node.sh
+check instance id=$node1 state=running timeout=180
+node2 = create instance subnet=$subnet_2 keypair={ssh.keypair} image={node.image} type={instance.type} count=1 role=DiscoverCockroachNodeRole name=cockroachdb-node-2 userdata=./userdata/ubuntu/joining_cockroach_insecure_node.sh
+check instance id=$node2 state=running timeout=180
+node3 = create instance subnet=$subnet_3 keypair={ssh.keypair} image={node.image} type={instance.type} count=1 role=DiscoverCockroachNodeRole name=cockroachdb-node-3 userdata=./userdata/ubuntu/joining_cockroach_insecure_node.sh
+check instance id=$node3 state=running timeout=180
+haproxy = create instance subnet=$subnet_4 keypair={ssh.keypair} image={node.image} type={instance.type} count=1 role=DiscoverCockroachNodeRole name=cockroachdb-haproxy userdata=./userdata/ubuntu/cockroach_haproxy.sh
+
+```
+ Update instances with firewall definitions
+
+```sh
+attach securitygroup id=$sshfirewall instance=$haproxy
+attach securitygroup id=$proxyfirewall instance=$haproxy
+attach securitygroup id=$nodefirewall instance=$haproxy
+attach securitygroup id=$sshfirewall instance=$node1
+attach securitygroup id=$sshfirewall instance=$node2
+attach securitygroup id=$sshfirewall instance=$node3
+attach securitygroup id=$nodefirewall instance=$node1
+attach securitygroup id=$nodefirewall instance=$node2
+attach securitygroup id=$nodefirewall instance=$node3
+attach securitygroup id=$uifirewall instance=$node1
+attach securitygroup id=$uifirewall instance=$node2
+attach securitygroup id=$uifirewall instance=$node3
+```
+
+
+Run it locally with: `awless run repo:cockroach_insecure_cluster_with_haproxy -v`
 
 
 
@@ -1035,6 +1172,29 @@ attach internetgateway id=$gateway vpc=$vpc
 
 
 Run it locally with: `awless run repo:vpc -v`
+
+
+
+
+### Create a VPC with 3 internal subnets
+
+
+
+
+
+
+
+
+ Create a new VPC with private subnets (no internet gateway)
+
+```sh
+vpc = create vpc cidr=10.0.0.0/16 name=vpc_10.0.0.0_16
+create subnet cidr=10.0.0.0/24 vpc=$vpc name=sub_10.0.0.0_24 availabilityzone={subnet1.zone}
+create subnet cidr=10.0.1.0/24 vpc=$vpc name=sub_10.0.1.0_24 availabilityzone={subnet2.zone}
+```
+
+
+Run it locally with: `awless run repo:vpc_with_subnets -v`
 
 
 

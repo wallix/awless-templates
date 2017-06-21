@@ -29,6 +29,12 @@
   "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/awless_readwrite_group.aws"
  },
  {
+  "Title": "Create a simple (insecure) CockroachDB cluster",
+  "Description": "Deploying an insecure multi-node CockroachDB cluster with HAProxy to distribute client traffic. See https://www.cockroachlabs.com/docs/manual-deployment-insecure.html",
+  "Name": "cockroach_insecure_cluster_with_haproxy",
+  "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/cockroach_insecure_cluster_with_haproxy.aws"
+ },
+ {
   "Title": "Create a simple postgres instance",
   "Description": "Create the corresponding secgroup and the basic postgres instance (into a existing dbsubnetgroup). Instance has only basic required properties filled in",
   "Name": "db_postgres",
@@ -176,6 +182,11 @@
   ],
   "Name": "vpc",
   "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/vpc.aws"
+ },
+ {
+  "Title": "Create a VPC with 3 internal subnets",
+  "Name": "vpc_with_subnets",
+  "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/vpc_with_subnets.aws"
  },
  {
   "Title": "Two instances Bitnami wordpress behind a loadbalancer",

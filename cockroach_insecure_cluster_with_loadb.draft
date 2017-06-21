@@ -1,0 +1,46 @@
+# Title: Create a simple (insecure) CockroachDB cluster
+# Description: Deploying an insecure multi-node CockroachDB cluster with load balancing service to distribute client traffic. See https://www.cockroachlabs.com/docs/deploy-cockroachdb-on-aws-insecure.html
+
+## Create the loadbalancer firewall
+lbfirewall = create securitygroup vpc={main.vpc} description=cockroachdb-loadbalancer-securitygroup name=cockroachdb-loadbalancer-securitygroup
+update securitygroup id=$lbfirewall inbound=authorize protocol=tcp cidr=0.0.0.0/0 portrange=26257
+update securitygroup id=$lbfirewall inbound=authorize protocol=tcp cidr=0.0.0.0/0 portrange=8080
+
+## Create the load balancing
+tgroup_node = create targetgroup name=cockroachdb-nodes port=26257 protocol=HTTP vpc={main.vpc}
+tgroup_ui = create targetgroup name=cockroachdb-ui port=8080 protocol=HTTP vpc={main.vpc} healthcheckpath="/health" healthcheckport=8080
+
+lb = create loadbalancer name=cockroachdb-cluster subnets={csv.subnet.ids} securitygroups=$lbfirewall
+create listener actiontype=forward loadbalancer=$lb port=8080 protocol=HTTP targetgroup=$tgroup_ui
+create listener actiontype=forward loadbalancer=$lb port=26257 protocol=HTTP targetgroup=$tgroup_node
+
+# Create firewall for SSH access
+sshfirewall = create securitygroup vpc={main.vpc} description=ssh-access name=AccessSSH
+update securitygroup id=$sshfirewall inbound=authorize protocol=tcp cidr=0.0.0.0/0 portrange=22
+
+## Create the cockroachdb nodes
+node1 = create instance subnet={first.subnet} keypair={ssh.keypair} image={node.image} type={instance.type} count=1 name=cockroachdb-node-1 userdata=./userdata/ubuntu/cockroach_insecure_node.sh
+# Make sure first node is running as other nodes will join through this one
+check instance id=$node1 state=running timeout=180
+
+node2 = create instance subnet={second.subnet} keypair={ssh.keypair} image={node.image} type={instance.type} count=1 name=cockroachdb-node-2 userdata=./userdata/ubuntu/joining_cockroach_insecure_node.sh
+node3 = create instance subnet={second.subnet} keypair={ssh.keypair} image={node.image} type={instance.type} count=1 name=cockroachdb-node-3 userdata=./userdata/ubuntu/joining_cockroach_insecure_node.sh
+
+# Update instances with SSH access firewall
+attach securitygroup id=$sshfirewall instance=$node1
+attach securitygroup id=$sshfirewall instance=$node2
+attach securitygroup id=$sshfirewall instance=$node3
+
+## Make sure all nodes are in a running state
+check instance id=$node1 state=running timeout=180
+check instance id=$node2 state=running timeout=180
+check instance id=$node3 state=running timeout=180
+
+# Put instances in the necessary target groups
+attach instance id=$node1 targetgroup=$tgroup_node
+attach instance id=$node2 targetgroup=$tgroup_node
+attach instance id=$node3 targetgroup=$tgroup_node
+
+attach instance id=$node1 targetgroup=$tgroup_ui
+attach instance id=$node2 targetgroup=$tgroup_ui
+attach instance id=$node3 targetgroup=$tgroup_ui
