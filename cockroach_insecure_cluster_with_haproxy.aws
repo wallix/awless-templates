@@ -1,5 +1,6 @@
 # Title: Create a simple (insecure) CockroachDB cluster
 # Description: Deploying an insecure multi-node CockroachDB cluster with HAProxy to distribute client traffic. See https://www.cockroachlabs.com/docs/manual-deployment-insecure.html
+# CLIExample: awless run repo:cockroach_insecure_cluster_with_haproxy node.image=$(awless search images canonical --id-only) ssh.keypair=my-ssh-keyname
 
 # Create a new VPC with 3 private subnets and a public one (i.e. with internet gateway)
 vpc = create vpc cidr=10.0.0.0/16 name=vpc_10.0.0.0_16
