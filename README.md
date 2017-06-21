@@ -301,13 +301,13 @@ attach internetgateway id=$gateway vpc=$vpc
 ```sh
 subnet_1 = create subnet cidr=10.0.0.0/24 vpc=$vpc name=sub_10.0.0.0_24 availabilityzone={zone1}
 subnet_2 = create subnet cidr=10.0.1.0/24 vpc=$vpc name=sub_10.0.1.0_24 availabilityzone={zone2}
-subnet_3 = create subnet cidr=10.0.2.0/24 vpc=$vpc name=sub_10.0.2.0_24 availabilityzone={zone1}
+subnet_3 = create subnet cidr=10.0.2.0/24 vpc=$vpc name=sub_10.0.2.0_24 availabilityzone={zone3}
 
 ```
  Public subnet that will hosts the HAproxy
 
 ```sh
-subnet_4 = create subnet cidr=10.0.3.0/24 vpc=$vpc name=sub_10.0.3.0_24 availabilityzone={zone2}
+subnet_4 = create subnet cidr=10.0.3.0/24 vpc=$vpc name=sub_10.0.3.0_24 availabilityzone={zone1}
 update subnet id=$subnet_4 public=true
 
 ```
@@ -386,35 +386,36 @@ attach policy role=DiscoverCockroachNodeRole arn=arn:aws:iam::aws:policy/AmazonE
  Create the cockroachdb nodes
 
 ```sh
-node1 = create instance subnet=$subnet_1 keypair={ssh.keypair} image={node.image} type={instance.type} count=1 role=DiscoverCockroachNodeRole name=cockroachdb-node-1 userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/ubuntu/cockroach_insecure_node.sh
-check instance id=$node1 state=running timeout=180
-node2 = create instance subnet=$subnet_2 keypair={ssh.keypair} image={node.image} type={instance.type} count=1 role=DiscoverCockroachNodeRole name=cockroachdb-node-2 userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/ubuntu/joining_cockroach_insecure_node.sh
-check instance id=$node2 state=running timeout=180
-node3 = create instance subnet=$subnet_3 keypair={ssh.keypair} image={node.image} type={instance.type} count=1 role=DiscoverCockroachNodeRole name=cockroachdb-node-3 userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/ubuntu/joining_cockroach_insecure_node.sh
-check instance id=$node3 state=running timeout=180
-haproxy = create instance subnet=$subnet_4 keypair={ssh.keypair} image={node.image} type={instance.type} count=1 role=DiscoverCockroachNodeRole name=cockroachdb-haproxy userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/ubuntu/cockroach_haproxy.sh
+node_1 = create instance subnet=$subnet_1 keypair={ssh.keypair} image={cockroachnode.ubuntu.ami} type=t2.medium count=1 role=DiscoverCockroachNodeRole name=cockroachdb-node-1 securitygroup=$sshfirewall userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/ubuntu/cockroach_insecure_node.sh
+check instance id=$node_1 state=running timeout=180
+node_2 = create instance subnet=$subnet_2 keypair={ssh.keypair} image={cockroachnode.ubuntu.ami} type=t2.medium count=1 role=DiscoverCockroachNodeRole name=cockroachdb-node-2 securitygroup=$sshfirewall userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/ubuntu/joining_cockroach_insecure_node.sh
+check instance id=$node_2 state=running timeout=180
+node_3 = create instance subnet=$subnet_3 keypair={ssh.keypair} image={cockroachnode.ubuntu.ami} type=t2.medium count=1 role=DiscoverCockroachNodeRole name=cockroachdb-node-3 securitygroup=$sshfirewall userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/ubuntu/joining_cockroach_insecure_node.sh
+check instance id=$node_3 state=running timeout=180
+haproxy = create instance subnet=$subnet_4 keypair={ssh.keypair} image={cockroachnode.ubuntu.ami} type=t2.micro count=1 role=DiscoverCockroachNodeRole name=cockroachdb-haproxy securitygroup=$sshfirewall userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/ubuntu/cockroach_haproxy.sh
 
 ```
  Update instances with firewall definitions
 
 ```sh
-attach securitygroup id=$sshfirewall instance=$haproxy
 attach securitygroup id=$proxyfirewall instance=$haproxy
 attach securitygroup id=$nodefirewall instance=$haproxy
-attach securitygroup id=$sshfirewall instance=$node1
-attach securitygroup id=$sshfirewall instance=$node2
-attach securitygroup id=$sshfirewall instance=$node3
-attach securitygroup id=$nodefirewall instance=$node1
-attach securitygroup id=$nodefirewall instance=$node2
-attach securitygroup id=$nodefirewall instance=$node3
-attach securitygroup id=$uifirewall instance=$node1
-attach securitygroup id=$uifirewall instance=$node2
-attach securitygroup id=$uifirewall instance=$node3
+attach securitygroup id=$nodefirewall instance=$node_1
+attach securitygroup id=$nodefirewall instance=$node_2
+attach securitygroup id=$nodefirewall instance=$node_3
+attach securitygroup id=$uifirewall instance=$node_1
+attach securitygroup id=$uifirewall instance=$node_2
+attach securitygroup id=$uifirewall instance=$node_3
 ```
 
 
 Run it locally with: `awless run repo:cockroach_insecure_cluster_with_haproxy -v`
 
+
+Full CLI example:
+```sh
+awless run repo:cockroach_insecure_cluster_with_haproxy cockroachnode.ubuntu.ami=$(awless search images canonical --id-only) ssh.keypair=my-ssh-keyname
+```
 
 
 

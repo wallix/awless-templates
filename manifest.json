@@ -30,6 +30,7 @@
  },
  {
   "Title": "Create a simple (insecure) CockroachDB cluster",
+  "CLIExample": "awless run repo:cockroach_insecure_cluster_with_haproxy cockroachnode.ubuntu.ami=$(awless search images canonical --id-only) ssh.keypair=my-ssh-keyname",
   "Description": "Deploying an insecure multi-node CockroachDB cluster with HAProxy to distribute client traffic. See https://www.cockroachlabs.com/docs/manual-deployment-insecure.html",
   "Name": "cockroach_insecure_cluster_with_haproxy",
   "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/cockroach_insecure_cluster_with_haproxy.aws"
