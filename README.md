@@ -386,13 +386,13 @@ attach policy role=DiscoverCockroachNodeRole arn=arn:aws:iam::aws:policy/AmazonE
  Create the cockroachdb nodes
 
 ```sh
-node1 = create instance subnet=$subnet_1 keypair={ssh.keypair} image={node.image} type={instance.type} count=1 role=DiscoverCockroachNodeRole name=cockroachdb-node-1 userdata=./userdata/ubuntu/cockroach_insecure_node.sh
+node1 = create instance subnet=$subnet_1 keypair={ssh.keypair} image={node.image} type={instance.type} count=1 role=DiscoverCockroachNodeRole name=cockroachdb-node-1 userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/ubuntu/cockroach_insecure_node.sh
 check instance id=$node1 state=running timeout=180
-node2 = create instance subnet=$subnet_2 keypair={ssh.keypair} image={node.image} type={instance.type} count=1 role=DiscoverCockroachNodeRole name=cockroachdb-node-2 userdata=./userdata/ubuntu/joining_cockroach_insecure_node.sh
+node2 = create instance subnet=$subnet_2 keypair={ssh.keypair} image={node.image} type={instance.type} count=1 role=DiscoverCockroachNodeRole name=cockroachdb-node-2 userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/ubuntu/joining_cockroach_insecure_node.sh
 check instance id=$node2 state=running timeout=180
-node3 = create instance subnet=$subnet_3 keypair={ssh.keypair} image={node.image} type={instance.type} count=1 role=DiscoverCockroachNodeRole name=cockroachdb-node-3 userdata=./userdata/ubuntu/joining_cockroach_insecure_node.sh
+node3 = create instance subnet=$subnet_3 keypair={ssh.keypair} image={node.image} type={instance.type} count=1 role=DiscoverCockroachNodeRole name=cockroachdb-node-3 userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/ubuntu/joining_cockroach_insecure_node.sh
 check instance id=$node3 state=running timeout=180
-haproxy = create instance subnet=$subnet_4 keypair={ssh.keypair} image={node.image} type={instance.type} count=1 role=DiscoverCockroachNodeRole name=cockroachdb-haproxy userdata=./userdata/ubuntu/cockroach_haproxy.sh
+haproxy = create instance subnet=$subnet_4 keypair={ssh.keypair} image={node.image} type={instance.type} count=1 role=DiscoverCockroachNodeRole name=cockroachdb-haproxy userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/ubuntu/cockroach_haproxy.sh
 
 ```
  Update instances with firewall definitions
