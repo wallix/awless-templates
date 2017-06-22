@@ -1,13 +1,10 @@
 #!/bin/bash
 
-apt-get -y install unzip
-
-curl -O https://raw.githubusercontent.com/wallix/awless/master/getawless.sh
-/bin/bash getawless.sh
+curl https://raw.githubusercontent.com/wallix/awless/master/getawless.sh | bash
 
 FIRST_NODE_IP=$(./awless ls instances --filter name=cockroachdb-node-1 --filter state=run --format csv | tail -1 | cut -d, -f7)
 
-rm awless getawless.sh
+rm awless
 
 PACKAGE=cockroach-v1.0.2.linux-amd64
 

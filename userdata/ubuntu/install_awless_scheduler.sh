@@ -1,12 +1,10 @@
 #!/bin/bash
 
-apt-get -y install unzip bash-completion vim git
+apt-get -y install bash-completion git
 
-curl -O "https://raw.githubusercontent.com/wallix/awless/master/getawless.sh"
-/bin/bash getawless.sh
+curl https://raw.githubusercontent.com/wallix/awless/master/getawless.sh | bash
 mv awless /usr/bin
 
 sed -i "$ a\\source <(awless completion bash)" /etc/bash.bashrc
 
-curl -O "https://raw.githubusercontent.com/wallix/awless-scheduler/master/linux_install.sh"
-/bin/bash linux_install.sh
+curl https://raw.githubusercontent.com/wallix/awless-scheduler/master/linux_install.sh | bash

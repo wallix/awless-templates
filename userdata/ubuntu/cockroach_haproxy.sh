@@ -1,15 +1,14 @@
 #!/bin/bash
 
-apt-get -y install unzip haproxy
+apt-get -y install haproxy
 
-curl -O https://raw.githubusercontent.com/wallix/awless/master/getawless.sh
-/bin/bash getawless.sh
+curl https://raw.githubusercontent.com/wallix/awless/master/getawless.sh | bash
 
 NODE_1_IP=$(./awless ls instances --filter name=cockroachdb-node-1 --filter state=run --format csv | tail -1 | cut -d, -f7)
 NODE_2_IP=$(./awless ls instances --filter name=cockroachdb-node-2 --filter state=run --format csv | tail -1 | cut -d, -f7)
 NODE_3_IP=$(./awless ls instances --filter name=cockroachdb-node-3 --filter state=run --format csv | tail -1 | cut -d, -f7)
 
-rm awless getawless.sh
+rm awless
 
 /bin/cat > haproxy.cfg <<EOF
 global
