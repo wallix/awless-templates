@@ -1,0 +1,23 @@
+# Title: Simple wordpress deployment
+# Tags: infra
+
+# VPC and its Internet gateway
+vpc = create vpc cidr=10.0.0.0/16 name=wordpress-vpc
+igw = create internetgateway
+attach internetgateway id=$igw vpc=$vpc
+
+# Subnet and its route table
+subnet = create subnet cidr=10.0.0.0/24 vpc=$vpc name=wordpress-subnet
+update subnet id=$subnet public=true
+routetable = create routetable vpc=$vpc
+attach routetable subnet=$subnet id=$routetable
+create route cidr=0.0.0.0/0 gateway=$igw table=$routetable
+
+# Create a security group and authorize accesses from the Internet for port 22 and 80
+secgroup = create securitygroup vpc=$vpc description="authorize ssh and http from internet" name=wordpress-secgroup
+update securitygroup id=$secgroup inbound=authorize protocol=tcp cidr=0.0.0.0/0 portrange=22
+update securitygroup id=$secgroup inbound=authorize protocol=tcp cidr=0.0.0.0/0 portrange=80
+
+# Create keypair and instance
+keypair = create keypair name={keypair.name}
+create instance name=wordpress-instance subnet=$subnet keypair=$keypair securitygroup=$secgroup userdata=https://raw.githubusercontent.com/zn3zman/AWS-WordPress-Creation/master/WP-Setup.sh

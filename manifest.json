@@ -2,7 +2,7 @@
  {
   "Title": "ECS Autoscaling Cluster",
   "Description": "Note that the AMI in this template is working only in eu-west-1 region",
-  "MinimalVersion": "v0.1.0",
+  "MinimalVersion": "v0.1.1",
   "Tags": [
    "autoscaling",
    "container",
@@ -155,6 +155,14 @@
   ],
   "Name": "s3website",
   "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/s3website.aws"
+ },
+ {
+  "Title": "Simple wordpress deployment",
+  "Tags": [
+   "infra"
+  ],
+  "Name": "simple_wordpress_infra",
+  "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/simple_wordpress_infra.aws"
  },
  {
   "Title": "Upload Image from local file",

@@ -39,6 +39,7 @@ You can run the verification locally with:
 * [Create a AWS role with usual readonly policies that applies on a resource](#create-a-aws-role-with-usual-readonly-policies-that-applies-on-a-resource)
 * [Create a AWS role with usual readonly policies that applies on a user](#create-a-aws-role-with-usual-readonly-policies-that-applies-on-a-user)
 * [Create a static website on S3](#create-a-static-website-on-s3)
+* [Simple wordpress deployment](#simple-wordpress-deployment)
 * [Upload Image from local file](#upload-image-from-local-file)
 * [Create a user with its SDK/Shell access key and console password](#create-a-user-with-its-sdk/shell-access-key-and-console-password)
 * [Create a VPC with its internet routing gateway](#create-a-vpc-with-its-internet-routing-gateway)
@@ -49,7 +50,7 @@ You can run the verification locally with:
 ### ECS Autoscaling Cluster
 
 
-**-> Minimal awless version required: v0.1.0**
+**-> Minimal awless version required: v0.1.1**
 
 
 
@@ -66,13 +67,13 @@ autoscaling, container, infra
  Then, create a policy to allow to connect to ECS
 
 ```sh
-policy = create policy name=AmazonEC2ContainerServiceforEC2Role effect=Allow resource="*" description="Access for ECS containers" action=ecs:DeregisterContainerInstance,ecs:DiscoverPollEndpoint,ecs:Poll,ecs:RegisterContainerInstance,ecs:StartTelemetrySession,ecs:Submit*,ecr:GetAuthorizationToken,ecr:BatchCheckLayerAvailability,ecr:GetDownloadUrlForLayer,ecr:BatchGetImage,logs:CreateLogStream,logs:PutLogEvent
+policy = create policy name=AWSEC2ContainerServiceforEC2Role effect=Allow resource="*" description="Access for ECS containers" action=ecs:DeregisterContainerInstance,ecs:DiscoverPollEndpoint,ecs:Poll,ecs:RegisterContainerInstance,ecs:StartTelemetrySession,ecs:Submit*,ecr:GetAuthorizationToken,ecr:BatchCheckLayerAvailability,ecr:GetDownloadUrlForLayer,ecr:BatchGetImage,logs:CreateLogStream,logs:PutLogEvent
 
 ```
  Set role name variable
 
 ```sh
-roleName = AmazonEC2ContainerServiceRole
+roleName = AWSEC2ContainerServiceRole
 
 ```
  Create a AWS role that applies on a resource
@@ -1074,6 +1075,57 @@ update bucket name={domain.name} public-website=true redirect-hostname={domain.n
 
 
 Run it locally with: `awless run repo:s3website -v`
+
+
+
+
+### Simple wordpress deployment
+
+
+
+
+
+
+**tags**: 
+infra
+
+
+
+ VPC and its Internet gateway
+
+```sh
+vpc = create vpc cidr=10.0.0.0/16 name=wordpress-vpc
+igw = create internetgateway
+attach internetgateway id=$igw vpc=$vpc
+
+```
+ Subnet and its route table
+
+```sh
+subnet = create subnet cidr=10.0.0.0/24 vpc=$vpc name=wordpress-subnet
+update subnet id=$subnet public=true
+routetable = create routetable vpc=$vpc
+attach routetable subnet=$subnet id=$routetable
+create route cidr=0.0.0.0/0 gateway=$igw table=$routetable
+
+```
+ Create a security group and authorize accesses from the Internet for port 22 and 80
+
+```sh
+secgroup = create securitygroup vpc=$vpc description="authorize ssh and http from internet" name=wordpress-secgroup
+update securitygroup id=$secgroup inbound=authorize protocol=tcp cidr=0.0.0.0/0 portrange=22
+update securitygroup id=$secgroup inbound=authorize protocol=tcp cidr=0.0.0.0/0 portrange=80
+
+```
+ Create keypair and instance
+
+```sh
+keypair = create keypair name={keypair.name}
+create instance name=wordpress-instance subnet=$subnet keypair=$keypair securitygroup=$secgroup userdata=https://raw.githubusercontent.com/zn3zman/AWS-WordPress-Creation/master/WP-Setup.sh
+```
+
+
+Run it locally with: `awless run repo:simple_wordpress_infra -v`
 
 
 
