@@ -198,10 +198,12 @@
   "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/vpc_with_subnets.aws"
  },
  {
-  "Title": "Two instances Bitnami wordpress behind a loadbalancer",
-  "Description": "Note that the AMI in this template are working only in eu-central-1 region",
+  "Title": "Highly-available wordpress behind a loadbalancer, with a RDS database",
+  "MinimalVersion": "v0.1.1",
   "Tags": [
-   "infra"
+   "infra",
+   "rds",
+   "autoscaling"
   ],
   "Name": "wordpress_ha",
   "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/wordpress_ha.aws"

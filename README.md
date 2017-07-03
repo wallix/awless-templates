@@ -44,7 +44,7 @@ You can run the verification locally with:
 * [Create a user with its SDK/Shell access key and console password](#create-a-user-with-its-sdk/shell-access-key-and-console-password)
 * [Create a VPC with its internet routing gateway](#create-a-vpc-with-its-internet-routing-gateway)
 * [Create a VPC with 3 internal subnets](#create-a-vpc-with-3-internal-subnets)
-* [Two instances Bitnami wordpress behind a loadbalancer](#two-instances-bitnami-wordpress-behind-a-loadbalancer)
+* [Highly-available wordpress behind a loadbalancer, with a RDS database](#highly-available-wordpress-behind-a-loadbalancer,-with-a-rds-database)
 
 
 ### ECS Autoscaling Cluster
@@ -1252,56 +1252,43 @@ Run it locally with: `awless run repo:vpc_with_subnets -v`
 
 
 
-### Two instances Bitnami wordpress behind a loadbalancer
+### Highly-available wordpress behind a loadbalancer, with a RDS database
 
 
+**-> Minimal awless version required: v0.1.1**
 
 
-*Note that the AMI in this template are working only in eu-central-1 region*
 
 
 
 **tags**: 
-infra
+infra, rds, autoscaling
 
 
 
- Loadbalancer
- Create the loadbalancer firewall
 
 ```sh
-loadbalancerfw = create securitygroup vpc={wordpress.vpc} description=wordpress-loadbalancer-securitygroup name=wordpress-lb-securitygroup
-update securitygroup id=$loadbalancerfw inbound=authorize protocol=tcp cidr=0.0.0.0/0 portrange=80
+dbname={dbname}
+dbhost={dbhost}
+dbuser={dbuser}
+dbpassword={dbpassword}
 
 ```
- Create the target group for EC2 wordpress servers
+ Create the load balancer with its security group, target group and listener
 
 ```sh
-targetgroup = create targetgroup name=wordpress-workers port=80 protocol=HTTP vpc={wordpress.vpc}
+lbsecgroup = create securitygroup vpc={wordpress.vpc} description="authorize HTTP from the Internet" name=wordpress-lb-securitygroup
+update securitygroup id=$lbsecgroup inbound=authorize protocol=tcp cidr=0.0.0.0/0 portrange=80
+tg = create targetgroup name=wordpress-workers port=80 protocol=HTTP vpc={wordpress.vpc}
+lb = create loadbalancer name=wordpress-loadbalancer subnets={wordpress.subnets} securitygroups=$lbsecgroup
+create listener actiontype=forward loadbalancer=$lb port=80 protocol=HTTP targetgroup=$tg
 
 ```
- Create the application load balancer that will redirect flows to the servers
+ Create the launch configuration for the instances and start it in a scaling group, to ensure having always 2 instances running
 
 ```sh
-lb = create loadbalancer name=wordpress-loadbalancer subnets={wordpress.subnets} securitygroups=$loadbalancerfw
-create listener actiontype=forward loadbalancer=$lb port=80 protocol=HTTP targetgroup=$targetgroup
-
-```
- Wordpress application servers
- Create the wordpress servers
-
-```sh
-inst1 = create instance subnet={instance1.private.subnet} image=ami-3b36fe54 type={instance.type} count=1 name=wordpress-server-1 # AMI WordPress powered by Bitnami in eu-central-1
-inst2 = create instance subnet={instance2.private.subnet} image=ami-3b36fe54 type={instance.type} count=1 name=wordpress-server-2
-
-```
- Register the servers in the targetgroup
-
-```sh
-check instance id=$inst1 state=running timeout=180
-check instance id=$inst2 state=running timeout=180
-attach instance id=$inst1 targetgroup=$targetgroup
-attach instance id=$inst2 targetgroup=$targetgroup
+launchconf = create launchconfiguration image={instance.image} keypair={wordpress.keypair} name=wordpress-launch-configuration type=t2.micro userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/install-wordpress.sh securitygroups={instances.securitygroup}
+create scalinggroup desired-capacity=2 launchconfiguration=$launchconf max-size=2 min-size=2 name=wordpress-scalinggroup subnets={wordpress.subnets} targetgroups=$tg
 ```
 
 
