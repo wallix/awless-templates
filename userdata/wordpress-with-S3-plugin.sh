@@ -96,7 +96,7 @@ define('DB_CHARSET', 'utf8');
 define('DB_COLLATE', '');
 define('S3_UPLOADS_USE_INSTANCE_PROFILE', true);
 define('S3_UPLOADS_BUCKET', '$S3Bucket');
-define('S3_UPLOADS_BUCKET_URL', '$CloudFrontURL');
+define('S3_UPLOADS_BUCKET_URL', 'http://$CloudFrontURL');
 define('S3_UPLOADS_REGION', '$S3Region');
 $WPSalts
 \$table_prefix  = 'wp_';
