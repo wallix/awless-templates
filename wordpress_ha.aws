@@ -15,5 +15,5 @@ lb = create loadbalancer name=wordpress-loadbalancer subnets={wordpress.subnets}
 create listener actiontype=forward loadbalancer=$lb port=80 protocol=HTTP targetgroup=$tg
 
 # Create the launch configuration for the instances and start it in a scaling group, to ensure having always 2 instances running
-launchconf = create launchconfiguration image={instance.image} keypair={wordpress.keypair} name=wordpress-launch-configuration type=t2.micro userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/install-wordpress.sh securitygroups={instances.securitygroup}
+launchconf = create launchconfiguration image={instance.image} keypair={wordpress.keypair} name=wordpress-launch-configuration type=t2.micro userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/wordpress.sh securitygroups={instances.securitygroup}
 create scalinggroup desired-capacity=2 launchconfiguration=$launchconf max-size=2 min-size=2 name=wordpress-scalinggroup subnets={wordpress.subnets} targetgroups=$tg
