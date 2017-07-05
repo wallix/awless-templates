@@ -13,6 +13,7 @@ SQLHost="{{.References.dbhost}}"
 SQLUser="{{.References.dbuser}}"
 SQLPass="{{.References.dbpassword}}"
 S3Bucket="{{.References.s3bucket}}"
+CloudFrontURL="{{.References.cloudfrontURL}}"
 BlogURL="{{.References.wordpressUrl}}"
 BlogTitle="{{.References.wordpressTitle}}"
 BlogUser="{{.References.wordpressUser}}"
@@ -95,6 +96,7 @@ define('DB_CHARSET', 'utf8');
 define('DB_COLLATE', '');
 define('S3_UPLOADS_USE_INSTANCE_PROFILE', true);
 define('S3_UPLOADS_BUCKET', '$S3Bucket');
+define('S3_UPLOADS_BUCKET_URL', '$CloudFrontURL');
 define('S3_UPLOADS_REGION', '$S3Region');
 $WPSalts
 \$table_prefix  = 'wp_';
