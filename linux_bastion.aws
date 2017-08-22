@@ -1,6 +1,7 @@
 # Title: Create VPC with a Linux host bastion
 # Tags: infra
 # Description: This template build this typical Linux bastion [architecture](http://docs.aws.amazon.com/quickstart/latest/linux-bastion/architecture.html) except it only deploys one host bastion on one public subnet
+# MinimalVersion: v0.1.3
 
 # Create a new VPC and make it public with an internet gateway
 vpc = create vpc cidr=10.0.0.0/16 name=BastionVpc
@@ -31,7 +32,7 @@ update securitygroup id=$bastionSecGroup inbound=authorize protocol=icmp cidr={r
 
 # Allow only a set of permitted actions for the 2 host bastions
 create role name=BastionHostRole principal-service=ec2.amazonaws.com sleep-after=30
-bastionEc2Policy = create policy name=BastionEc2Permissions action=ec2:DescribeAddresses,ec2:AssociateAddress resource="*" effect=Allow
+bastionEc2Policy = create policy name=BastionEc2Permissions action=[ec2:DescribeAddresses,ec2:AssociateAddress] resource="*" effect=Allow
 attach policy role=BastionHostRole arn=$bastionEc2Policy
 
 # Create one elastic IPs for that will be dynamically aasigned to the host bastion by the bootstrap script
