@@ -9,7 +9,6 @@ vpc = create vpc cidr=10.0.0.0/16 name=wordpress-ha-vpc
 igw = create internetgateway
 attach internetgateway id=$igw vpc=$vpc
 
-
 pubSub1 = create subnet cidr=10.0.100.0/24 vpc=$vpc name=wordpress-ha-public-subnet-1 availabilityzone={availabilityzone.1}
 update subnet id=$pubSub1 public=true
 pubSub2 = create subnet cidr=10.0.101.0/24 vpc=$vpc name=wordpress-ha-public-subnet-2 availabilityzone={availabilityzone.2}
@@ -34,12 +33,6 @@ natgw_rtable = create routetable vpc=$vpc
 attach routetable id=$natgw_rtable subnet=$privSub1
 attach routetable id=$natgw_rtable subnet=$privSub2
 create route cidr=0.0.0.0/0 gateway=$natgw table=$natgw_rtable
-
-# Create a security group and authorize accesses from the Internet for port 22 and 80
-secgroup = create securitygroup vpc=$vpc description="authorize ssh and http from internet" name=wordpress-ha-secgroup
-update securitygroup id=$secgroup inbound=authorize protocol=tcp cidr=0.0.0.0/0 portrange=22
-update securitygroup id=$secgroup inbound=authorize protocol=tcp cidr=0.0.0.0/0 portrange=80
-
 
 # 2. Provision loadbalancer
 

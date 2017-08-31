@@ -27,6 +27,7 @@ You can run the verification locally with:
 * [Create a simple (insecure) CockroachDB cluster](#create-a-simple-(insecure)-cockroachdb-cluster)
 * [Create a simple postgres instance](#create-a-simple-postgres-instance)
 * [Group of instances scaling with CPU consumption](#group-of-instances-scaling-with-cpu-consumption)
+* [Highly-available wordpress infrastructure](#highly-available-wordpress-infrastructure)
 * [Install awless scheduler](#install-awless-scheduler)
 * [Create an instance accessible with ssh with a new keypair](#create-an-instance-accessible-with-ssh-with-a-new-keypair)
 * [Create an instance with preinstalled awless with completion](#create-an-instance-with-preinstalled-awless-with-completion)
@@ -507,6 +508,96 @@ attach alarm name=scaleoutAlarm action-arn=$scaleout
 
 
 Run it locally with: `awless run repo:dynamic_autoscaling_watching_CPU -v`
+
+
+
+
+### Highly-available wordpress infrastructure
+
+
+**-> Minimal awless version required: v0.1.3**
+
+
+
+
+
+**tags**: 
+infra
+
+
+
+ 1. Basic networking
+ VPC and its Internet gateway
+
+```sh
+vpc = create vpc cidr=10.0.0.0/16 name=wordpress-ha-vpc
+igw = create internetgateway
+attach internetgateway id=$igw vpc=$vpc
+pubSub1 = create subnet cidr=10.0.100.0/24 vpc=$vpc name=wordpress-ha-public-subnet-1 availabilityzone={availabilityzone.1}
+update subnet id=$pubSub1 public=true
+pubSub2 = create subnet cidr=10.0.101.0/24 vpc=$vpc name=wordpress-ha-public-subnet-2 availabilityzone={availabilityzone.2}
+update subnet id=$pubSub2 public=true
+rt = create routetable vpc=$vpc
+create route table=$rt cidr=0.0.0.0/0 gateway=$igw
+attach routetable id=$rt subnet=$pubSub1
+attach routetable id=$rt subnet=$pubSub2
+
+```
+ 2 private subnets in different AZs
+
+```sh
+privSub1 = create subnet cidr=10.0.10.0/24 vpc=$vpc name=wordpress-ha-private-subnet-1 availabilityzone={availabilityzone.1}
+privSub2 = create subnet cidr=10.0.11.0/24 vpc=$vpc name=wordpress-ha-private-subnet-2 availabilityzone={availabilityzone.2}
+
+```
+ NAT Gateway in public subnet with a fixed IP
+
+```sh
+ip = create elasticip
+natgw = create natgateway elasticip-id=$ip subnet=$pubSub1
+check natgateway id=$natgw state=available timeout=180
+
+```
+ Routing between private subnets and NAT gateway
+
+```sh
+natgw_rtable = create routetable vpc=$vpc
+attach routetable id=$natgw_rtable subnet=$privSub1
+attach routetable id=$natgw_rtable subnet=$privSub2
+create route cidr=0.0.0.0/0 gateway=$natgw table=$natgw_rtable
+
+```
+ 2. Provision loadbalancer
+ Create the load balancer security group
+
+```sh
+lbsecgroup = create securitygroup vpc=$vpc description="authorize HTTP from the internet" name=wordpress-ha-lb-securitygroup
+update securitygroup id=$lbsecgroup inbound=authorize protocol=tcp cidr=0.0.0.0/0 portrange=80
+
+```
+ Provision the load balancer listening in the public subnets, with its target group and HTTP listener
+
+```sh
+tg = create targetgroup name=wordpress-ha-workers port=80 protocol=HTTP vpc=$vpc
+update targetgroup id=$tg stickiness=true
+lb = create loadbalancer name=wordpress-ha-loadbalancer subnets=[$pubSub1,$pubSub2] securitygroups=$lbsecgroup
+create listener actiontype=forward loadbalancer=$lb port=80 protocol=HTTP targetgroup=$tg
+
+```
+ 3. Provision instances
+ Create keypair and instance
+
+```sh
+keypair = create keypair name={keypair.name}
+instSecGroup = create securitygroup vpc=$vpc description="HTTP + SSH within VPC" name=wordpress-ha-private-secgroup
+update securitygroup id=$instSecGroup inbound=authorize cidr=10.0.0.0/16 portrange=22
+update securitygroup id=$instSecGroup inbound=authorize cidr=10.0.0.0/16 portrange=80
+launchconf = create launchconfiguration image={instance.image} keypair=$keypair name=wordpress-ha-launch-configuration type={instance.type} userdata=https://raw.githubusercontent.com/zn3zman/AWS-WordPress-Creation/master/WP-Setup.sh securitygroups=$instSecGroup
+create scalinggroup desired-capacity=2 launchconfiguration=$launchconf max-size=2 min-size=2 name=wordpress-scalinggroup subnets=[$privSub1, $privSub2] targetgroups=$tg
+```
+
+
+Run it locally with: `awless run repo:highly_available_wordpress_infra -v`
 
 
 
@@ -1287,7 +1378,7 @@ create listener actiontype=forward loadbalancer=$lb port=80 protocol=HTTP target
  Create the launch configuration for the instances and start it in a scaling group, to ensure having always 2 instances running
 
 ```sh
-launchconf = create launchconfiguration image={instance.image} keypair={wordpress.keypair} name=wordpress-launch-configuration type=t2.micro userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/install-wordpress.sh securitygroups={instances.securitygroup}
+launchconf = create launchconfiguration image={instance.image} keypair={wordpress.keypair} name=wordpress-launch-configuration type=t2.micro userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/wordpress.sh securitygroups={instances.securitygroup}
 create scalinggroup desired-capacity=2 launchconfiguration=$launchconf max-size=2 min-size=2 name=wordpress-scalinggroup subnets={wordpress.subnets} targetgroups=$tg
 ```
 

@@ -52,6 +52,15 @@
   "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/dynamic_autoscaling_watching_CPU.aws"
  },
  {
+  "Title": "Highly-available wordpress infrastructure",
+  "MinimalVersion": "v0.1.3",
+  "Tags": [
+   "infra"
+  ],
+  "Name": "highly_available_wordpress_infra",
+  "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/highly_available_wordpress_infra.aws"
+ },
+ {
   "Title": "Install awless scheduler",
   "CLIExample": "awless run repo:install_awless_scheduler ubuntu.ami=$(aw search images canonical:ubuntu --id-only)",
   "Name": "install_awless_scheduler",
