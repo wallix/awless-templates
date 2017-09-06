@@ -1,0 +1,13 @@
+# Title: Attach usual readonly AWS policies (set of permissions) on group
+# Tags: access, policy, role
+# Description: When you want your users to have a set of permissions, instead of attaching permissions directly on users it is a good practice and simpler to define a group having those permissions and then adding/removing as needed users from those groups.
+
+attach policy service=ec2 access=readonly group={group-name}
+attach policy service=s3 access=readonly group={group-name}
+attach policy service=sns access=readonly group={group-name} 
+attach policy service=sqs access=readonly group={group-name} 
+attach policy service=vpc access=readonly group={group-name}
+attach policy service=autoscaling access=readonly group={group-name}
+attach policy service=iam access=readonly group={group-name}
+attach policy service=rds access=readonly group={group-name}
+attach policy service=route53 access=readonly group={group-name}
