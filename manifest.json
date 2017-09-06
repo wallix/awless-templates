@@ -36,8 +36,8 @@
   "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/cockroach_insecure_cluster_with_haproxy.aws"
  },
  {
-  "Title": "Create a simple postgres instance",
-  "Description": "Create the corresponding secgroup and the basic postgres instance (into a existing dbsubnetgroup). Instance has only basic required properties filled in",
+  "Title": "Create a postgres instance",
+  "Description": "Create a private basic postgres instance with firewall. As an example, instance has only basic required properties filled in",
   "Name": "db_postgres",
   "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/db_postgres.aws"
  },
@@ -119,6 +119,13 @@
   "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/linux_bastion.aws"
  },
  {
+  "Title": "Create a dbsubnetgroups",
+  "CLIExample": "run repo:new_dbsubnetgroup.draft first.subnet.cidr=10.0.0.0/25 first.subnet.availabilityzone=us-west-1a second.subnet.cidr=10.0.0.128/25 second.subnet.availabilityzone=us-west-1c vpc.cidr=10.0.0.0/24 vpc.name=myvpc",
+  "Description": "Create 2 subnets on different availability zones to later on constitute the dbsubnet group",
+  "Name": "new_dbsubnetgroup",
+  "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/new_dbsubnetgroup.aws"
+ },
+ {
   "Title": "Attach usual readonly AWS policies (set of permissions) on group",
   "Description": "When you want your users to have a set of permissions, instead of attaching permissions directly on users it is a good practice and simpler to define a group having those permissions and then adding/removing as needed users from those groups.",
   "Tags": [
@@ -126,8 +133,8 @@
    "policy",
    "role"
   ],
-  "Name": "policies_on_role",
-  "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/policies_on_role.aws"
+  "Name": "policies_on_group",
+  "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/policies_on_group.aws"
  },
  {
   "Title": "Create a public network enabling routing from the Internet",

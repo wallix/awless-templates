@@ -6,6 +6,8 @@
 
 Repository to collect official, verified and runnable templates for the [awless CLI](https://github.com/wallix/awless)
 
+**You need at least awless version v0.1.3 to run those examples**
+
 Here are some non exhaustive [Examples](https://github.com/wallix/awless/wiki/Examples) of what you can do with templates. You can also read more about [awless templates](https://github.com/wallix/awless/wiki/Templates)
 
 ## Continuous Integration

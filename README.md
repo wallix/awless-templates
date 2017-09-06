@@ -6,6 +6,8 @@
 
 Repository to collect official, verified and runnable templates for the [awless CLI](https://github.com/wallix/awless)
 
+**You need at least awless version v0.1.3 to run those examples**
+
 Here are some non exhaustive [Examples](https://github.com/wallix/awless/wiki/Examples) of what you can do with templates. You can also read more about [awless templates](https://github.com/wallix/awless/wiki/Templates)
 
 ## Continuous Integration
@@ -25,7 +27,7 @@ You can run the verification locally with:
 * [Pre-defined policies for awless users](#pre-defined-policies-for-awless-users)
 * [Awless readwrite group](#awless-readwrite-group)
 * [Create a simple (insecure) CockroachDB cluster](#create-a-simple-(insecure)-cockroachdb-cluster)
-* [Create a simple postgres instance](#create-a-simple-postgres-instance)
+* [Create a postgres instance](#create-a-postgres-instance)
 * [Group of instances scaling with CPU consumption](#group-of-instances-scaling-with-cpu-consumption)
 * [Highly-available wordpress infrastructure](#highly-available-wordpress-infrastructure)
 * [Install awless scheduler](#install-awless-scheduler)
@@ -35,6 +37,7 @@ You can run the verification locally with:
 * [Create an instance with tags and public IP](#create-an-instance-with-tags-and-public-ip)
 * [Create a classic Kafka infra](#create-a-classic-kafka-infra)
 * [Create VPC with a Linux host bastion](#create-vpc-with-a-linux-host-bastion)
+* [Create a dbsubnetgroups](#create-a-dbsubnetgroups)
 * [Attach usual readonly AWS policies (set of permissions) on group](#attach-usual-readonly-aws-policies-(set-of-permissions)-on-group)
 * [Create a public network enabling routing from the Internet](#create-a-public-network-enabling-routing-from-the-internet)
 * [Create a AWS role with usual readonly policies that applies on a resource](#create-a-aws-role-with-usual-readonly-policies-that-applies-on-a-resource)
@@ -421,28 +424,86 @@ awless run repo:cockroach_insecure_cluster_with_haproxy cockroachnode.ubuntu.ami
 
 
 
-### Create a simple postgres instance
+### Create a postgres instance
 
 
 
 
-*Create the corresponding secgroup and the basic postgres instance (into a existing dbsubnetgroup). Instance has only basic required properties filled in*
+*Create a private basic postgres instance with firewall. As an example, instance has only basic required properties filled in*
 
 
 
 
 
+ Create a new VPC open to Internet to host the subnets
 
 ```sh
-postgres_sg = create securitygroup name=postgres description='Postgres access' vpc={vpc}
-update securitygroup id=$postgres_sg inbound=authorize protocol=tcp portrange=5432 cidr={securitygroup.cidr}
+vpc = create vpc cidr=10.0.0.0/16 name=postgres-vpc
+gateway = create internetgateway
+attach internetgateway id=$gateway vpc=$vpc
+
+```
+ Create a route table for this network
+
+```sh
+rtable = create routetable vpc=$vpc
+
+```
+ Enable routing from the Internet
+
+```sh
+create route cidr=0.0.0.0/0 gateway=$gateway table=$rtable
+
+```
+ One public subnet to later deploy or host public applications or a bastion to access your private DBs
+
+```sh
+pubsubnet = create subnet cidr=10.0.128.0/20 vpc=$vpc name=public-subnet
+update subnet id=$pubsubnet public=true
+
+```
+ Make the public subnet open to the Internet (through vpc that has an internetgateway)
+
+```sh
+attach routetable id=$rtable subnet=$pubsubnet
+
+```
+ Two private subnet to constitute the dbsubnetgroup hosting the DB
+
+```sh
+privsubnet1 = create subnet cidr=10.0.0.0/19 vpc=$vpc name=postgres-priv-subnet1 availabilityzone={availabilityzone.1}
+privsubnet2 = create subnet cidr=10.0.32.0/19 vpc=$vpc name=postgres-priv-subnet2 availabilityzone={availabilityzone.2}
+subnetgroup = create dbsubnetgroup subnets=[$privsubnet1, $privsubnet2] name=PostgresDBSubnetGroup description="DB subnet group hosting postgres instances"
+
+```
+ Firewall for the postgres instance
+
+```sh
+postgres_sg = create securitygroup name=postgres description='Postgres firewall access' vpc=$vpc
+update securitygroup id=$postgres_sg inbound=authorize protocol=tcp portrange=5432 cidr=10.0.0.0/16
 
 ```
  Create the database and connect to it through: `psql --host=? --port=5432 --username=? --password --dbname=?`
 
 ```sh
-create database engine=postgres id={database.identifier} subnetgroup={database.dbsubnetgroup}  password={password.minimum8chars} dbname={postgres.database.name} size=5 type=db.t2.small username={database.username} vpcsecuritygroups=$postgres_sg
+create database engine=postgres id={database.identifier} subnetgroup=$subnetgroup  password={password.minimum8chars} dbname={database.name} size=5 type=db.t2.small username={database.username} vpcsecuritygroups=$postgres_sg
+
 ```
+ Create a small jump instance in your public subnet to run command on your postgres DB
+ and give SSH access to this instance with a SSH security group
+ Run the CLI with: awless .... office.ip=$(awless whoami --ip-only) debian.image=$(awless search images debian --id-only)
+
+```sh
+sshsecgroup = create securitygroup vpc=$vpc description="SSH access from office IP only" name=ssh-from-office
+update securitygroup id=$sshsecgroup inbound=authorize protocol=tcp cidr={office.ip}/32 portrange=22
+create instance image={debian.image} keypair={my.keypair} name=jump subnet=$pubsubnet securitygroup=$sshsecgroup type=t2.micro
+
+```
+ Then to administrate your DB you can do:
+ $ HOST=$(awless show production --values-for PublicDNS --local)
+ $ awless ssh jump
+ $ sudo apt-get update; sudo apt-get install -y postgresql-client-9.4
+ $ psql --host={VALUE FROM HOST ABOVE} --port=5432 --username=... --password --dbname=...
 
 
 Run it locally with: `awless run repo:db_postgres -v`
@@ -697,16 +758,16 @@ create role name=$roleName principal-service="ec2.amazonaws.com" sleep-after=10
  Attach typical necessary awless readonly permissions to the role
 
 ```sh
-attach policy role=$roleName arn=arn:aws:iam::aws:policy/AmazonEC2ReadOnlyAccess
-attach policy role=$roleName arn=arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess
-attach policy role=$roleName arn=arn:aws:iam::aws:policy/AmazonSNSReadOnlyAccess
-attach policy role=$roleName arn=arn:aws:iam::aws:policy/AmazonSQSReadOnlyAccess
-attach policy role=$roleName arn=arn:aws:iam::aws:policy/AmazonVPCReadOnlyAccess
-attach policy role=$roleName arn=arn:aws:iam::aws:policy/AutoScalingReadOnlyAccess
-attach policy role=$roleName arn=arn:aws:iam::aws:policy/IAMReadOnlyAccess
-attach policy role=$roleName arn=arn:aws:iam::aws:policy/AmazonRDSReadOnlyAccess
-attach policy role=$roleName arn=arn:aws:iam::aws:policy/AmazonRoute53ReadOnlyAccess
-attach policy role=$roleName arn=arn:aws:iam::aws:policy/AWSLambdaReadOnlyAccess
+attach policy role=$roleName service=ec2 access=readonly
+attach policy role=$roleName service=s3 access=readonly
+attach policy role=$roleName service=sns access=readonly
+attach policy role=$roleName service=sqs access=readonly
+attach policy role=$roleName service=vpc access=readonly
+attach policy role=$roleName service=autoscaling access=readonly
+attach policy role=$roleName service=iam access=readonly
+attach policy role=$roleName service=rds access=readonly
+attach policy role=$roleName service=route53 access=readonly
+attach policy role=$roleName service=lambda access=readonly
 
 ```
  Launch new instance running remote user data script installing awless
@@ -745,24 +806,24 @@ roleName = {awless-scheduler.role-name}
 create role name=$roleName principal-service="ec2.amazonaws.com" sleep-after=10
 
 ```
- Attach typical necessary awless readonly permissions to the role
+ Attach typical necessary awless permissions to the role
 
 ```sh
-attach policy role=$roleName arn=arn:aws:iam::aws:policy/AmazonEC2FullAccess
-attach policy role=$roleName arn=arn:aws:iam::aws:policy/AmazonS3FullAccess
-attach policy role=$roleName arn=arn:aws:iam::aws:policy/AmazonSNSFullAccess
-attach policy role=$roleName arn=arn:aws:iam::aws:policy/AmazonSQSFullAccess
-attach policy role=$roleName arn=arn:aws:iam::aws:policy/AmazonVPCFullAccess
-attach policy role=$roleName arn=arn:aws:iam::aws:policy/AutoScalingFullAccess
-attach policy role=$roleName arn=arn:aws:iam::aws:policy/AmazonRDSFullAccess
-attach policy role=$roleName arn=arn:aws:iam::aws:policy/AmazonRoute53FullAccess
-attach policy role=$roleName arn=arn:aws:iam::aws:policy/AWSLambdaFullAccess
+attach policy role=$roleName service=ec2 access=full
+attach policy role=$roleName service=s3 access=full
+attach policy role=$roleName service=sns access=full
+attach policy role=$roleName service=sqs access=full
+attach policy role=$roleName service=vpc access=full
+attach policy role=$roleName service=autoscaling access=full
+attach policy role=$roleName service=rds access=full
+attach policy role=$roleName service=route53 access=full
+attach policy role=$roleName service=lambda access=full
 
 ```
  We keep IAM on read only mode
 
 ```sh
-attach policy role=$roleName arn=arn:aws:iam::aws:policy/IAMReadOnlyAccess
+attach policy role=$roleName service=iam access=readonly
 
 ```
  Launch new instance running remote user data script installing awless
@@ -929,14 +990,14 @@ attach internetgateway id=$gateway vpc=$vpc
  That is where you will deploy resources only accessible through the bastion
 
 ```sh
-create subnet cidr=10.0.0.0/19 name=PrivSubnet1 vpc=$vpc availabilityzone={zone1}
-create subnet cidr=10.0.32.0/19 name=PrivSubnet2 vpc=$vpc availabilityzone={zone2}
+create subnet cidr=10.0.0.0/19 name=PrivSubnet1 vpc=$vpc availabilityzone={availabilityzone.1}
+create subnet cidr=10.0.32.0/19 name=PrivSubnet2 vpc=$vpc availabilityzone={availabilityzone.2}
 
 ```
  Create the the public subnet hosting the bastion
 
 ```sh
-pubSubnet = create subnet cidr=10.0.128.0/20 name=PubSubnet1 vpc=$vpc availabilityzone={zone1}
+pubSubnet = create subnet cidr=10.0.128.0/20 name=PubSubnet1 vpc=$vpc availabilityzone={availabilityzone.1}
 update subnet id=$pubSubnet public=true
 
 ```
@@ -988,6 +1049,54 @@ Run it locally with: `awless run repo:linux_bastion -v`
 
 
 
+### Create a dbsubnetgroups
+
+
+
+
+*Create 2 subnets on different availability zones to later on constitute the dbsubnet group*
+
+
+
+
+
+ Create a new VPC open to Internet to host the subnets
+
+```sh
+vpc = create vpc cidr={vpc.cidr} name={vpc.name}
+gateway = create internetgateway
+attach internetgateway id=$gateway vpc=$vpc
+firstsubnet = create subnet cidr={first.subnet.cidr} vpc=$vpc name={first.subnet.name} availabilityzone={first.subnet.availabilityzone}
+update subnet id=$firstsubnet public=true
+secondsubnet = create subnet cidr={second.subnet.cidr} vpc=$vpc name={second.subnet.name} availabilityzone={second.subnet.availabilityzone}
+update subnet id=$secondsubnet public=true
+
+```
+ Create a route table for this network
+
+```sh
+rtable = create routetable vpc=$vpc
+
+```
+ Make the subnets open to the Internet (through vpc that has an internetgateway)
+
+```sh
+attach routetable id=$rtable subnet=$firstsubnet
+attach routetable id=$rtable subnet=$secondsubnet
+create dbsubnetgroup name={dbsubnetgroup.name} description={dbsubnetgroup.description} subnets=[$firstsubnet, $secondsubnet]
+```
+
+
+Run it locally with: `awless run repo:new_dbsubnetgroup -v`
+
+
+Full CLI example:
+```sh
+run repo:new_dbsubnetgroup.draft first.subnet.cidr=10.0.0.0/25 first.subnet.availabilityzone=us-west-1a second.subnet.cidr=10.0.0.128/25 second.subnet.availabilityzone=us-west-1c vpc.cidr=10.0.0.0/24 vpc.name=myvpc
+```
+
+
+
 ### Attach usual readonly AWS policies (set of permissions) on group
 
 
@@ -1004,20 +1113,19 @@ access, policy, role
 
 
 ```sh
-groupName = {group-name}
-attach policy arn=arn:aws:iam::aws:policy/AmazonEC2ReadOnlyAccess group=$groupName
-attach policy arn=arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess group=$groupName
-attach policy arn=arn:aws:iam::aws:policy/AmazonSNSReadOnlyAccess group=$groupName
-attach policy arn=arn:aws:iam::aws:policy/AmazonSQSReadOnlyAccess group=$groupName
-attach policy arn=arn:aws:iam::aws:policy/AmazonVPCReadOnlyAccess group=$groupName
-attach policy arn=arn:aws:iam::aws:policy/AutoScalingReadOnlyAccess group=$groupName
-attach policy arn=arn:aws:iam::aws:policy/IAMReadOnlyAccess group=$groupName
-attach policy arn=arn:aws:iam::aws:policy/AmazonRDSReadOnlyAccess group=$groupName
-attach policy arn=arn:aws:iam::aws:policy/AmazonRoute53ReadOnlyAccess group=$groupName
+attach policy service=ec2 access=readonly group={group-name}
+attach policy service=s3 access=readonly group={group-name}
+attach policy service=sns access=readonly group={group-name}
+attach policy service=sqs access=readonly group={group-name}
+attach policy service=vpc access=readonly group={group-name}
+attach policy service=autoscaling access=readonly group={group-name}
+attach policy service=iam access=readonly group={group-name}
+attach policy service=rds access=readonly group={group-name}
+attach policy service=route53 access=readonly group={group-name}
 ```
 
 
-Run it locally with: `awless run repo:policies_on_role -v`
+Run it locally with: `awless run repo:policies_on_group -v`
 
 
 
@@ -1088,15 +1196,15 @@ create role name=$roleName principal-service={aws-service}
  Attach policy (set of permissions) to the created role
 
 ```sh
-attach policy role=$roleName arn=arn:aws:iam::aws:policy/AmazonEC2ReadOnlyAccess
-attach policy role=$roleName arn=arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess
-attach policy role=$roleName arn=arn:aws:iam::aws:policy/AmazonSNSReadOnlyAccess
-attach policy role=$roleName arn=arn:aws:iam::aws:policy/AmazonSQSReadOnlyAccess
-attach policy role=$roleName arn=arn:aws:iam::aws:policy/AmazonVPCReadOnlyAccess
-attach policy role=$roleName arn=arn:aws:iam::aws:policy/AutoScalingReadOnlyAccess
-attach policy role=$roleName arn=arn:aws:iam::aws:policy/IAMReadOnlyAccess
-attach policy role=$roleName arn=arn:aws:iam::aws:policy/AmazonRDSReadOnlyAccess
-attach policy role=$roleName arn=arn:aws:iam::aws:policy/AmazonRoute53ReadOnlyAccess
+attach policy role=$roleName service=ec2 access=readonly
+attach policy role=$roleName service=s3 access=readonly
+attach policy role=$roleName service=sns access=readonly
+attach policy role=$roleName service=sqs access=readonly
+attach policy role=$roleName service=vpc access=readonly
+attach policy role=$roleName service=autoscaling access=readonly
+attach policy role=$roleName service=iam access=readonly
+attach policy role=$roleName service=rds access=readonly
+attach policy role=$roleName service=route53 access=readonly
 ```
 
 
@@ -1121,28 +1229,28 @@ access, policy, user
 
 
 ```sh
-accountRole = create role name={role-name} principal-account={aws-account-id}
+newRole = create role name={role-name} principal-account={aws-account-id}
 
 ```
  Attach policy (set of permissions) to the created role
 
 ```sh
-attach policy role={role-name} arn=arn:aws:iam::aws:policy/AmazonEC2ReadOnlyAccess
-attach policy role={role-name} arn=arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess
-attach policy role={role-name} arn=arn:aws:iam::aws:policy/AmazonSNSReadOnlyAccess
-attach policy role={role-name} arn=arn:aws:iam::aws:policy/AmazonSQSReadOnlyAccess
-attach policy role={role-name} arn=arn:aws:iam::aws:policy/AmazonVPCReadOnlyAccess
-attach policy role={role-name} arn=arn:aws:iam::aws:policy/AutoScalingReadOnlyAccess
-attach policy role={role-name} arn=arn:aws:iam::aws:policy/IAMReadOnlyAccess
-attach policy role={role-name} arn=arn:aws:iam::aws:policy/AmazonRDSReadOnlyAccess
-attach policy role={role-name} arn=arn:aws:iam::aws:policy/AmazonRoute53ReadOnlyAccess
+attach policy role={role-name} service=ec2 access=readonly
+attach policy role={role-name} service=s3 access=readonly
+attach policy role={role-name} service=sns access=readonly
+attach policy role={role-name} service=sqs access=readonly
+attach policy role={role-name} service=vpc access=readonly
+attach policy role={role-name} service=autoscaling access=readonly
+attach policy role={role-name} service=iam access=readonly
+attach policy role={role-name} service=rds access=readonly
+attach policy role={role-name} service=route53 access=readonly
 
 ```
  Create a policy to allow user with this policy to assume only this role
  You can then attach this policy to a user via `awless attach policy arn=... user=jsmith`
 
 ```sh
-create policy name={assume-policy-name} effect=Allow action=sts:AssumeRole resource=$accountRole
+create policy name={assume-policy-name} effect=Allow action=sts:AssumeRole resource=$newRole
 ```
 
 
