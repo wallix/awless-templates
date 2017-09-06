@@ -7,12 +7,12 @@ roleName = {role-name}
 create role name=$roleName principal-service={aws-service} 
 
 # Attach policy (set of permissions) to the created role
-attach policy role=$roleName arn=arn:aws:iam::aws:policy/AmazonEC2ReadOnlyAccess 
-attach policy role=$roleName arn=arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess
-attach policy role=$roleName arn=arn:aws:iam::aws:policy/AmazonSNSReadOnlyAccess
-attach policy role=$roleName arn=arn:aws:iam::aws:policy/AmazonSQSReadOnlyAccess 
-attach policy role=$roleName arn=arn:aws:iam::aws:policy/AmazonVPCReadOnlyAccess
-attach policy role=$roleName arn=arn:aws:iam::aws:policy/AutoScalingReadOnlyAccess 
-attach policy role=$roleName arn=arn:aws:iam::aws:policy/IAMReadOnlyAccess 
-attach policy role=$roleName arn=arn:aws:iam::aws:policy/AmazonRDSReadOnlyAccess
-attach policy role=$roleName arn=arn:aws:iam::aws:policy/AmazonRoute53ReadOnlyAccess 
+attach policy role=$roleName service=ec2 access=readonly
+attach policy role=$roleName service=s3 access=readonly
+attach policy role=$roleName service=sns access=readonly
+attach policy role=$roleName service=sqs access=readonly
+attach policy role=$roleName service=vpc access=readonly
+attach policy role=$roleName service=autoscaling access=readonly
+attach policy role=$roleName service=iam access=readonly
+attach policy role=$roleName service=rds access=readonly
+attach policy role=$roleName service=route53 access=readonly

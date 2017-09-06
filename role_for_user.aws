@@ -2,20 +2,19 @@
 # Tags: access, policy, user
 # Description: Create a AWS role that applies on a user (retrieve the id with `awless whoami`)
 
-
-accountRole = create role name={role-name} principal-account={aws-account-id} 
+newRole = create role name={role-name} principal-account={aws-account-id} 
 
 # Attach policy (set of permissions) to the created role
-attach policy role={role-name} arn=arn:aws:iam::aws:policy/AmazonEC2ReadOnlyAccess 
-attach policy role={role-name} arn=arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess
-attach policy role={role-name} arn=arn:aws:iam::aws:policy/AmazonSNSReadOnlyAccess
-attach policy role={role-name} arn=arn:aws:iam::aws:policy/AmazonSQSReadOnlyAccess 
-attach policy role={role-name} arn=arn:aws:iam::aws:policy/AmazonVPCReadOnlyAccess
-attach policy role={role-name} arn=arn:aws:iam::aws:policy/AutoScalingReadOnlyAccess 
-attach policy role={role-name} arn=arn:aws:iam::aws:policy/IAMReadOnlyAccess 
-attach policy role={role-name} arn=arn:aws:iam::aws:policy/AmazonRDSReadOnlyAccess
-attach policy role={role-name} arn=arn:aws:iam::aws:policy/AmazonRoute53ReadOnlyAccess 
+attach policy role={role-name} service=ec2 access=readonly
+attach policy role={role-name} service=s3 access=readonly
+attach policy role={role-name} service=sns access=readonly
+attach policy role={role-name} service=sqs access=readonly
+attach policy role={role-name} service=vpc access=readonly
+attach policy role={role-name} service=autoscaling access=readonly
+attach policy role={role-name} service=iam access=readonly
+attach policy role={role-name} service=rds access=readonly
+attach policy role={role-name} service=route53 access=readonly
 
 # Create a policy to allow user with this policy to assume only this role
 # You can then attach this policy to a user via `awless attach policy arn=... user=jsmith`
-create policy name={assume-policy-name} effect=Allow action=sts:AssumeRole resource=$accountRole
+create policy name={assume-policy-name} effect=Allow action=sts:AssumeRole resource=$newRole
