@@ -1,8 +1,46 @@
-# Title: Create a simple postgres instance
-# Description: Create the corresponding secgroup and the basic postgres instance (into a existing dbsubnetgroup). Instance has only basic required properties filled in
+# Title: Create a postgres instance
+# Description: Create a private basic postgres instance with firewall. As an example, instance has only basic required properties filled in
 
-postgres_sg = create securitygroup name=postgres description='Postgres access' vpc={vpc}
-update securitygroup id=$postgres_sg inbound=authorize protocol=tcp portrange=5432 cidr={securitygroup.cidr}
+# Create a new VPC open to Internet to host the subnets
+vpc = create vpc cidr=10.0.0.0/16 name=postgres-vpc
+gateway = create internetgateway
+attach internetgateway id=$gateway vpc=$vpc
+
+# Create a route table for this network
+rtable = create routetable vpc=$vpc
+
+# Enable routing from the Internet
+create route cidr=0.0.0.0/0 gateway=$gateway table=$rtable
+
+# One public subnet to later deploy or host public applications or a bastion to access your private DBs 
+pubsubnet = create subnet cidr=10.0.128.0/20 vpc=$vpc name=public-subnet
+update subnet id=$pubsubnet public=true
+
+# Make the public subnet open to the Internet (through vpc that has an internetgateway)
+attach routetable id=$rtable subnet=$pubsubnet
+
+# Two private subnet to constitute the dbsubnetgroup hosting the DB
+privsubnet1 = create subnet cidr=10.0.0.0/19 vpc=$vpc name=postgres-priv-subnet1 availabilityzone={availabilityzone.1}
+privsubnet2 = create subnet cidr=10.0.32.0/19 vpc=$vpc name=postgres-priv-subnet2 availabilityzone={availabilityzone.2}
+
+subnetgroup = create dbsubnetgroup subnets=[$privsubnet1, $privsubnet2] name=PostgresDBSubnetGroup description="DB subnet group hosting postgres instances"
+
+# Firewall for the postgres instance
+postgres_sg = create securitygroup name=postgres description='Postgres firewall access' vpc=$vpc
+update securitygroup id=$postgres_sg inbound=authorize protocol=tcp portrange=5432 cidr=10.0.0.0/16
 
 # Create the database and connect to it through: `psql --host=? --port=5432 --username=? --password --dbname=?`
-create database engine=postgres id={database.identifier} subnetgroup={database.dbsubnetgroup}  password={password.minimum8chars} dbname={postgres.database.name} size=5 type=db.t2.small username={database.username} vpcsecuritygroups=$postgres_sg
+create database engine=postgres id={database.identifier} subnetgroup=$subnetgroup  password={password.minimum8chars} dbname={database.name} size=5 type=db.t2.small username={database.username} vpcsecuritygroups=$postgres_sg
+
+# Create a small jump instance in your public subnet to run command on your postgres DB
+# and give SSH access to this instance with a SSH security group
+# Run the CLI with: awless .... office.ip=$(awless whoami --ip-only) debian.image=$(awless search images debian --id-only)
+sshsecgroup = create securitygroup vpc=$vpc description="SSH access from office IP only" name=ssh-from-office
+update securitygroup id=$sshsecgroup inbound=authorize protocol=tcp cidr={office.ip}/32 portrange=22
+create instance image={debian.image} keypair={my.keypair} name=jump subnet=$pubsubnet securitygroup=$sshsecgroup type=t2.micro
+
+# Then to administrate your DB you can do:
+# $ HOST=$(awless show production --values-for PublicDNS --local)
+# $ awless ssh jump
+# $ sudo apt-get update; sudo apt-get install -y postgresql-client-9.4
+# $ psql --host={VALUE FROM HOST ABOVE} --port=5432 --username=... --password --dbname=...
