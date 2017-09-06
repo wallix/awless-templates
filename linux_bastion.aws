@@ -10,11 +10,11 @@ attach internetgateway id=$gateway vpc=$vpc
 
 # Create 2 private subnets each on a different availability zone
 # That is where you will deploy resources only accessible through the bastion
-create subnet cidr=10.0.0.0/19 name=PrivSubnet1 vpc=$vpc availabilityzone={zone1}
-create subnet cidr=10.0.32.0/19 name=PrivSubnet2 vpc=$vpc availabilityzone={zone2}
+create subnet cidr=10.0.0.0/19 name=PrivSubnet1 vpc=$vpc availabilityzone={availabilityzone.1}
+create subnet cidr=10.0.32.0/19 name=PrivSubnet2 vpc=$vpc availabilityzone={availabilityzone.2}
 
 # Create the the public subnet hosting the bastion
-pubSubnet = create subnet cidr=10.0.128.0/20 name=PubSubnet1 vpc=$vpc availabilityzone={zone1}
+pubSubnet = create subnet cidr=10.0.128.0/20 name=PubSubnet1 vpc=$vpc availabilityzone={availabilityzone.1}
 update subnet id=$pubSubnet public=true
 
 # Create a route table (with routing only allowed within VPC by default)
