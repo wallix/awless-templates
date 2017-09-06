@@ -8,10 +8,10 @@
 # bash <(curl https://cdn.rawgit.com/zn3zman/AWS-WordPress-Creation/master/WP-Setup.sh)
 
 # Set default variables from awless templating variables
-wordpressdb="{{.References.dbname}}"
-SQLHost="{{.References.dbhost}}"
-SQLUser="{{.References.dbuser}}"
-SQLPass="{{.References.dbpassword}}"
+wordpressdb="{{.Variables.dbname}}"
+SQLHost="{{.Variables.dbhost}}"
+SQLUser="{{.Variables.dbuser}}"
+SQLPass="{{.Variables.dbpassword}}"
 
 upgrademe=yes
 red=`tput setaf 1`

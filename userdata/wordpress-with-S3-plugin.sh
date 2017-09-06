@@ -8,17 +8,17 @@
 # bash <(curl https://cdn.rawgit.com/zn3zman/AWS-WordPress-Creation/master/WP-Setup.sh)
 
 # Set default variables from awless templating variables
-wordpressdb="{{.References.dbname}}"
-SQLHost="{{.References.dbhost}}"
-SQLUser="{{.References.dbuser}}"
-SQLPass="{{.References.dbpassword}}"
-S3Bucket="{{.References.s3bucket}}"
-CloudFrontURL="{{.References.cloudfrontURL}}"
-BlogURL="{{.References.wordpressUrl}}"
-BlogTitle="{{.References.wordpressTitle}}"
-BlogUser="{{.References.wordpressUser}}"
-BlogEmail="{{.References.wordpressEmail}}"
-BlogPassword="{{.References.wordpressPassword}}"
+wordpressdb="{{.Variables.dbname}}"
+SQLHost="{{.Variables.dbhost}}"
+SQLUser="{{.Variables.dbuser}}"
+SQLPass="{{.Variables.dbpassword}}"
+S3Bucket="{{.Variables.s3bucket}}"
+CloudFrontURL="{{.Variables.cloudfrontURL}}"
+BlogURL="{{.Variables.wordpressUrl}}"
+BlogTitle="{{.Variables.wordpressTitle}}"
+BlogUser="{{.Variables.wordpressUser}}"
+BlogEmail="{{.Variables.wordpressEmail}}"
+BlogPassword="{{.Variables.wordpressPassword}}"
 S3Region=$(curl -s http://169.254.169.254/latest/meta-data/placement/availability-zone/ | sed 's/.$//')
 
 upgrademe=yes

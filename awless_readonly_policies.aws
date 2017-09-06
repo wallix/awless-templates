@@ -1,30 +1,30 @@
 # Title: Pre-defined policies for awless users
-# MinimalVersion: v0.1.1
+# MinimalVersion: v0.1.3
 # Description: Useful pre-defined readonly & readwrite policies for awless users
 
 # Infra resources
-create policy name=AwlessInfraReadonlyPolicy effect=Allow resource="*" description="Readonly access to infra resources" action=ec2:Describe*,autoscaling:Describe*,elasticloadbalancing:Describe*
+create policy name=AwlessInfraReadonlyPolicy effect=Allow resource="*" description="Readonly access to infra resources" action=[ec2:Describe*,autoscaling:Describe*,elasticloadbalancing:Describe*]
 
 # Access resources
-create policy name=AwlessAccessReadonlyPolicy effect=Allow resource="*" description="Readonly access to access resources" action=iam:GenerateCredentialReport,iam:GenerateServiceLastAccessedDetails,iam:Get*,iam:List*,sts:Get*
+create policy name=AwlessAccessReadonlyPolicy effect=Allow resource="*" description="Readonly access to access resources" action=[iam:GenerateCredentialReport,iam:GenerateServiceLastAccessedDetails,iam:Get*,iam:List*,sts:Get*]
 
 # Storage resources
-create policy name=AwlessStorageReadonlyPolicy effect=Allow resource="*" description="Readonly access to storage resources" action=s3:Get*,s3:List*
+create policy name=AwlessStorageReadonlyPolicy effect=Allow resource="*" description="Readonly access to storage resources" action=[s3:Get*,s3:List*]
 
 # Messaging resources
-create policy name=AwlessMessagingReadonlyPolicy effect=Allow resource="*" description="Readonly access to notification and queueing for messaging resources" action=sns:GetTopicAttributes,sns:List*,sqs:GetQueueAttributes,sqs:ListQueues
+create policy name=AwlessMessagingReadonlyPolicy effect=Allow resource="*" description="Readonly access to notification and queueing for messaging resources" action=[sns:GetTopicAttributes,sns:List*,sqs:GetQueueAttributes,sqs:ListQueues]
 
 # Lambda resources
-create policy name=AwlessLambdaReadonlyPolicy effect=Allow resource="*" description="Readonly access to lambda resources" action=cloudwatch:Describe*,cloudwatch:Get*,cloudwatch:List*,cognito-identity:ListIdentityPools,cognito-sync:GetCognitoEvents,dynamodb:BatchGetItem,dynamodb:DescribeStream,dynamodb:DescribeTable,dynamodb:GetItem,dynamodb:ListStreams,dynamodb:ListTables,dynamodb:Query,dynamodb:Scan,events:List*,events:Describe*,iam:ListRoles,kinesis:DescribeStream,kinesis:ListStreams,lambda:List*,lambda:Get*,logs:DescribeMetricFilters,logs:GetLogEvents,logs:DescribeLogGroups,logs:DescribeLogStreams,s3:Get*,s3:List*,sns:ListTopics,sns:ListSubscriptions,sns:ListSubscriptionsByTopic,sqs:ListQueues,tag:GetResources,kms:ListAliases,ec2:DescribeVpcs,ec2:DescribeSubnets,ec2:DescribeSecurityGroups,iot:GetTopicRules,iot:ListTopicRules,iot:ListPolicies,iot:ListThings,iot:DescribeEndpoint
+create policy name=AwlessLambdaReadonlyPolicy effect=Allow resource="*" description="Readonly access to lambda resources" action=[cloudwatch:Describe*,cloudwatch:Get*,cloudwatch:List*,cognito-identity:ListIdentityPools,cognito-sync:GetCognitoEvents,dynamodb:BatchGetItem,dynamodb:DescribeStream,dynamodb:DescribeTable,dynamodb:GetItem,dynamodb:ListStreams,dynamodb:ListTables,dynamodb:Query,dynamodb:Scan,events:List*,events:Describe*,iam:ListRoles,kinesis:DescribeStream,kinesis:ListStreams,lambda:List*,lambda:Get*,logs:DescribeMetricFilters,logs:GetLogEvents,logs:DescribeLogGroups,logs:DescribeLogStreams,s3:Get*,s3:List*,sns:ListTopics,sns:ListSubscriptions,sns:ListSubscriptionsByTopic,sqs:ListQueues,tag:GetResources,kms:ListAliases,ec2:DescribeVpcs,ec2:DescribeSubnets,ec2:DescribeSecurityGroups,iot:GetTopicRules,iot:ListTopicRules,iot:ListPolicies,iot:ListThings,iot:DescribeEndpoint]
 
 # DNS resources
-create policy name=AwlessDNSReadonlyPolicy effect=Allow resource="*" description="Readonly access to DNS resources" action=route53:Get*,route53:List*,route53:TestDNSAnswer,route53domains:Get*,route53domains:List*
+create policy name=AwlessDNSReadonlyPolicy effect=Allow resource="*" description="Readonly access to DNS resources" action=[route53:Get*,route53:List*,route53:TestDNSAnswer,route53domains:Get*,route53domains:List*]
 
 # Monitoring resources
-create policy name=AwlessMonitoringReadonlyPolicy effect=Allow resource="*" description="Readonly access to monitoring resources" action=autoscaling:Describe*,cloudwatch:Describe*,cloudwatch:Get*,cloudwatch:List*,logs:Get*,logs:Describe*,logs:TestMetricFilter,sns:Get*,sns:List*
+create policy name=AwlessMonitoringReadonlyPolicy effect=Allow resource="*" description="Readonly access to monitoring resources" action=[autoscaling:Describe*,cloudwatch:Describe*,cloudwatch:Get*,cloudwatch:List*,logs:Get*,logs:Describe*,logs:TestMetricFilter,sns:Get*,sns:List*]
 
 # CDN resources
-create policy name=AwlessCDNReadonlyPolicy effect=Allow resource="*" description="Readonly access to CDN resources" action=acm:ListCertificates,cloudfront:Get*,cloudfront:List*,iam:ListServerCertificates,route53:List*,waf:ListWebACLs,waf:GetWebACL
+create policy name=AwlessCDNReadonlyPolicy effect=Allow resource="*" description="Readonly access to CDN resources" action=[acm:ListCertificates,cloudfront:Get*,cloudfront:List*,iam:ListServerCertificates,route53:List*,waf:ListWebACLs,waf:GetWebACL]
 
 # Cloud formation resources
-create policy name=AwlessCloudFormationReadonlyPolicy effect=Allow resource="*" description="Readonly access to CloudFormation resources" action=cloudformation:DescribeStacks,cloudformation:DescribeStackEvents,cloudformation:DescribeStackResource,cloudformation:DescribeStackResources,cloudformation:GetTemplate,cloudformation:List*
+create policy name=AwlessCloudFormationReadonlyPolicy effect=Allow resource="*" description="Readonly access to CloudFormation resources" action=[cloudformation:DescribeStacks,cloudformation:DescribeStackEvents,cloudformation:DescribeStackResource,cloudformation:DescribeStackResources,cloudformation:GetTemplate,cloudformation:List*]
