@@ -51,7 +51,7 @@ You can run the verification locally with:
 ### ECS Autoscaling Cluster
 
 
-**-> Minimal awless version required: v0.1.1**
+**-> Minimal awless version required: v0.1.3**
 
 
 
@@ -68,7 +68,7 @@ autoscaling, container, infra
  Then, create a policy to allow to connect to ECS
 
 ```sh
-policy = create policy name=AWSEC2ContainerServiceforEC2Role effect=Allow resource="*" description="Access for ECS containers" action=ecs:DeregisterContainerInstance,ecs:DiscoverPollEndpoint,ecs:Poll,ecs:RegisterContainerInstance,ecs:StartTelemetrySession,ecs:Submit*,ecr:GetAuthorizationToken,ecr:BatchCheckLayerAvailability,ecr:GetDownloadUrlForLayer,ecr:BatchGetImage,logs:CreateLogStream,logs:PutLogEvent
+policy = create policy name=AWSEC2ContainerServiceforEC2Role effect=Allow resource="*" description="Access for ECS containers" action=[ecs:DeregisterContainerInstance,ecs:DiscoverPollEndpoint,ecs:Poll,ecs:RegisterContainerInstance,ecs:StartTelemetrySession,ecs:Submit*,ecr:GetAuthorizationToken,ecr:BatchCheckLayerAvailability,ecr:GetDownloadUrlForLayer,ecr:BatchGetImage,logs:CreateLogStream,logs:PutLogEvent]
 
 ```
  Set role name variable
@@ -160,7 +160,7 @@ Run it locally with: `awless run repo:awless_readonly_group -v`
 ### Pre-defined policies for awless users
 
 
-**-> Minimal awless version required: v0.1.1**
+**-> Minimal awless version required: v0.1.3**
 
 
 
@@ -173,55 +173,55 @@ Run it locally with: `awless run repo:awless_readonly_group -v`
  Infra resources
 
 ```sh
-create policy name=AwlessInfraReadonlyPolicy effect=Allow resource="*" description="Readonly access to infra resources" action=ec2:Describe*,autoscaling:Describe*,elasticloadbalancing:Describe*
+create policy name=AwlessInfraReadonlyPolicy effect=Allow resource="*" description="Readonly access to infra resources" action=[ec2:Describe*,autoscaling:Describe*,elasticloadbalancing:Describe*]
 
 ```
  Access resources
 
 ```sh
-create policy name=AwlessAccessReadonlyPolicy effect=Allow resource="*" description="Readonly access to access resources" action=iam:GenerateCredentialReport,iam:GenerateServiceLastAccessedDetails,iam:Get*,iam:List*,sts:Get*
+create policy name=AwlessAccessReadonlyPolicy effect=Allow resource="*" description="Readonly access to access resources" action=[iam:GenerateCredentialReport,iam:GenerateServiceLastAccessedDetails,iam:Get*,iam:List*,sts:Get*]
 
 ```
  Storage resources
 
 ```sh
-create policy name=AwlessStorageReadonlyPolicy effect=Allow resource="*" description="Readonly access to storage resources" action=s3:Get*,s3:List*
+create policy name=AwlessStorageReadonlyPolicy effect=Allow resource="*" description="Readonly access to storage resources" action=[s3:Get*,s3:List*]
 
 ```
  Messaging resources
 
 ```sh
-create policy name=AwlessMessagingReadonlyPolicy effect=Allow resource="*" description="Readonly access to notification and queueing for messaging resources" action=sns:GetTopicAttributes,sns:List*,sqs:GetQueueAttributes,sqs:ListQueues
+create policy name=AwlessMessagingReadonlyPolicy effect=Allow resource="*" description="Readonly access to notification and queueing for messaging resources" action=[sns:GetTopicAttributes,sns:List*,sqs:GetQueueAttributes,sqs:ListQueues]
 
 ```
  Lambda resources
 
 ```sh
-create policy name=AwlessLambdaReadonlyPolicy effect=Allow resource="*" description="Readonly access to lambda resources" action=cloudwatch:Describe*,cloudwatch:Get*,cloudwatch:List*,cognito-identity:ListIdentityPools,cognito-sync:GetCognitoEvents,dynamodb:BatchGetItem,dynamodb:DescribeStream,dynamodb:DescribeTable,dynamodb:GetItem,dynamodb:ListStreams,dynamodb:ListTables,dynamodb:Query,dynamodb:Scan,events:List*,events:Describe*,iam:ListRoles,kinesis:DescribeStream,kinesis:ListStreams,lambda:List*,lambda:Get*,logs:DescribeMetricFilters,logs:GetLogEvents,logs:DescribeLogGroups,logs:DescribeLogStreams,s3:Get*,s3:List*,sns:ListTopics,sns:ListSubscriptions,sns:ListSubscriptionsByTopic,sqs:ListQueues,tag:GetResources,kms:ListAliases,ec2:DescribeVpcs,ec2:DescribeSubnets,ec2:DescribeSecurityGroups,iot:GetTopicRules,iot:ListTopicRules,iot:ListPolicies,iot:ListThings,iot:DescribeEndpoint
+create policy name=AwlessLambdaReadonlyPolicy effect=Allow resource="*" description="Readonly access to lambda resources" action=[cloudwatch:Describe*,cloudwatch:Get*,cloudwatch:List*,cognito-identity:ListIdentityPools,cognito-sync:GetCognitoEvents,dynamodb:BatchGetItem,dynamodb:DescribeStream,dynamodb:DescribeTable,dynamodb:GetItem,dynamodb:ListStreams,dynamodb:ListTables,dynamodb:Query,dynamodb:Scan,events:List*,events:Describe*,iam:ListRoles,kinesis:DescribeStream,kinesis:ListStreams,lambda:List*,lambda:Get*,logs:DescribeMetricFilters,logs:GetLogEvents,logs:DescribeLogGroups,logs:DescribeLogStreams,s3:Get*,s3:List*,sns:ListTopics,sns:ListSubscriptions,sns:ListSubscriptionsByTopic,sqs:ListQueues,tag:GetResources,kms:ListAliases,ec2:DescribeVpcs,ec2:DescribeSubnets,ec2:DescribeSecurityGroups,iot:GetTopicRules,iot:ListTopicRules,iot:ListPolicies,iot:ListThings,iot:DescribeEndpoint]
 
 ```
  DNS resources
 
 ```sh
-create policy name=AwlessDNSReadonlyPolicy effect=Allow resource="*" description="Readonly access to DNS resources" action=route53:Get*,route53:List*,route53:TestDNSAnswer,route53domains:Get*,route53domains:List*
+create policy name=AwlessDNSReadonlyPolicy effect=Allow resource="*" description="Readonly access to DNS resources" action=[route53:Get*,route53:List*,route53:TestDNSAnswer,route53domains:Get*,route53domains:List*]
 
 ```
  Monitoring resources
 
 ```sh
-create policy name=AwlessMonitoringReadonlyPolicy effect=Allow resource="*" description="Readonly access to monitoring resources" action=autoscaling:Describe*,cloudwatch:Describe*,cloudwatch:Get*,cloudwatch:List*,logs:Get*,logs:Describe*,logs:TestMetricFilter,sns:Get*,sns:List*
+create policy name=AwlessMonitoringReadonlyPolicy effect=Allow resource="*" description="Readonly access to monitoring resources" action=[autoscaling:Describe*,cloudwatch:Describe*,cloudwatch:Get*,cloudwatch:List*,logs:Get*,logs:Describe*,logs:TestMetricFilter,sns:Get*,sns:List*]
 
 ```
  CDN resources
 
 ```sh
-create policy name=AwlessCDNReadonlyPolicy effect=Allow resource="*" description="Readonly access to CDN resources" action=acm:ListCertificates,cloudfront:Get*,cloudfront:List*,iam:ListServerCertificates,route53:List*,waf:ListWebACLs,waf:GetWebACL
+create policy name=AwlessCDNReadonlyPolicy effect=Allow resource="*" description="Readonly access to CDN resources" action=[acm:ListCertificates,cloudfront:Get*,cloudfront:List*,iam:ListServerCertificates,route53:List*,waf:ListWebACLs,waf:GetWebACL]
 
 ```
  Cloud formation resources
 
 ```sh
-create policy name=AwlessCloudFormationReadonlyPolicy effect=Allow resource="*" description="Readonly access to CloudFormation resources" action=cloudformation:DescribeStacks,cloudformation:DescribeStackEvents,cloudformation:DescribeStackResource,cloudformation:DescribeStackResources,cloudformation:GetTemplate,cloudformation:List*
+create policy name=AwlessCloudFormationReadonlyPolicy effect=Allow resource="*" description="Readonly access to CloudFormation resources" action=[cloudformation:DescribeStacks,cloudformation:DescribeStackEvents,cloudformation:DescribeStackResource,cloudformation:DescribeStackResources,cloudformation:GetTemplate,cloudformation:List*]
 ```
 
 
@@ -820,6 +820,8 @@ Run it locally with: `awless run repo:instance_with_tags_and_publicip -v`
 ### Create a classic Kafka infra
 
 
+**-> Minimal awless version required: v0.1.3**
+
 
 
 *Create a classic Kafka infra: brokers, 1 zookeeper instance*
@@ -828,31 +830,50 @@ Run it locally with: `awless run repo:instance_with_tags_and_publicip -v`
 
 
 
+ Create the VPC and its internet gateway
+
+```sh
+vpc = create vpc cidr=10.0.0.0/16 name=kafka-vpc
+igw = create internetgateway
+attach internetgateway id=$igw vpc=$vpc
+
+```
+ Create a public subnet
+
+```sh
+subnet_cidr = 10.0.0.0/24
+subnet = create subnet cidr=$subnet_cidr vpc=$vpc name=kafka-subnet
+update subnet id=$subnet public=true
+routetable = create routetable vpc=$vpc
+attach routetable subnet=$subnet id=$routetable
+create route cidr=0.0.0.0/0 gateway=$igw table=$routetable
+
+```
  Create securitygroup for SSH: opening port 22 for all IPs
 
 ```sh
-sshsecgroup = create securitygroup vpc={main.vpc} description=SSHSecurityGroup name=SSHSecurityGroup
+sshsecgroup = create securitygroup vpc=$vpc description=SSHSecurityGroup name=SSHSecurityGroup
 update securitygroup id=$sshsecgroup inbound=authorize protocol=tcp cidr={remote-access.cidr} portrange=22
 
 ```
  Create securitygroup for Kafka instances (brokers & zookeeper)
 
 ```sh
-kafkasecgroup = create securitygroup vpc={main.vpc} description=KafkaSecurityGroup name=KafkaSecurityGroup
-update securitygroup id=$kafkasecgroup inbound=authorize protocol=tcp cidr={subnet.cidr} portrange=0-65535
+kafkasecgroup = create securitygroup vpc=$vpc description=KafkaSecurityGroup name=KafkaSecurityGroup
+update securitygroup id=$kafkasecgroup inbound=authorize protocol=tcp cidr=$subnet_cidr portrange=0-65535
 
 ```
  Create a role with policy for ec2 resources so that an instance can list other instances using a local `awless`
 
 ```sh
-create role name=AwlessEC2ReadonlyRole principal-service="ec2.amazonaws.com" sleep-after=20
-attach policy role=AwlessEC2ReadonlyRole arn=arn:aws:iam::aws:policy/AmazonEC2ReadOnlyAccess
+create role name=EC2ReadonlyRole principal-service="ec2.amazonaws.com" sleep-after=20
+attach policy role=EC2ReadonlyRole service=ec2 access=readonly
 
 ```
- Create Zookeeper instance
+ Create Zookeeper instance with security groups attached
 
 ```sh
-zookeeper = create instance name=zookeeper image={redhat-ami} type={zookeeper-instance-type} keypair={keypair.name} subnet={main.subnet} securitygroup=$sshsecgroup userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/redhat/zookeeper.sh
+zookeeper = create instance name=zookeeper image={redhat-ami} type={zookeeper-instance-type} keypair={keypair.name} subnet=$subnet securitygroup=[$sshsecgroup,$kafkasecgroup] userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/redhat/zookeeper.sh
 
 ```
  Wait the Zookeeper instance is up and running
@@ -861,21 +882,12 @@ zookeeper = create instance name=zookeeper image={redhat-ami} type={zookeeper-in
 check instance id=$zookeeper state=running timeout=180
 
 ```
- Create Kafka broker instances with role created above
+ Create Kafka broker instances with role created above and security groups attached
 
 ```sh
-broker_1 = create instance name=broker_1 image={redhat-ami} type={broker-instance-type} keypair={keypair.name} subnet={main.subnet} role=AwlessEC2ReadonlyRole securitygroup=$sshsecgroup userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/redhat/kafka.sh
-broker_2 = create instance name=broker_2 image={redhat-ami} type={broker-instance-type} keypair={keypair.name} subnet={main.subnet} role=AwlessEC2ReadonlyRole securitygroup=$sshsecgroup userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/redhat/kafka.sh
-broker_3 = create instance name=broker_3 image={redhat-ami} type={broker-instance-type} keypair={keypair.name} subnet={main.subnet} role=AwlessEC2ReadonlyRole securitygroup=$sshsecgroup userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/redhat/kafka.sh
-
-```
- Update instances with corresponding securitygroups
-
-```sh
-attach securitygroup id=$kafkasecgroup instance=$broker_1
-attach securitygroup id=$kafkasecgroup instance=$broker_2
-attach securitygroup id=$kafkasecgroup instance=$broker_3
-attach securitygroup id=$kafkasecgroup instance=$zookeeper
+broker_1 = create instance name=broker_1 image={redhat-ami} type={broker-instance-type} keypair={keypair.name} subnet=$subnet role=EC2ReadonlyRole securitygroup=[$sshsecgroup,$kafkasecgroup] userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/redhat/kafka.sh
+broker_2 = create instance name=broker_2 image={redhat-ami} type={broker-instance-type} keypair={keypair.name} subnet=$subnet role=EC2ReadonlyRole securitygroup=[$sshsecgroup,$kafkasecgroup] userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/redhat/kafka.sh
+broker_3 = create instance name=broker_3 image={redhat-ami} type={broker-instance-type} keypair={keypair.name} subnet=$subnet role=EC2ReadonlyRole securitygroup=[$sshsecgroup,$kafkasecgroup] userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/redhat/kafka.sh
 ```
 
 
@@ -891,6 +903,8 @@ awless run repo:kafka_infra redhat-ami=$(awless search images redhat --id-only) 
 
 ### Create VPC with a Linux host bastion
 
+
+**-> Minimal awless version required: v0.1.3**
 
 
 
@@ -951,7 +965,7 @@ update securitygroup id=$bastionSecGroup inbound=authorize protocol=icmp cidr={r
 
 ```sh
 create role name=BastionHostRole principal-service=ec2.amazonaws.com sleep-after=30
-bastionEc2Policy = create policy name=BastionEc2Permissions action=ec2:DescribeAddresses,ec2:AssociateAddress resource="*" effect=Allow
+bastionEc2Policy = create policy name=BastionEc2Permissions action=[ec2:DescribeAddresses,ec2:AssociateAddress] resource="*" effect=Allow
 attach policy role=BastionHostRole arn=$bastionEc2Policy
 
 ```
