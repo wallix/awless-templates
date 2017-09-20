@@ -94,6 +94,9 @@ attach instance id=$node1 targetgroup=$tgroup_ui
 attach instance id=$node2 targetgroup=$tgroup_ui
 attach instance id=$node3 targetgroup=$tgroup_ui
 
+# Create a small jump instance in your public subnet to run command on your nodes
+create instance image={ubuntu.image.id} keypair={my.ssh.keypair} name=jump subnet=$pubsubnet1 securitygroup=$sshfirewall type=t2.micro
+
 # Then to connect to the cluster UI:
 # Retrieve the loadbalancer public DNS with (ex: awless show cockroachdb-cluster --values-for publicdns)
 # and open in a browser PUBLIC_DNS:8080
