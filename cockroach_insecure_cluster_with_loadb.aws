@@ -1,8 +1,8 @@
-# Title: Create a simple (insecure) CockroachDB cluster in new VPC
-# Description: Deploying a multi AZ insecure 3 CockroachDB cluster with load balancing service to distribute client traffic. See https://www.cockroachlabs.com/docs/deploy-cockroachdb-on-aws-insecure.html
+# Title: Create an insecure CockroachDB cluster in new VPC
+# Description: Deploying a multi-AZ CockroachDB insecure cluster (3 nodes) with AWS load balancing service to distribute client traffic. See https://www.cockroachlabs.com/docs/stable/deploy-cockroachdb-on-aws-insecure.html
 #
-# Run it with:
-# CLIExample: awless run cockroach_insecure_cluster_with_loadb.aws ubuntu.image.id=$(awless search images canonical --id-only)
+# Install awless and run:
+# CLIExample: awless run repo:cockroach_insecure_cluster_with_loadb ubuntu.image.id=$(awless search images canonical --id-only)
 
 # Create a new VPC open to Internet to host the subnets
 vpc = create vpc cidr=10.0.0.0/16 name=cockroachdb-vpc
@@ -52,12 +52,12 @@ update securitygroup id=$lbfirewall inbound=authorize protocol=tcp cidr=0.0.0.0/
 update securitygroup id=$lbfirewall inbound=authorize protocol=tcp cidr=0.0.0.0/0 portrange=8080
 
 ## Create the load balancing
-tgroup_node = create targetgroup name=cockroachdb-nodes port=26257 protocol=HTTP vpc=$vpc
+tgroup_node = create targetgroup name=cockroachdb-nodes port=26257 protocol=TCP vpc=$vpc
 tgroup_ui = create targetgroup name=cockroachdb-ui port=8080 protocol=HTTP vpc=$vpc healthcheckpath="/health" healthcheckport=8080
 
 lb = create loadbalancer name=cockroachdb-cluster subnets=[$pubsubnet1, $pubsubnet2, $pubsubnet3] securitygroups=$lbfirewall
 create listener actiontype=forward loadbalancer=$lb port=8080 protocol=HTTP targetgroup=$tgroup_ui
-create listener actiontype=forward loadbalancer=$lb port=26257 protocol=HTTP targetgroup=$tgroup_node
+create listener actiontype=forward loadbalancer=$lb port=26257 protocol=TCP targetgroup=$tgroup_node
 
 # Create firewall for general SSH access
 sshfirewall = create securitygroup vpc=$vpc description=ssh-access name=AccessSSH
