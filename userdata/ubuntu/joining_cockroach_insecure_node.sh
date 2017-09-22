@@ -2,6 +2,8 @@
 
 curl https://raw.githubusercontent.com/wallix/awless/master/getawless.sh | bash
 
+./awless config
+
 FIRST_NODE_IP=$(./awless ls instances --filter name=cockroachdb-node-1 --filter state=running --format tsv --no-headers | cut -f7)
 
 rm awless

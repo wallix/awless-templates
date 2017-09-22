@@ -1,7 +1,8 @@
 # Title: Create a simple (insecure) CockroachDB cluster in new VPC
 # Description: Deploying a multi AZ insecure 3 CockroachDB cluster with load balancing service to distribute client traffic. See https://www.cockroachlabs.com/docs/deploy-cockroachdb-on-aws-insecure.html
-# Run with:
-# $ awless run cockroach_insecure_cluster_with_loadb.aws ubuntu.image.id=$(awless search images canonical --id-only)
+#
+# Run it with:
+# CLIExample: awless run cockroach_insecure_cluster_with_loadb.aws ubuntu.image.id=$(awless search images canonical --id-only)
 
 # Create a new VPC open to Internet to host the subnets
 vpc = create vpc cidr=10.0.0.0/16 name=cockroachdb-vpc
@@ -95,9 +96,11 @@ attach instance id=$node2 targetgroup=$tgroup_ui
 attach instance id=$node3 targetgroup=$tgroup_ui
 
 # Create a small jump instance in your public subnet to run command on your nodes
-create instance image={ubuntu.image.id} keypair={my.ssh.keypair} name=jump subnet=$pubsubnet1 securitygroup=$sshfirewall type=t2.micro
+create instance image={ubuntu.image.id} keypair={my.ssh.keypair} name=jump-server subnet=$pubsubnet1 securitygroup=$sshfirewall type=t2.micro
 
-# Then to connect to the cluster UI:
 # Retrieve the loadbalancer public DNS with (ex: awless show cockroachdb-cluster --values-for publicdns)
-# and open in a browser PUBLIC_DNS:8080
-# or run sql commands with coackroach sql --insecure --host PUBLIC_DNS
+# Then to connect to the cluster UI in a browser with http://{PUBLIC_DNS}:8080
+# or sql connect to the cluster with: cockroach sql --insecure --host {PUBLIC_DNS}
+#
+# Use awless and the jump server to go to specific nodes:
+# awless ssh cockroachdb-node-1 --through jump-server 

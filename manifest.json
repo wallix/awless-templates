@@ -36,6 +36,13 @@
   "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/cockroach_insecure_cluster_with_haproxy.aws"
  },
  {
+  "Title": "Create a simple (insecure) CockroachDB cluster in new VPC",
+  "CLIExample": "awless run cockroach_insecure_cluster_with_loadb.aws ubuntu.image.id=$(awless search images canonical --id-only)",
+  "Description": "Deploying a multi AZ insecure 3 CockroachDB cluster with load balancing service to distribute client traffic. See https://www.cockroachlabs.com/docs/deploy-cockroachdb-on-aws-insecure.html",
+  "Name": "cockroach_insecure_cluster_with_loadb",
+  "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/cockroach_insecure_cluster_with_loadb.aws"
+ },
+ {
   "Title": "Create a postgres instance",
   "Description": "Create a private basic postgres instance with firewall. As an example, instance has only basic required properties filled in",
   "Name": "db_postgres",

@@ -27,6 +27,7 @@ You can run the verification locally with:
 * [Pre-defined policies for awless users](#pre-defined-policies-for-awless-users)
 * [Awless readwrite group](#awless-readwrite-group)
 * [Create a simple (insecure) CockroachDB cluster](#create-a-simple-(insecure)-cockroachdb-cluster)
+* [Create a simple (insecure) CockroachDB cluster in new VPC](#create-a-simple-(insecure)-cockroachdb-cluster-in-new-vpc)
 * [Create a postgres instance](#create-a-postgres-instance)
 * [Group of instances scaling with CPU consumption](#group-of-instances-scaling-with-cpu-consumption)
 * [Highly-available wordpress infrastructure](#highly-available-wordpress-infrastructure)
@@ -420,6 +421,177 @@ Run it locally with: `awless run repo:cockroach_insecure_cluster_with_haproxy -v
 Full CLI example:
 ```sh
 awless run repo:cockroach_insecure_cluster_with_haproxy cockroachnode.ubuntu.ami=$(awless search images canonical --id-only) ssh.keypair=my-ssh-keyname
+```
+
+
+
+### Create a simple (insecure) CockroachDB cluster in new VPC
+
+
+
+
+*Deploying a multi AZ insecure 3 CockroachDB cluster with load balancing service to distribute client traffic. See https://www.cockroachlabs.com/docs/deploy-cockroachdb-on-aws-insecure.html*
+
+
+
+
+
+
+ Run it with:
+ Create a new VPC open to Internet to host the subnets
+
+```sh
+vpc = create vpc cidr=10.0.0.0/16 name=cockroachdb-vpc
+gateway = create internetgateway
+attach internetgateway id=$gateway vpc=$vpc
+
+```
+ Create a route table for this network and enabling routing from the Internet
+
+```sh
+rtable = create routetable vpc=$vpc
+create route cidr=0.0.0.0/0 gateway=$gateway table=$rtable
+
+```
+ Create 3 public subnets (multi AZ)
+
+```sh
+pubsubnet1 = create subnet cidr=10.0.128.0/20 vpc=$vpc name=cockroachdb-pubsubnet-1 availabilityzone={availabilityzone.1}
+update subnet id=$pubsubnet1 public=true
+pubsubnet2 = create subnet cidr=10.0.144.0/20 vpc=$vpc name=cockroachdb-pubsubnet-2 availabilityzone={availabilityzone.2}
+update subnet id=$pubsubnet2 public=true
+pubsubnet3 = create subnet cidr=10.0.160.0/20 vpc=$vpc name=cockroachdb-pubsubnet-3 availabilityzone={availabilityzone.3}
+update subnet id=$pubsubnet3 public=true
+
+```
+ Make the public subnets open to the Internet
+
+```sh
+attach routetable id=$rtable subnet=$pubsubnet1
+attach routetable id=$rtable subnet=$pubsubnet2
+attach routetable id=$rtable subnet=$pubsubnet3
+
+```
+ Create 3 private subnets (multi AZ)
+
+```sh
+privsubnet1 = create subnet cidr=10.0.0.0/19 vpc=$vpc name=cockroachdb-privsubnet-1 availabilityzone={availabilityzone.1}
+privsubnet2 = create subnet cidr=10.0.32.0/19 vpc=$vpc name=cockroachdb-privsubnet-2 availabilityzone={availabilityzone.2}
+privsubnet3 = create subnet cidr=10.0.64.0/19 vpc=$vpc name=cockroachdb-privsubnet-3 availabilityzone={availabilityzone.3}
+
+```
+ Add a NAT Gateway used by nodes to provision themselves with user data accessing Internet
+
+```sh
+pubip = create elasticip domain=vpc
+natgw = create natgateway elasticip-id=$pubip subnet=$pubsubnet1
+
+```
+ Wait for the NAT Gateway
+
+```sh
+check natgateway id=$natgw state=available timeout=180
+
+```
+ Routing to attach nat gateway to private subnets
+
+```sh
+natgw_rtable = create routetable vpc=$vpc
+attach routetable id=$natgw_rtable subnet=$privsubnet1
+attach routetable id=$natgw_rtable subnet=$privsubnet2
+attach routetable id=$natgw_rtable subnet=$privsubnet3
+create route cidr=0.0.0.0/0 gateway=$natgw table=$natgw_rtable
+
+```
+ Create the loadbalancer firewall
+
+```sh
+lbfirewall = create securitygroup vpc=$vpc description=cockroachdb-loadbalancer-securitygroup name=cockroachdb-loadbalancer-securitygroup
+update securitygroup id=$lbfirewall inbound=authorize protocol=tcp cidr=0.0.0.0/0 portrange=26257
+update securitygroup id=$lbfirewall inbound=authorize protocol=tcp cidr=0.0.0.0/0 portrange=8080
+
+```
+ Create the load balancing
+
+```sh
+tgroup_node = create targetgroup name=cockroachdb-nodes port=26257 protocol=HTTP vpc=$vpc
+tgroup_ui = create targetgroup name=cockroachdb-ui port=8080 protocol=HTTP vpc=$vpc healthcheckpath="/health" healthcheckport=8080
+lb = create loadbalancer name=cockroachdb-cluster subnets=[$pubsubnet1, $pubsubnet2, $pubsubnet3] securitygroups=$lbfirewall
+create listener actiontype=forward loadbalancer=$lb port=8080 protocol=HTTP targetgroup=$tgroup_ui
+create listener actiontype=forward loadbalancer=$lb port=26257 protocol=HTTP targetgroup=$tgroup_node
+
+```
+ Create firewall for general SSH access
+
+```sh
+sshfirewall = create securitygroup vpc=$vpc description=ssh-access name=AccessSSH
+update securitygroup id=$sshfirewall inbound=authorize protocol=tcp cidr=0.0.0.0/0 portrange=22
+
+```
+ Create nodes firewall for cockroachdb node TCP access
+
+```sh
+nodefirewall = create securitygroup vpc=$vpc description=cockroachdb-node-access name=CockroachDBAccess
+update securitygroup id=$nodefirewall inbound=authorize protocol=tcp securitygroup=$lbfirewall portrange=26257
+update securitygroup id=$nodefirewall inbound=authorize protocol=tcp securitygroup=$nodefirewall portrange=26257
+
+```
+ Create nodes firewall for UI HTTP access
+
+```sh
+uifirewall = create securitygroup vpc=$vpc description=cockroachdb-ui-access name=CockroachUIAccess
+update securitygroup id=$uifirewall inbound=authorize protocol=tcp securitygroup=$lbfirewall portrange=8080
+
+```
+ Create a role with policy so that cockroach node instances (ec2 resources) can list other nodes using a local `awless`
+
+```sh
+create role name=DiscoverCockroachNodeRole principal-service="ec2.amazonaws.com" sleep-after=20
+attach policy role=DiscoverCockroachNodeRole service=ec2 access=readonly
+
+```
+ Create the cockroachdb nodes
+
+```sh
+node1 = create instance subnet=$privsubnet1 securitygroup=[$sshfirewall,$uifirewall,$nodefirewall] keypair={my.ssh.keypair} image={ubuntu.image.id} type={instance.type} role=DiscoverCockroachNodeRole type=t2.medium count=1 name=cockroachdb-node-1 userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/ubuntu/cockroach_insecure_node.sh
+check instance id=$node1 state=running timeout=180
+node2 = create instance subnet=$privsubnet2 securitygroup=[$sshfirewall,$uifirewall,$nodefirewall] keypair={my.ssh.keypair} image={ubuntu.image.id} type={instance.type} role=DiscoverCockroachNodeRole type=t2.medium count=1 name=cockroachdb-node-2 userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/ubuntu/joining_cockroach_insecure_node.sh
+check instance id=$node2 state=running timeout=180
+node3 = create instance subnet=$privsubnet3 securitygroup=[$sshfirewall,$uifirewall,$nodefirewall] keypair={my.ssh.keypair} image={ubuntu.image.id} type={instance.type} role=DiscoverCockroachNodeRole type=t2.medium count=1 name=cockroachdb-node-3 userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/ubuntu/joining_cockroach_insecure_node.sh
+check instance id=$node3 state=running timeout=180
+
+```
+ Put instances in the necessary target groups
+
+```sh
+attach instance id=$node1 targetgroup=$tgroup_node
+attach instance id=$node2 targetgroup=$tgroup_node
+attach instance id=$node3 targetgroup=$tgroup_node
+attach instance id=$node1 targetgroup=$tgroup_ui
+attach instance id=$node2 targetgroup=$tgroup_ui
+attach instance id=$node3 targetgroup=$tgroup_ui
+
+```
+ Create a small jump instance in your public subnet to run command on your nodes
+
+```sh
+create instance image={ubuntu.image.id} keypair={my.ssh.keypair} name=jump-server subnet=$pubsubnet1 securitygroup=$sshfirewall type=t2.micro
+
+```
+ Retrieve the loadbalancer public DNS with (ex: awless show cockroachdb-cluster --values-for publicdns)
+ Then to connect to the cluster UI in a browser with http://{PUBLIC_DNS}:8080
+ or sql connect to the cluster with: cockroach sql --insecure --host {PUBLIC_DNS}
+
+ Use awless and the jump server to go to specific nodes:
+ awless ssh cockroachdb-node-1 --through jump-server
+
+
+Run it locally with: `awless run repo:cockroach_insecure_cluster_with_loadb -v`
+
+
+Full CLI example:
+```sh
+awless run cockroach_insecure_cluster_with_loadb.aws ubuntu.image.id=$(awless search images canonical --id-only)
 ```
 
 
