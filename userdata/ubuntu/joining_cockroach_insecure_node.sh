@@ -2,11 +2,11 @@
 
 curl https://raw.githubusercontent.com/wallix/awless/master/getawless.sh | bash
 
-FIRST_NODE_IP=$(./awless ls instances --filter name=cockroachdb-node-1 --filter state=run --format csv | tail -1 | cut -d, -f7)
+FIRST_NODE_IP=$(./awless ls instances --filter name=cockroachdb-node-1 --filter state=running --format tsv --no-headers | cut -f7)
 
 rm awless
 
-PACKAGE=cockroach-v1.0.5.linux-amd64
+PACKAGE=cockroach-v1.0.6.linux-amd64
 
 curl -O https://binaries.cockroachdb.com/$PACKAGE.tgz
 

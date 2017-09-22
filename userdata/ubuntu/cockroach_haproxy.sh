@@ -4,9 +4,9 @@ apt-get -y install haproxy
 
 curl https://raw.githubusercontent.com/wallix/awless/master/getawless.sh | bash
 
-NODE_1_IP=$(./awless ls instances --filter name=cockroachdb-node-1 --filter state=run --format csv | tail -1 | cut -d, -f7)
-NODE_2_IP=$(./awless ls instances --filter name=cockroachdb-node-2 --filter state=run --format csv | tail -1 | cut -d, -f7)
-NODE_3_IP=$(./awless ls instances --filter name=cockroachdb-node-3 --filter state=run --format csv | tail -1 | cut -d, -f7)
+NODE_1_IP=$(./awless ls instances --filter name=cockroachdb-node-1 --filter state=running --format tsv --no-headers | cut -f7)
+NODE_2_IP=$(./awless ls instances --filter name=cockroachdb-node-2 --filter state=running --format tsv --no-headers | cut -f7)
+NODE_3_IP=$(./awless ls instances --filter name=cockroachdb-node-3 --filter state=running --format tsv --no-headers | cut -f7)
 
 rm awless
 
