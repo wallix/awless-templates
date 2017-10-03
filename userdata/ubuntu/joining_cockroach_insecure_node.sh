@@ -1,5 +1,7 @@
 #!/bin/bash
 
+apt-get -y install ntp
+
 curl https://raw.githubusercontent.com/wallix/awless/master/getawless.sh | bash
 
 ./awless config
