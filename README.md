@@ -26,8 +26,7 @@ You can run the verification locally with:
 * [Awless readonly group](#awless-readonly-group)
 * [Pre-defined policies for awless users](#pre-defined-policies-for-awless-users)
 * [Awless readwrite group](#awless-readwrite-group)
-* [Create a simple (insecure) CockroachDB cluster](#create-a-simple-(insecure)-cockroachdb-cluster)
-* [Create a simple (insecure) CockroachDB cluster in new VPC](#create-a-simple-(insecure)-cockroachdb-cluster-in-new-vpc)
+* [Create an insecure CockroachDB cluster in new VPC infrastructure](#create-an-insecure-cockroachdb-cluster-in-new-vpc-infrastructure)
 * [Create a postgres instance](#create-a-postgres-instance)
 * [Group of instances scaling with CPU consumption](#group-of-instances-scaling-with-cpu-consumption)
 * [Highly-available wordpress infrastructure](#highly-available-wordpress-infrastructure)
@@ -283,161 +282,19 @@ Run it locally with: `awless run repo:awless_readwrite_group -v`
 
 
 
-### Create a simple (insecure) CockroachDB cluster
+### Create an insecure CockroachDB cluster in new VPC infrastructure
 
 
 
 
-*Deploying an insecure multi-node CockroachDB cluster with HAProxy to distribute client traffic. See https://www.cockroachlabs.com/docs/manual-deployment-insecure.html*
-
-
-
-
-
- Create a new VPC with 3 private subnets and a public one (i.e. with internet gateway)
-
-```sh
-vpc = create vpc cidr=10.0.0.0/16 name=vpc_10.0.0.0_16
-gateway = create internetgateway
-attach internetgateway id=$gateway vpc=$vpc
-
-```
- Private subnets in multi AZ for cockroachdb cluster
-
-```sh
-subnet_1 = create subnet cidr=10.0.0.0/24 vpc=$vpc name=sub_10.0.0.0_24 availabilityzone={zone1}
-subnet_2 = create subnet cidr=10.0.1.0/24 vpc=$vpc name=sub_10.0.1.0_24 availabilityzone={zone2}
-subnet_3 = create subnet cidr=10.0.2.0/24 vpc=$vpc name=sub_10.0.2.0_24 availabilityzone={zone3}
-
-```
- Public subnet that will hosts the HAproxy
-
-```sh
-subnet_4 = create subnet cidr=10.0.3.0/24 vpc=$vpc name=sub_10.0.3.0_24 availabilityzone={zone1}
-update subnet id=$subnet_4 public=true
-
-```
- Routing to attach internet gateway to public subnet
-
-```sh
-igw_rtable = create routetable vpc=$vpc
-attach routetable id=$igw_rtable subnet=$subnet_4
-create route cidr=0.0.0.0/0 gateway=$gateway table=$igw_rtable
-
-```
- Public IP for a NAT Gateway
-
-```sh
-pubip = create elasticip domain=vpc
-
-```
- Add a NAT Gateway to the public subnet
-
-```sh
-natgw = create natgateway elasticip-id=$pubip subnet=$subnet_4
-
-```
- Wait for the NAT Gateway
-
-```sh
-check natgateway id=$natgw state=available timeout=180
-
-```
- Routing to attach nat gateway to private subnets
-
-```sh
-natgw_rtable = create routetable vpc=$vpc
-attach routetable id=$natgw_rtable subnet=$subnet_1
-attach routetable id=$natgw_rtable subnet=$subnet_2
-attach routetable id=$natgw_rtable subnet=$subnet_3
-create route cidr=0.0.0.0/0 gateway=$natgw table=$natgw_rtable
-
-```
- Create firewall for SSH access
-
-```sh
-sshfirewall = create securitygroup vpc=$vpc description=ssh-access name=AccessSSH
-update securitygroup id=$sshfirewall inbound=authorize protocol=tcp cidr=0.0.0.0/0 portrange=22
-
-```
- Create firewall for cockroachdb node TCP access
-
-```sh
-nodefirewall = create securitygroup vpc=$vpc description=cockroachdb-node-access name=CockroachDBAccess
-update securitygroup id=$nodefirewall inbound=authorize protocol=tcp cidr=10.0.0.0/16 portrange=26257
-
-```
- Create firewall for UI HTTP access
-
-```sh
-uifirewall = create securitygroup vpc=$vpc description=cockroachdb-ui-access name=CockroachUIAccess
-update securitygroup id=$uifirewall inbound=authorize protocol=tcp cidr=10.0.0.0/16 portrange=8080
-
-```
- Create firewall for HTTP access
-
-```sh
-proxyfirewall = create securitygroup vpc=$vpc description=proxy-http-access name=ProxyAccess
-update securitygroup id=$proxyfirewall inbound=authorize protocol=tcp cidr=0.0.0.0/0 portrange=80
-update securitygroup id=$proxyfirewall inbound=authorize protocol=tcp cidr=0.0.0.0/0 portrange=443
-
-```
- Create a role with policy for ec2 resources so that an instance can list other instances using a local `awless`
-
-```sh
-create role name=DiscoverCockroachNodeRole principal-service="ec2.amazonaws.com" sleep-after=20
-attach policy role=DiscoverCockroachNodeRole arn=arn:aws:iam::aws:policy/AmazonEC2ReadOnlyAccess
-
-```
- Create the cockroachdb nodes
-
-```sh
-node_1 = create instance subnet=$subnet_1 keypair={ssh.keypair} image={cockroachnode.ubuntu.ami} type=t2.medium count=1 role=DiscoverCockroachNodeRole name=cockroachdb-node-1 securitygroup=$sshfirewall userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/ubuntu/cockroach_insecure_node.sh
-check instance id=$node_1 state=running timeout=180
-node_2 = create instance subnet=$subnet_2 keypair={ssh.keypair} image={cockroachnode.ubuntu.ami} type=t2.medium count=1 role=DiscoverCockroachNodeRole name=cockroachdb-node-2 securitygroup=$sshfirewall userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/ubuntu/joining_cockroach_insecure_node.sh
-check instance id=$node_2 state=running timeout=180
-node_3 = create instance subnet=$subnet_3 keypair={ssh.keypair} image={cockroachnode.ubuntu.ami} type=t2.medium count=1 role=DiscoverCockroachNodeRole name=cockroachdb-node-3 securitygroup=$sshfirewall userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/ubuntu/joining_cockroach_insecure_node.sh
-check instance id=$node_3 state=running timeout=180
-haproxy = create instance subnet=$subnet_4 keypair={ssh.keypair} image={cockroachnode.ubuntu.ami} type=t2.micro count=1 role=DiscoverCockroachNodeRole name=cockroachdb-haproxy securitygroup=$sshfirewall userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/ubuntu/cockroach_haproxy.sh
-
-```
- Update instances with firewall definitions
-
-```sh
-attach securitygroup id=$proxyfirewall instance=$haproxy
-attach securitygroup id=$nodefirewall instance=$haproxy
-attach securitygroup id=$nodefirewall instance=$node_1
-attach securitygroup id=$nodefirewall instance=$node_2
-attach securitygroup id=$nodefirewall instance=$node_3
-attach securitygroup id=$uifirewall instance=$node_1
-attach securitygroup id=$uifirewall instance=$node_2
-attach securitygroup id=$uifirewall instance=$node_3
-```
-
-
-Run it locally with: `awless run repo:cockroach_insecure_cluster_with_haproxy -v`
-
-
-Full CLI example:
-```sh
-awless run repo:cockroach_insecure_cluster_with_haproxy cockroachnode.ubuntu.ami=$(awless search images canonical --id-only) ssh.keypair=my-ssh-keyname
-```
-
-
-
-### Create a simple (insecure) CockroachDB cluster in new VPC
-
-
-
-
-*Deploying a multi AZ insecure 3 CockroachDB cluster with load balancing service to distribute client traffic. See https://www.cockroachlabs.com/docs/deploy-cockroachdb-on-aws-insecure.html*
+*Deploying a multi-AZ CockroachDB insecure cluster (3 nodes) with AWS TCP & HTTP load balancing. See https://www.cockroachlabs.com/docs/stable/deploy-cockroachdb-on-aws-insecure.html*
 
 
 
 
 
 
- Run it with:
+ Install awless and run:
  Create a new VPC open to Internet to host the subnets
 
 ```sh
@@ -503,22 +360,27 @@ attach routetable id=$natgw_rtable subnet=$privsubnet3
 create route cidr=0.0.0.0/0 gateway=$natgw table=$natgw_rtable
 
 ```
- Create the loadbalancer firewall
+ Create the firewalls for HTTP UI
 
 ```sh
-lbfirewall = create securitygroup vpc=$vpc description=cockroachdb-loadbalancer-securitygroup name=cockroachdb-loadbalancer-securitygroup
-update securitygroup id=$lbfirewall inbound=authorize protocol=tcp cidr=0.0.0.0/0 portrange=26257
-update securitygroup id=$lbfirewall inbound=authorize protocol=tcp cidr=0.0.0.0/0 portrange=8080
+loadb-uifirewall = create securitygroup vpc=$vpc description=cockroachdb-loadb-ui-securitygroup name=cockroachdb-loadb-ui-securitygroup
+update securitygroup id=$loadb-uifirewall inbound=authorize protocol=tcp cidr=0.0.0.0/0 portrange=8080
 
 ```
- Create the load balancing
+ Create the HTTP load balancer
 
 ```sh
-tgroup_node = create targetgroup name=cockroachdb-nodes port=26257 protocol=HTTP vpc=$vpc
-tgroup_ui = create targetgroup name=cockroachdb-ui port=8080 protocol=HTTP vpc=$vpc healthcheckpath="/health" healthcheckport=8080
-lb = create loadbalancer name=cockroachdb-cluster subnets=[$pubsubnet1, $pubsubnet2, $pubsubnet3] securitygroups=$lbfirewall
+tgroup_ui = create targetgroup name=cockroachdb-ui port=8080 protocol=HTTP vpc=$vpc healthcheckpath="/health"
+lb = create loadbalancer name=cockroachdb-cluster subnets=[$pubsubnet1, $pubsubnet2, $pubsubnet3] securitygroups=$loadb-uifirewall
 create listener actiontype=forward loadbalancer=$lb port=8080 protocol=HTTP targetgroup=$tgroup_ui
-create listener actiontype=forward loadbalancer=$lb port=26257 protocol=HTTP targetgroup=$tgroup_node
+
+```
+ Create the TCP load balancer
+
+```sh
+tgroup_node = create targetgroup name=cockroachdb-nodes port=26257 protocol=TCP vpc=$vpc
+tcplb = create loadbalancer name=cockroachdb-cluster-tcp type=network subnets=[$pubsubnet1, $pubsubnet2, $pubsubnet3]
+create listener actiontype=forward loadbalancer=$tcplb port=26257 protocol=TCP targetgroup=$tgroup_node
 
 ```
  Create firewall for general SSH access
@@ -528,19 +390,12 @@ sshfirewall = create securitygroup vpc=$vpc description=ssh-access name=AccessSS
 update securitygroup id=$sshfirewall inbound=authorize protocol=tcp cidr=0.0.0.0/0 portrange=22
 
 ```
- Create nodes firewall for cockroachdb node TCP access
+ Create nodes firewall to let: inter nodes TCP traffic, TCP traffic from loadb; UI HTTP traffic from loadb
 
 ```sh
-nodefirewall = create securitygroup vpc=$vpc description=cockroachdb-node-access name=CockroachDBAccess
-update securitygroup id=$nodefirewall inbound=authorize protocol=tcp securitygroup=$lbfirewall portrange=26257
-update securitygroup id=$nodefirewall inbound=authorize protocol=tcp securitygroup=$nodefirewall portrange=26257
-
-```
- Create nodes firewall for UI HTTP access
-
-```sh
-uifirewall = create securitygroup vpc=$vpc description=cockroachdb-ui-access name=CockroachUIAccess
-update securitygroup id=$uifirewall inbound=authorize protocol=tcp securitygroup=$lbfirewall portrange=8080
+nodefirewall = create securitygroup vpc=$vpc description=cockroachdb-node-access name=CockroachNodesAccess
+update securitygroup id=$nodefirewall inbound=authorize protocol=tcp cidr=0.0.0.0/0 portrange=26257
+update securitygroup id=$nodefirewall inbound=authorize protocol=tcp securitygroup=$loadb-uifirewall portrange=8080
 
 ```
  Create a role with policy so that cockroach node instances (ec2 resources) can list other nodes using a local `awless`
@@ -553,11 +408,11 @@ attach policy role=DiscoverCockroachNodeRole service=ec2 access=readonly
  Create the cockroachdb nodes
 
 ```sh
-node1 = create instance subnet=$privsubnet1 securitygroup=[$sshfirewall,$uifirewall,$nodefirewall] keypair={my.ssh.keypair} image={ubuntu.image.id} type={instance.type} role=DiscoverCockroachNodeRole type=t2.medium count=1 name=cockroachdb-node-1 userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/ubuntu/cockroach_insecure_node.sh
+node1 = create instance subnet=$privsubnet1 securitygroup=[$sshfirewall,$nodefirewall] keypair={my.ssh.keypair} image={ubuntu.image.id} type={instance.type} role=DiscoverCockroachNodeRole type=t2.medium count=1 name=cockroachdb-node-1 userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/ubuntu/cockroach_insecure_node.sh
 check instance id=$node1 state=running timeout=180
-node2 = create instance subnet=$privsubnet2 securitygroup=[$sshfirewall,$uifirewall,$nodefirewall] keypair={my.ssh.keypair} image={ubuntu.image.id} type={instance.type} role=DiscoverCockroachNodeRole type=t2.medium count=1 name=cockroachdb-node-2 userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/ubuntu/joining_cockroach_insecure_node.sh
+node2 = create instance subnet=$privsubnet2 securitygroup=[$sshfirewall,$nodefirewall] keypair={my.ssh.keypair} image={ubuntu.image.id} type={instance.type} role=DiscoverCockroachNodeRole type=t2.medium count=1 name=cockroachdb-node-2 userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/ubuntu/joining_cockroach_insecure_node.sh
 check instance id=$node2 state=running timeout=180
-node3 = create instance subnet=$privsubnet3 securitygroup=[$sshfirewall,$uifirewall,$nodefirewall] keypair={my.ssh.keypair} image={ubuntu.image.id} type={instance.type} role=DiscoverCockroachNodeRole type=t2.medium count=1 name=cockroachdb-node-3 userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/ubuntu/joining_cockroach_insecure_node.sh
+node3 = create instance subnet=$privsubnet3 securitygroup=[$sshfirewall,$nodefirewall] keypair={my.ssh.keypair} image={ubuntu.image.id} type={instance.type} role=DiscoverCockroachNodeRole type=t2.medium count=1 name=cockroachdb-node-3 userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/ubuntu/joining_cockroach_insecure_node.sh
 check instance id=$node3 state=running timeout=180
 
 ```
@@ -586,12 +441,12 @@ create instance image={ubuntu.image.id} keypair={my.ssh.keypair} name=jump-serve
  awless ssh cockroachdb-node-1 --through jump-server
 
 
-Run it locally with: `awless run repo:cockroach_insecure_cluster_with_loadb -v`
+Run it locally with: `awless run repo:cockroach_insecure_cluster -v`
 
 
 Full CLI example:
 ```sh
-awless run cockroach_insecure_cluster_with_loadb.aws ubuntu.image.id=$(awless search images canonical --id-only)
+awless run repo:cockroach_insecure_cluster ubuntu.image.id=$(awless search images canonical --id-only)
 ```
 
 

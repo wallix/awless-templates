@@ -29,18 +29,11 @@
   "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/awless_readwrite_group.aws"
  },
  {
-  "Title": "Create a simple (insecure) CockroachDB cluster",
-  "CLIExample": "awless run repo:cockroach_insecure_cluster_with_haproxy cockroachnode.ubuntu.ami=$(awless search images canonical --id-only) ssh.keypair=my-ssh-keyname",
-  "Description": "Deploying an insecure multi-node CockroachDB cluster with HAProxy to distribute client traffic. See https://www.cockroachlabs.com/docs/manual-deployment-insecure.html",
-  "Name": "cockroach_insecure_cluster_with_haproxy",
-  "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/cockroach_insecure_cluster_with_haproxy.aws"
- },
- {
-  "Title": "Create a simple (insecure) CockroachDB cluster in new VPC",
-  "CLIExample": "awless run cockroach_insecure_cluster_with_loadb.aws ubuntu.image.id=$(awless search images canonical --id-only)",
-  "Description": "Deploying a multi AZ insecure 3 CockroachDB cluster with load balancing service to distribute client traffic. See https://www.cockroachlabs.com/docs/deploy-cockroachdb-on-aws-insecure.html",
-  "Name": "cockroach_insecure_cluster_with_loadb",
-  "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/cockroach_insecure_cluster_with_loadb.aws"
+  "Title": "Create an insecure CockroachDB cluster in new VPC infrastructure",
+  "CLIExample": "awless run repo:cockroach_insecure_cluster ubuntu.image.id=$(awless search images canonical --id-only)",
+  "Description": "Deploying a multi-AZ CockroachDB insecure cluster (3 nodes) with AWS TCP \u0026 HTTP load balancing. See https://www.cockroachlabs.com/docs/stable/deploy-cockroachdb-on-aws-insecure.html",
+  "Name": "cockroach_insecure_cluster",
+  "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/cockroach_insecure_cluster.aws"
  },
  {
   "Title": "Create a postgres instance",
