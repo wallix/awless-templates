@@ -26,7 +26,7 @@ You can run the verification locally with:
 * [Awless readonly group](#awless-readonly-group)
 * [Pre-defined policies for awless users](#pre-defined-policies-for-awless-users)
 * [Awless readwrite group](#awless-readwrite-group)
-* [Create an insecure CockroachDB cluster in new VPC infrastructure](#create-an-insecure-cockroachdb-cluster-in-new-vpc-infrastructure)
+* [Create an insecure CockroachDB cluster](#create-an-insecure-cockroachdb-cluster)
 * [Create a postgres instance](#create-a-postgres-instance)
 * [Group of instances scaling with CPU consumption](#group-of-instances-scaling-with-cpu-consumption)
 * [Highly-available wordpress infrastructure](#highly-available-wordpress-infrastructure)
@@ -66,6 +66,11 @@ You can run the verification locally with:
 autoscaling, container, infra
 
 
+(run it locally with: `awless run repo:ECS_autoscaling_cluster -v`)
+
+
+
+**STEPS**
 
  First, create the ECS cluster with `awless create containercluster name={cluster.name}`.
  Then, create a policy to allow to connect to ECS
@@ -110,10 +115,6 @@ create scalinggroup desired-capacity={scalinggroup.desired-capacity} launchconfi
 ```
 
 
-Run it locally with: `awless run repo:ECS_autoscaling_cluster -v`
-
-
-
 
 ### Awless readonly group
 
@@ -123,6 +124,11 @@ Run it locally with: `awless run repo:ECS_autoscaling_cluster -v`
 
 
 
+(run it locally with: `awless run repo:awless_readonly_group -v`)
+
+
+
+**STEPS**
 
  Here we define a group that allow users in that group
  to use the `awless` CLI in a readonly mode (i.e. sync, listing).
@@ -155,10 +161,6 @@ attach policy arn=arn:aws:iam::aws:policy/AWSLambdaReadOnlyAccess group=$groupNa
 ```
 
 
-Run it locally with: `awless run repo:awless_readonly_group -v`
-
-
-
 
 ### Pre-defined policies for awless users
 
@@ -172,6 +174,11 @@ Run it locally with: `awless run repo:awless_readonly_group -v`
 
 
 
+(run it locally with: `awless run repo:awless_readonly_policies -v`)
+
+
+
+**STEPS**
 
  Infra resources
 
@@ -228,10 +235,6 @@ create policy name=AwlessCloudFormationReadonlyPolicy effect=Allow resource="*" 
 ```
 
 
-Run it locally with: `awless run repo:awless_readonly_policies -v`
-
-
-
 
 ### Awless readwrite group
 
@@ -241,6 +244,11 @@ Run it locally with: `awless run repo:awless_readonly_policies -v`
 
 
 
+(run it locally with: `awless run repo:awless_readwrite_group -v`)
+
+
+
+**STEPS**
 
  Here we define a group that allow users in that group to use the `awless` CLI in write mode.
 
@@ -277,12 +285,8 @@ attach policy arn=arn:aws:iam::aws:policy/IAMReadOnlyAccess group=$groupName
 ```
 
 
-Run it locally with: `awless run repo:awless_readwrite_group -v`
 
-
-
-
-### Create an insecure CockroachDB cluster in new VPC infrastructure
+### Create an insecure CockroachDB cluster
 
 
 
@@ -292,9 +296,18 @@ Run it locally with: `awless run repo:awless_readwrite_group -v`
 
 
 
+(run it locally with: `awless run repo:cockroach_insecure_cluster -v`)
 
 
- Install awless and run:
+*Full CLI example:*
+```sh
+awless run repo:cockroach_insecure_cluster ubuntu.image.id=$(awless search images canonical --id-only)
+```
+
+
+**STEPS**
+
+
  Create a new VPC open to Internet to host the subnets
 
 ```sh
@@ -441,15 +454,6 @@ create instance image={ubuntu.image.id} keypair={my.ssh.keypair} name=jump-serve
  awless ssh cockroachdb-node-1 --through jump-server
 
 
-Run it locally with: `awless run repo:cockroach_insecure_cluster -v`
-
-
-Full CLI example:
-```sh
-awless run repo:cockroach_insecure_cluster ubuntu.image.id=$(awless search images canonical --id-only)
-```
-
-
 
 ### Create a postgres instance
 
@@ -461,6 +465,11 @@ awless run repo:cockroach_insecure_cluster ubuntu.image.id=$(awless search image
 
 
 
+(run it locally with: `awless run repo:db_postgres -v`)
+
+
+
+**STEPS**
 
  Create a new VPC open to Internet to host the subnets
 
@@ -533,10 +542,6 @@ create instance image={debian.image} keypair={my.keypair} name=jump subnet=$pubs
  $ psql --host={VALUE FROM HOST ABOVE} --port=5432 --username=... --password --dbname=...
 
 
-Run it locally with: `awless run repo:db_postgres -v`
-
-
-
 
 ### Group of instances scaling with CPU consumption
 
@@ -551,6 +556,11 @@ Run it locally with: `awless run repo:db_postgres -v`
 infra, autoscaling
 
 
+(run it locally with: `awless run repo:dynamic_autoscaling_watching_CPU -v`)
+
+
+
+**STEPS**
 
  Create the instances launch configuration
 
@@ -595,10 +605,6 @@ attach alarm name=scaleoutAlarm action-arn=$scaleout
 ```
 
 
-Run it locally with: `awless run repo:dynamic_autoscaling_watching_CPU -v`
-
-
-
 
 ### Highly-available wordpress infrastructure
 
@@ -613,6 +619,11 @@ Run it locally with: `awless run repo:dynamic_autoscaling_watching_CPU -v`
 infra
 
 
+(run it locally with: `awless run repo:highly_available_wordpress_infra -v`)
+
+
+
+**STEPS**
 
  1. Basic networking
  VPC and its Internet gateway
@@ -685,10 +696,6 @@ create scalinggroup desired-capacity=2 launchconfiguration=$launchconf max-size=
 ```
 
 
-Run it locally with: `awless run repo:highly_available_wordpress_infra -v`
-
-
-
 
 ### Install awless scheduler
 
@@ -698,20 +705,21 @@ Run it locally with: `awless run repo:highly_available_wordpress_infra -v`
 
 
 
+(run it locally with: `awless run repo:install_awless_scheduler -v`)
+
+
+*Full CLI example:*
+```sh
+awless run repo:install_awless_scheduler ubuntu.ami=$(aw search images canonical:ubuntu --id-only)
+```
+
+
+**STEPS**
 
  Launch new instance running remote user data script installing awless
 
 ```sh
 create instance name={instance.name} image={ubuntu.ami} type=t2.nano keypair={ssh.keypair} userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/ubuntu/install_awless_scheduler.sh role={role.name}
-```
-
-
-Run it locally with: `awless run repo:install_awless_scheduler -v`
-
-
-Full CLI example:
-```sh
-awless run repo:install_awless_scheduler ubuntu.ami=$(aw search images canonical:ubuntu --id-only)
 ```
 
 
@@ -727,6 +735,11 @@ awless run repo:install_awless_scheduler ubuntu.ami=$(aw search images canonical
 infra, ssh
 
 
+(run it locally with: `awless run repo:instance_ssh -v`)
+
+
+
+**STEPS**
 
  Create a new security group for this instance
 
@@ -753,10 +766,6 @@ create instance subnet={instance.subnet} image={instance.image} type={instance.t
 ```
 
 
-Run it locally with: `awless run repo:instance_ssh -v`
-
-
-
 
 ### Create an instance with preinstalled awless with completion
 
@@ -769,6 +778,11 @@ Run it locally with: `awless run repo:instance_ssh -v`
 infra, awless
 
 
+(run it locally with: `awless run repo:instance_with_awless -v`)
+
+
+
+**STEPS**
 
  role name variable
 
@@ -804,10 +818,6 @@ create instance name=awless-commander type=t2.nano keypair={ssh.keypair} userdat
 ```
 
 
-Run it locally with: `awless run repo:instance_with_awless -v`
-
-
-
 
 ### Create an instance with preconfigured awless and awless-scheduler
 
@@ -820,6 +830,11 @@ Run it locally with: `awless run repo:instance_with_awless -v`
 infra, awless, awless-scheduler
 
 
+(run it locally with: `awless run repo:instance_with_awless_scheduler -v`)
+
+
+
+**STEPS**
 
  Awless scheduler role variable
 
@@ -860,10 +875,6 @@ create instance name=AwlessWithScheduler type=t2.nano keypair={ssh.keypair} user
 ```
 
 
-Run it locally with: `awless run repo:instance_with_awless_scheduler -v`
-
-
-
 
 ### Create an instance with tags and public IP
 
@@ -875,6 +886,11 @@ Run it locally with: `awless run repo:instance_with_awless_scheduler -v`
 
 
 
+(run it locally with: `awless run repo:instance_with_tags_and_publicip -v`)
+
+
+
+**STEPS**
 
 
 ```sh
@@ -900,10 +916,6 @@ attach elasticip id=$pubip instance=$inst
 ```
 
 
-Run it locally with: `awless run repo:instance_with_tags_and_publicip -v`
-
-
-
 
 ### Create a classic Kafka infra
 
@@ -917,6 +929,16 @@ Run it locally with: `awless run repo:instance_with_tags_and_publicip -v`
 
 
 
+(run it locally with: `awless run repo:kafka_infra -v`)
+
+
+*Full CLI example:*
+```sh
+awless run repo:kafka_infra redhat-ami=$(awless search images redhat --id-only) remote-access.cidr=$(awless whoami --ip-only)/32 broker-instance-type=t2.medium zookeeper-instance-type=t2.medium
+```
+
+
+**STEPS**
 
  Create the VPC and its internet gateway
 
@@ -979,15 +1001,6 @@ broker_3 = create instance name=broker_3 image={redhat-ami} type={broker-instanc
 ```
 
 
-Run it locally with: `awless run repo:kafka_infra -v`
-
-
-Full CLI example:
-```sh
-awless run repo:kafka_infra redhat-ami=$(awless search images redhat --id-only) remote-access.cidr=$(awless whoami --ip-only)/32 broker-instance-type=t2.medium zookeeper-instance-type=t2.medium
-```
-
-
 
 ### Create VPC with a Linux host bastion
 
@@ -1004,6 +1017,11 @@ awless run repo:kafka_infra redhat-ami=$(awless search images redhat --id-only) 
 infra
 
 
+(run it locally with: `awless run repo:linux_bastion -v`)
+
+
+
+**STEPS**
 
  Create a new VPC and make it public with an internet gateway
 
@@ -1071,10 +1089,6 @@ create scalinggroup desired-capacity=1 launchconfiguration=$launchConfig max-siz
 ```
 
 
-Run it locally with: `awless run repo:linux_bastion -v`
-
-
-
 
 ### Create a dbsubnetgroups
 
@@ -1086,6 +1100,16 @@ Run it locally with: `awless run repo:linux_bastion -v`
 
 
 
+(run it locally with: `awless run repo:new_dbsubnetgroup -v`)
+
+
+*Full CLI example:*
+```sh
+run repo:new_dbsubnetgroup.draft first.subnet.cidr=10.0.0.0/25 first.subnet.availabilityzone=us-west-1a second.subnet.cidr=10.0.0.128/25 second.subnet.availabilityzone=us-west-1c vpc.cidr=10.0.0.0/24 vpc.name=myvpc
+```
+
+
+**STEPS**
 
  Create a new VPC open to Internet to host the subnets
 
@@ -1114,15 +1138,6 @@ create dbsubnetgroup name={dbsubnetgroup.name} description={dbsubnetgroup.descri
 ```
 
 
-Run it locally with: `awless run repo:new_dbsubnetgroup -v`
-
-
-Full CLI example:
-```sh
-run repo:new_dbsubnetgroup.draft first.subnet.cidr=10.0.0.0/25 first.subnet.availabilityzone=us-west-1a second.subnet.cidr=10.0.0.128/25 second.subnet.availabilityzone=us-west-1c vpc.cidr=10.0.0.0/24 vpc.name=myvpc
-```
-
-
 
 ### Attach usual readonly AWS policies (set of permissions) on group
 
@@ -1137,6 +1152,11 @@ run repo:new_dbsubnetgroup.draft first.subnet.cidr=10.0.0.0/25 first.subnet.avai
 access, policy, role
 
 
+(run it locally with: `awless run repo:policies_on_group -v`)
+
+
+
+**STEPS**
 
 
 ```sh
@@ -1152,10 +1172,6 @@ attach policy service=route53 access=readonly group={group-name}
 ```
 
 
-Run it locally with: `awless run repo:policies_on_group -v`
-
-
-
 
 ### Create a public network enabling routing from the Internet
 
@@ -1168,6 +1184,11 @@ Run it locally with: `awless run repo:policies_on_group -v`
 infra
 
 
+(run it locally with: `awless run repo:public_subnet -v`)
+
+
+
+**STEPS**
 
  Create the subnet
 
@@ -1195,10 +1216,6 @@ create route cidr=0.0.0.0/0 gateway={vpc.internetgateway} table=$rtable
 ```
 
 
-Run it locally with: `awless run repo:public_subnet -v`
-
-
-
 
 ### Create a AWS role with usual readonly policies that applies on a resource
 
@@ -1213,6 +1230,11 @@ Run it locally with: `awless run repo:public_subnet -v`
 access, policy, role
 
 
+(run it locally with: `awless run repo:role_for_resource -v`)
+
+
+
+**STEPS**
 
 
 ```sh
@@ -1235,10 +1257,6 @@ attach policy role=$roleName service=route53 access=readonly
 ```
 
 
-Run it locally with: `awless run repo:role_for_resource -v`
-
-
-
 
 ### Create a AWS role with usual readonly policies that applies on a user
 
@@ -1253,6 +1271,11 @@ Run it locally with: `awless run repo:role_for_resource -v`
 access, policy, user
 
 
+(run it locally with: `awless run repo:role_for_user -v`)
+
+
+
+**STEPS**
 
 
 ```sh
@@ -1281,10 +1304,6 @@ create policy name={assume-policy-name} effect=Allow action=sts:AssumeRole resou
 ```
 
 
-Run it locally with: `awless run repo:role_for_user -v`
-
-
-
 
 ### Create a static website on S3
 
@@ -1297,6 +1316,11 @@ Run it locally with: `awless run repo:role_for_user -v`
 s3
 
 
+(run it locally with: `awless run repo:s3website -v`)
+
+
+
+**STEPS**
 
  Create the bucket where files will be stored
 
@@ -1314,10 +1338,6 @@ update bucket name={domain.name} public-website=true redirect-hostname={domain.n
  awless create s3object bucket={domain.name} file={input-file-path} acl=public-read
 
 
-Run it locally with: `awless run repo:s3website -v`
-
-
-
 
 ### Simple wordpress deployment
 
@@ -1330,6 +1350,11 @@ Run it locally with: `awless run repo:s3website -v`
 infra
 
 
+(run it locally with: `awless run repo:simple_wordpress_infra -v`)
+
+
+
+**STEPS**
 
  VPC and its Internet gateway
 
@@ -1365,10 +1390,6 @@ create instance name=wordpress-instance subnet=$subnet keypair=$keypair security
 ```
 
 
-Run it locally with: `awless run repo:simple_wordpress_infra -v`
-
-
-
 
 ### Upload Image from local file
 
@@ -1383,6 +1404,11 @@ Run it locally with: `awless run repo:simple_wordpress_infra -v`
 infra, s3
 
 
+(run it locally with: `awless run repo:upload_image -v`)
+
+
+
+**STEPS**
 
  Upload the image on s3
 
@@ -1398,10 +1424,6 @@ import image description={image.description} bucket=$bucket s3object=$imageObjec
 ```
 
 
-Run it locally with: `awless run repo:upload_image -v`
-
-
-
 
 ### Create a user with its SDK/Shell access key and console password
 
@@ -1414,6 +1436,11 @@ Run it locally with: `awless run repo:upload_image -v`
 access, user
 
 
+(run it locally with: `awless run repo:user -v`)
+
+
+
+**STEPS**
 
 
 ```sh
@@ -1439,10 +1466,6 @@ create accesskey user=$username
 ```
 
 
-Run it locally with: `awless run repo:user -v`
-
-
-
 
 ### Create a VPC with its internet routing gateway
 
@@ -1455,6 +1478,11 @@ Run it locally with: `awless run repo:user -v`
 infra, VPC
 
 
+(run it locally with: `awless run repo:vpc -v`)
+
+
+
+**STEPS**
 
 
 ```sh
@@ -1462,10 +1490,6 @@ vpc = create vpc cidr={vpc.cidr} name={vpc.name}
 gateway = create internetgateway
 attach internetgateway id=$gateway vpc=$vpc
 ```
-
-
-Run it locally with: `awless run repo:vpc -v`
-
 
 
 
@@ -1477,6 +1501,11 @@ Run it locally with: `awless run repo:vpc -v`
 
 
 
+(run it locally with: `awless run repo:vpc_with_subnets -v`)
+
+
+
+**STEPS**
 
  Create a new VPC with private subnets (no internet gateway)
 
@@ -1485,10 +1514,6 @@ vpc = create vpc cidr=10.0.0.0/16 name=vpc_10.0.0.0_16
 create subnet cidr=10.0.0.0/24 vpc=$vpc name=sub_10.0.0.0_24 availabilityzone={subnet1.zone}
 create subnet cidr=10.0.1.0/24 vpc=$vpc name=sub_10.0.1.0_24 availabilityzone={subnet2.zone}
 ```
-
-
-Run it locally with: `awless run repo:vpc_with_subnets -v`
-
 
 
 
@@ -1505,6 +1530,11 @@ Run it locally with: `awless run repo:vpc_with_subnets -v`
 infra, rds, autoscaling
 
 
+(run it locally with: `awless run repo:wordpress_ha -v`)
+
+
+
+**STEPS**
 
 
 ```sh
@@ -1530,9 +1560,5 @@ create listener actiontype=forward loadbalancer=$lb port=80 protocol=HTTP target
 launchconf = create launchconfiguration image={instance.image} keypair={wordpress.keypair} name=wordpress-launch-configuration type=t2.micro userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/wordpress.sh securitygroups={instances.securitygroup}
 create scalinggroup desired-capacity=2 launchconfiguration=$launchconf max-size=2 min-size=2 name=wordpress-scalinggroup subnets={wordpress.subnets} targetgroups=$tg
 ```
-
-
-Run it locally with: `awless run repo:wordpress_ha -v`
-
 
 

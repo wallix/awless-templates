@@ -40,16 +40,17 @@ You can run the verification locally with:
 {{ Join $example.Tags ", " }}
 {{ end }}
 
-
-{{$example.Documentation}}
-
-Run it locally with: `awless run repo:{{$example.Name}} -v`
+(run it locally with: `awless run repo:{{$example.Name}} -v`)
 
 {{if $example.CLIExample }}
-Full CLI example:
+*Full CLI example:*
 ```sh
 {{ $example.CLIExample }}
 ```
 {{ end }}
+
+**STEPS**
+
+{{$example.Documentation}}
 
 {{end}}
