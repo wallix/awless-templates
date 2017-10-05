@@ -1,7 +1,7 @@
 # Title: Create an insecure CockroachDB cluster
 # Description: Deploying a multi-AZ CockroachDB insecure cluster (3 nodes) with AWS TCP & HTTP load balancing. See https://www.cockroachlabs.com/docs/stable/deploy-cockroachdb-on-aws-insecure.html
 #
-# CLIExample: awless run repo:cockroach_insecure_cluster ubuntu.image.id=$(awless search images canonical --id-only)
+# CLIExample: awless run repo:cockroach_insecure_cluster ubuntu.image.id=$(awless search images canonical --latest-id)
 
 # Create a new VPC open to Internet to host the subnets
 vpc = create vpc cidr=10.0.0.0/16 name=cockroachdb-vpc

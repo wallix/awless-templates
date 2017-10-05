@@ -301,7 +301,7 @@ attach policy arn=arn:aws:iam::aws:policy/IAMReadOnlyAccess group=$groupName
 
 *Full CLI example:*
 ```sh
-awless run repo:cockroach_insecure_cluster ubuntu.image.id=$(awless search images canonical --id-only)
+awless run repo:cockroach_insecure_cluster ubuntu.image.id=$(awless search images canonical --latest-id)
 ```
 
 
@@ -527,7 +527,7 @@ create database engine=postgres id={database.identifier} subnetgroup=$subnetgrou
 ```
  Create a small jump instance in your public subnet to run command on your postgres DB
  and give SSH access to this instance with a SSH security group
- Run the CLI with: awless .... office.ip=$(awless whoami --ip-only) debian.image=$(awless search images debian --id-only)
+ Run the CLI with: awless .... office.ip=$(awless whoami --ip-only) debian.image=$(awless search images debian --latest-id)
 
 ```sh
 sshsecgroup = create securitygroup vpc=$vpc description="SSH access from office IP only" name=ssh-from-office
@@ -710,7 +710,7 @@ create scalinggroup desired-capacity=2 launchconfiguration=$launchconf max-size=
 
 *Full CLI example:*
 ```sh
-awless run repo:install_awless_scheduler ubuntu.ami=$(aw search images canonical:ubuntu --id-only)
+awless run repo:install_awless_scheduler ubuntu.ami=$(aw search images canonical:ubuntu --latest-id)
 ```
 
 
@@ -934,7 +934,7 @@ attach elasticip id=$pubip instance=$inst
 
 *Full CLI example:*
 ```sh
-awless run repo:kafka_infra redhat-ami=$(awless search images redhat --id-only) remote-access.cidr=$(awless whoami --ip-only)/32 broker-instance-type=t2.medium zookeeper-instance-type=t2.medium
+awless run repo:kafka_infra redhat-ami=$(awless search images redhat --latest-id) remote-access.cidr=$(awless whoami --ip-only)/32 broker-instance-type=t2.medium zookeeper-instance-type=t2.medium
 ```
 
 

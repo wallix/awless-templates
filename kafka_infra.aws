@@ -1,6 +1,6 @@
 # Title: Create a classic Kafka infra
 # Description: Create a classic Kafka infra: brokers, 1 zookeeper instance
-# CLIExample: awless run repo:kafka_infra redhat-ami=$(awless search images redhat --id-only) remote-access.cidr=$(awless whoami --ip-only)/32 broker-instance-type=t2.medium zookeeper-instance-type=t2.medium
+# CLIExample: awless run repo:kafka_infra redhat-ami=$(awless search images redhat --latest-id) remote-access.cidr=$(awless whoami --ip-only)/32 broker-instance-type=t2.medium zookeeper-instance-type=t2.medium
 # MinimalVersion: v0.1.3
 
 # Create the VPC and its internet gateway
