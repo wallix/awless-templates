@@ -1,7 +1,8 @@
 # Title: Create an insecure CockroachDB cluster
 # Description: Deploying a multi-AZ CockroachDB insecure cluster (3 nodes) with AWS TCP & HTTP load balancing. See https://www.cockroachlabs.com/docs/stable/deploy-cockroachdb-on-aws-insecure.html
 #
-# CLIExample: awless run repo:cockroach_insecure_cluster ubuntu.image.id=$(awless search images canonical --latest-id)
+# MinimalVersion: v0.1.7
+# CLIExample: awless run repo:cockroach_insecure_cluster
 
 # Create a new VPC open to Internet to host the subnets
 vpc = create vpc cidr=10.0.0.0/16 name=cockroachdb-vpc
@@ -73,13 +74,13 @@ create role name=DiscoverCockroachNodeRole principal-service="ec2.amazonaws.com"
 attach policy role=DiscoverCockroachNodeRole service=ec2 access=readonly
 
 ## Create the cockroachdb nodes
-node1 = create instance subnet=$privsubnet1 securitygroup=[$sshfirewall,$nodefirewall] keypair={my.ssh.keypair} image={ubuntu.image.id} type={instance.type} role=DiscoverCockroachNodeRole type=t2.medium count=1 name=cockroachdb-node-1 userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/ubuntu/cockroach_insecure_node.sh
+node1 = create instance distro=canonical:ubuntu subnet=$privsubnet1 securitygroup=[$sshfirewall,$nodefirewall] keypair={my.ssh.keypair} type={instance.type} role=DiscoverCockroachNodeRole type=t2.medium count=1 name=cockroachdb-node-1 userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/ubuntu/cockroach_insecure_node.sh
 check instance id=$node1 state=running timeout=180
 
-node2 = create instance subnet=$privsubnet2 securitygroup=[$sshfirewall,$nodefirewall] keypair={my.ssh.keypair} image={ubuntu.image.id} type={instance.type} role=DiscoverCockroachNodeRole type=t2.medium count=1 name=cockroachdb-node-2 userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/ubuntu/joining_cockroach_insecure_node.sh
+node2 = create instance distro=canonical:ubuntu subnet=$privsubnet2 securitygroup=[$sshfirewall,$nodefirewall] keypair={my.ssh.keypair} type={instance.type} role=DiscoverCockroachNodeRole type=t2.medium count=1 name=cockroachdb-node-2 userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/ubuntu/joining_cockroach_insecure_node.sh
 check instance id=$node2 state=running timeout=180
 
-node3 = create instance subnet=$privsubnet3 securitygroup=[$sshfirewall,$nodefirewall] keypair={my.ssh.keypair} image={ubuntu.image.id} type={instance.type} role=DiscoverCockroachNodeRole type=t2.medium count=1 name=cockroachdb-node-3 userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/ubuntu/joining_cockroach_insecure_node.sh
+node3 = create instance distro=canonical:ubuntu subnet=$privsubnet3 securitygroup=[$sshfirewall,$nodefirewall] keypair={my.ssh.keypair} type={instance.type} role=DiscoverCockroachNodeRole type=t2.medium count=1 name=cockroachdb-node-3 userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/ubuntu/joining_cockroach_insecure_node.sh
 check instance id=$node3 state=running timeout=180
 
 # Put instances in the necessary target groups
@@ -92,7 +93,7 @@ attach instance id=$node2 targetgroup=$tgroup_ui
 attach instance id=$node3 targetgroup=$tgroup_ui
 
 # Create a small jump instance in your public subnet to run command on your nodes
-create instance image={ubuntu.image.id} keypair={my.ssh.keypair} name=jump-server subnet=$pubsubnet1 securitygroup=$sshfirewall type=t2.micro
+create instance distro=canonical:ubuntu keypair={my.ssh.keypair} name=jump-server subnet=$pubsubnet1 securitygroup=$sshfirewall type=t2.micro
 
 # Retrieve the loadbalancer public DNS with (ex: awless show cockroachdb-cluster --values-for publicdns)
 # Then to connect to the cluster UI in a browser with http://{PUBLIC_DNS}:8080

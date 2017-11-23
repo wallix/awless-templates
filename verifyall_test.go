@@ -67,7 +67,10 @@ func TestCompileAllTemplates(t *testing.T) {
 
 	awsspec.DefaultImageResolverCache.Store("suselinux::sles-12:x86_64:hvm:ebs", []*awsspec.AwsImage{
 		&awsspec.AwsImage{Id: "stub-1234567"},
-	}...)
+	})
+	awsspec.DefaultImageResolverCache.Store("canonical:ubuntu:xenial:x86_64:hvm:ebs", []*awsspec.AwsImage{
+		&awsspec.AwsImage{Id: "stub-6543210"},
+	})
 
 	for _, name := range templateNames {
 		tpl := templates[name]
