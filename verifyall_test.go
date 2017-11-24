@@ -71,6 +71,11 @@ func TestCompileAllTemplates(t *testing.T) {
 	awsspec.DefaultImageResolverCache.Store("canonical:ubuntu:xenial:x86_64:hvm:ebs", []*awsspec.AwsImage{
 		&awsspec.AwsImage{Id: "stub-6543210"},
 	})
+	awsspec.DefaultImageResolverCache.Store("amazonlinux::hvm:x86_64:hvm:ebs", []*awsspec.AwsImage{
+		&awsspec.AwsImage{Id: "stub-6543210"},
+	})
+
+	awsspec.CommandFactory = awsspec.MockAWSSessionFactory
 
 	for _, name := range templateNames {
 		tpl := templates[name]
