@@ -74,6 +74,12 @@ func TestCompileAllTemplates(t *testing.T) {
 	awsspec.DefaultImageResolverCache.Store("amazonlinux::hvm:x86_64:hvm:ebs", []*awsspec.AwsImage{
 		&awsspec.AwsImage{Id: "stub-6543210"},
 	})
+	awsspec.DefaultImageResolverCache.Store("debian:debian:jessie:x86_64:hvm:ebs", []*awsspec.AwsImage{
+		&awsspec.AwsImage{Id: "stub-45637289"},
+	})
+	awsspec.DefaultImageResolverCache.Store("redhat:rhel:7.3:x86_64:hvm:ebs", []*awsspec.AwsImage{
+		&awsspec.AwsImage{Id: "stub-wuvebfoq"},
+	})
 
 	awsspec.CommandFactory = awsspec.MockAWSSessionFactory
 
@@ -163,8 +169,8 @@ var stubFillers = map[string]interface{}{
 	"instance.tagkey":                "stub",
 	"remote-access.cidr":             "10.0.0.0/24",
 	"redhat-ami":                     "stub",
-	"zookeeper-instance-type":        "stub",
-	"broker-instance-type":           "stub",
+	"zookeeper.instance.type":        "stub",
+	"broker.instance.type":           "stub",
 	"subnet.cidr":                    "10.0.0.0/24",
 	"subnet.vpc":                     "stub",
 	"subnet.name":                    "stub",
