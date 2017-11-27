@@ -1,7 +1,7 @@
 # Title: Create a classic Kafka infra
 # Description: Create a classic Kafka infra: brokers, 1 zookeeper instance
-# CLIExample: awless run repo:kafka_infra redhat-ami=$(awless search images redhat --latest-id) remote-access.cidr=$(awless whoami --ip-only)/32 broker-instance-type=t2.medium zookeeper-instance-type=t2.medium
-# MinimalVersion: v0.1.3
+# CLIExample: awless run repo:kafka_infra remote-access.cidr=$(awless whoami --ip-only)/32 broker.instance.type=t2.medium zookeeper.instance.type=t2.medium
+# MinimalVersion: v0.1.7
 
 # Create the VPC and its internet gateway
 vpc = create vpc cidr=10.0.0.0/16 name=kafka-vpc
@@ -29,12 +29,12 @@ create role name=EC2ReadonlyRole principal-service="ec2.amazonaws.com" sleep-aft
 attach policy role=EC2ReadonlyRole service=ec2 access=readonly
 
 # Create Zookeeper instance with security groups attached
-zookeeper = create instance name=zookeeper image={redhat-ami} type={zookeeper-instance-type} keypair={keypair.name} subnet=$subnet securitygroup=[$sshsecgroup,$kafkasecgroup] userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/redhat/zookeeper.sh
+zookeeper = create instance name=zookeeper distro=redhat type={zookeeper.instance.type} keypair={keypair.name} subnet=$subnet securitygroup=[$sshsecgroup,$kafkasecgroup] userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/redhat/zookeeper.sh
 
 # Wait the Zookeeper instance is up and running
 check instance id=$zookeeper state=running timeout=180
 
 # Create Kafka broker instances with role created above and security groups attached
-broker_1 = create instance name=broker_1 image={redhat-ami} type={broker-instance-type} keypair={keypair.name} subnet=$subnet role=EC2ReadonlyRole securitygroup=[$sshsecgroup,$kafkasecgroup] userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/redhat/kafka.sh
-broker_2 = create instance name=broker_2 image={redhat-ami} type={broker-instance-type} keypair={keypair.name} subnet=$subnet role=EC2ReadonlyRole securitygroup=[$sshsecgroup,$kafkasecgroup] userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/redhat/kafka.sh
-broker_3 = create instance name=broker_3 image={redhat-ami} type={broker-instance-type} keypair={keypair.name} subnet=$subnet role=EC2ReadonlyRole securitygroup=[$sshsecgroup,$kafkasecgroup] userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/redhat/kafka.sh
+broker_1 = create instance name=broker_1 distro=redhat type={broker.instance.type} keypair={keypair.name} subnet=$subnet role=EC2ReadonlyRole securitygroup=[$sshsecgroup,$kafkasecgroup] userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/redhat/kafka.sh
+broker_2 = create instance name=broker_2 distro=redhat type={broker.instance.type} keypair={keypair.name} subnet=$subnet role=EC2ReadonlyRole securitygroup=[$sshsecgroup,$kafkasecgroup] userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/redhat/kafka.sh
+broker_3 = create instance name=broker_3 distro=redhat type={broker.instance.type} keypair={keypair.name} subnet=$subnet role=EC2ReadonlyRole securitygroup=[$sshsecgroup,$kafkasecgroup] userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/redhat/kafka.sh

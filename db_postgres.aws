@@ -1,5 +1,6 @@
 # Title: Create a postgres instance
 # Description: Create a private basic postgres instance with firewall. As an example, instance has only basic required properties filled in
+# MinimalVersion: v0.1.7
 
 # Create a new VPC open to Internet to host the subnets
 vpc = create vpc cidr=10.0.0.0/16 name=postgres-vpc
@@ -34,10 +35,10 @@ create database engine=postgres id={database.identifier} subnetgroup=$subnetgrou
 
 # Create a small jump instance in your public subnet to run command on your postgres DB
 # and give SSH access to this instance with a SSH security group
-# Run the CLI with: awless .... office.ip=$(awless whoami --ip-only) debian.image=$(awless search images debian --latest-id)
+# Run the CLI with: awless .... office.ip=$(awless whoami --ip-only)
 sshsecgroup = create securitygroup vpc=$vpc description="SSH access from office IP only" name=ssh-from-office
 update securitygroup id=$sshsecgroup inbound=authorize protocol=tcp cidr={office.ip}/32 portrange=22
-create instance image={debian.image} keypair={my.keypair} name=jump subnet=$pubsubnet securitygroup=$sshsecgroup type=t2.micro
+create instance distro=debian keypair={my.keypair} name=jump subnet=$pubsubnet securitygroup=$sshsecgroup type=t2.micro
 
 # Then to administrate your DB you can do:
 # $ HOST=$(awless show production --values-for PublicDNS --local)
