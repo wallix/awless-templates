@@ -289,6 +289,8 @@ attach policy arn=arn:aws:iam::aws:policy/IAMReadOnlyAccess group=$groupName
 ### Create an insecure CockroachDB cluster
 
 
+**-> Minimal awless version required: v0.1.7**
+
 
 
 *Deploying a multi-AZ CockroachDB insecure cluster (3 nodes) with AWS TCP & HTTP load balancing. See https://www.cockroachlabs.com/docs/stable/deploy-cockroachdb-on-aws-insecure.html*
@@ -301,7 +303,7 @@ attach policy arn=arn:aws:iam::aws:policy/IAMReadOnlyAccess group=$groupName
 
 *Full CLI example:*
 ```sh
-awless run repo:cockroach_insecure_cluster ubuntu.image.id=$(awless search images canonical --latest-id)
+awless run repo:cockroach_insecure_cluster
 ```
 
 
@@ -421,11 +423,11 @@ attach policy role=DiscoverCockroachNodeRole service=ec2 access=readonly
  Create the cockroachdb nodes
 
 ```sh
-node1 = create instance subnet=$privsubnet1 securitygroup=[$sshfirewall,$nodefirewall] keypair={my.ssh.keypair} image={ubuntu.image.id} type={instance.type} role=DiscoverCockroachNodeRole type=t2.medium count=1 name=cockroachdb-node-1 userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/ubuntu/cockroach_insecure_node.sh
+node1 = create instance distro=canonical:ubuntu subnet=$privsubnet1 securitygroup=[$sshfirewall,$nodefirewall] keypair={my.ssh.keypair} type={instance.type} role=DiscoverCockroachNodeRole type=t2.medium count=1 name=cockroachdb-node-1 userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/ubuntu/cockroach_insecure_node.sh
 check instance id=$node1 state=running timeout=180
-node2 = create instance subnet=$privsubnet2 securitygroup=[$sshfirewall,$nodefirewall] keypair={my.ssh.keypair} image={ubuntu.image.id} type={instance.type} role=DiscoverCockroachNodeRole type=t2.medium count=1 name=cockroachdb-node-2 userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/ubuntu/joining_cockroach_insecure_node.sh
+node2 = create instance distro=canonical:ubuntu subnet=$privsubnet2 securitygroup=[$sshfirewall,$nodefirewall] keypair={my.ssh.keypair} type={instance.type} role=DiscoverCockroachNodeRole type=t2.medium count=1 name=cockroachdb-node-2 userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/ubuntu/joining_cockroach_insecure_node.sh
 check instance id=$node2 state=running timeout=180
-node3 = create instance subnet=$privsubnet3 securitygroup=[$sshfirewall,$nodefirewall] keypair={my.ssh.keypair} image={ubuntu.image.id} type={instance.type} role=DiscoverCockroachNodeRole type=t2.medium count=1 name=cockroachdb-node-3 userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/ubuntu/joining_cockroach_insecure_node.sh
+node3 = create instance distro=canonical:ubuntu subnet=$privsubnet3 securitygroup=[$sshfirewall,$nodefirewall] keypair={my.ssh.keypair} type={instance.type} role=DiscoverCockroachNodeRole type=t2.medium count=1 name=cockroachdb-node-3 userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/ubuntu/joining_cockroach_insecure_node.sh
 check instance id=$node3 state=running timeout=180
 
 ```
@@ -443,7 +445,7 @@ attach instance id=$node3 targetgroup=$tgroup_ui
  Create a small jump instance in your public subnet to run command on your nodes
 
 ```sh
-create instance image={ubuntu.image.id} keypair={my.ssh.keypair} name=jump-server subnet=$pubsubnet1 securitygroup=$sshfirewall type=t2.micro
+create instance distro=canonical:ubuntu keypair={my.ssh.keypair} name=jump-server subnet=$pubsubnet1 securitygroup=$sshfirewall type=t2.micro
 
 ```
  Retrieve the loadbalancer public DNS with (ex: awless show cockroachdb-cluster --values-for publicdns)
@@ -457,6 +459,8 @@ create instance image={ubuntu.image.id} keypair={my.ssh.keypair} name=jump-serve
 
 ### Create a postgres instance
 
+
+**-> Minimal awless version required: v0.1.7**
 
 
 
@@ -527,12 +531,12 @@ create database engine=postgres id={database.identifier} subnetgroup=$subnetgrou
 ```
  Create a small jump instance in your public subnet to run command on your postgres DB
  and give SSH access to this instance with a SSH security group
- Run the CLI with: awless .... office.ip=$(awless whoami --ip-only) debian.image=$(awless search images debian --latest-id)
+ Run the CLI with: awless .... office.ip=$(awless whoami --ip-only)
 
 ```sh
 sshsecgroup = create securitygroup vpc=$vpc description="SSH access from office IP only" name=ssh-from-office
 update securitygroup id=$sshsecgroup inbound=authorize protocol=tcp cidr={office.ip}/32 portrange=22
-create instance image={debian.image} keypair={my.keypair} name=jump subnet=$pubsubnet securitygroup=$sshsecgroup type=t2.micro
+create instance distro=debian keypair={my.keypair} name=jump subnet=$pubsubnet securitygroup=$sshsecgroup type=t2.micro
 
 ```
  Then to administrate your DB you can do:
@@ -609,7 +613,7 @@ attach alarm name=scaleoutAlarm action-arn=$scaleout
 ### Highly-available wordpress infrastructure
 
 
-**-> Minimal awless version required: v0.1.3**
+**-> Minimal awless version required: v0.1.7**
 
 
 
@@ -691,7 +695,7 @@ keypair = create keypair name={keypair.name}
 instSecGroup = create securitygroup vpc=$vpc description="HTTP + SSH within VPC" name=wordpress-ha-private-secgroup
 update securitygroup id=$instSecGroup inbound=authorize cidr=10.0.0.0/16 portrange=22
 update securitygroup id=$instSecGroup inbound=authorize cidr=10.0.0.0/16 portrange=80
-launchconf = create launchconfiguration image={instance.image} keypair=$keypair name=wordpress-ha-launch-configuration type={instance.type} userdata=https://raw.githubusercontent.com/zn3zman/AWS-WordPress-Creation/master/WP-Setup.sh securitygroups=$instSecGroup
+launchconf = create launchconfiguration distro=amazonlinux keypair=$keypair name=wordpress-ha-launch-configuration type={instance.type} userdata=https://raw.githubusercontent.com/zn3zman/AWS-WordPress-Creation/master/WP-Setup.sh securitygroups=$instSecGroup
 create scalinggroup desired-capacity=2 launchconfiguration=$launchconf max-size=2 min-size=2 name=wordpress-scalinggroup subnets=[$privSub1, $privSub2] targetgroups=$tg
 ```
 
@@ -699,6 +703,8 @@ create scalinggroup desired-capacity=2 launchconfiguration=$launchconf max-size=
 
 ### Install awless scheduler
 
+
+**-> Minimal awless version required: v0.1.7**
 
 
 
@@ -710,7 +716,7 @@ create scalinggroup desired-capacity=2 launchconfiguration=$launchconf max-size=
 
 *Full CLI example:*
 ```sh
-awless run repo:install_awless_scheduler ubuntu.ami=$(aw search images canonical:ubuntu --latest-id)
+awless run repo:install_awless_scheduler
 ```
 
 
@@ -719,7 +725,7 @@ awless run repo:install_awless_scheduler ubuntu.ami=$(aw search images canonical
  Launch new instance running remote user data script installing awless
 
 ```sh
-create instance name={instance.name} image={ubuntu.ami} type=t2.nano keypair={ssh.keypair} userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/ubuntu/install_awless_scheduler.sh role={role.name}
+create instance name={instance.name} distro=canonical:ubuntu type=t2.nano keypair={ssh.keypair} userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/ubuntu/install_awless_scheduler.sh role={role.name}
 ```
 
 
@@ -920,7 +926,7 @@ attach elasticip id=$pubip instance=$inst
 ### Create a classic Kafka infra
 
 
-**-> Minimal awless version required: v0.1.3**
+**-> Minimal awless version required: v0.1.7**
 
 
 
@@ -934,7 +940,7 @@ attach elasticip id=$pubip instance=$inst
 
 *Full CLI example:*
 ```sh
-awless run repo:kafka_infra redhat-ami=$(awless search images redhat --latest-id) remote-access.cidr=$(awless whoami --ip-only)/32 broker-instance-type=t2.medium zookeeper-instance-type=t2.medium
+awless run repo:kafka_infra remote-access.cidr=$(awless whoami --ip-only)/32 broker.instance.type=t2.medium zookeeper.instance.type=t2.medium
 ```
 
 
@@ -983,7 +989,7 @@ attach policy role=EC2ReadonlyRole service=ec2 access=readonly
  Create Zookeeper instance with security groups attached
 
 ```sh
-zookeeper = create instance name=zookeeper image={redhat-ami} type={zookeeper-instance-type} keypair={keypair.name} subnet=$subnet securitygroup=[$sshsecgroup,$kafkasecgroup] userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/redhat/zookeeper.sh
+zookeeper = create instance name=zookeeper distro=redhat type={zookeeper.instance.type} keypair={keypair.name} subnet=$subnet securitygroup=[$sshsecgroup,$kafkasecgroup] userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/redhat/zookeeper.sh
 
 ```
  Wait the Zookeeper instance is up and running
@@ -995,9 +1001,9 @@ check instance id=$zookeeper state=running timeout=180
  Create Kafka broker instances with role created above and security groups attached
 
 ```sh
-broker_1 = create instance name=broker_1 image={redhat-ami} type={broker-instance-type} keypair={keypair.name} subnet=$subnet role=EC2ReadonlyRole securitygroup=[$sshsecgroup,$kafkasecgroup] userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/redhat/kafka.sh
-broker_2 = create instance name=broker_2 image={redhat-ami} type={broker-instance-type} keypair={keypair.name} subnet=$subnet role=EC2ReadonlyRole securitygroup=[$sshsecgroup,$kafkasecgroup] userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/redhat/kafka.sh
-broker_3 = create instance name=broker_3 image={redhat-ami} type={broker-instance-type} keypair={keypair.name} subnet=$subnet role=EC2ReadonlyRole securitygroup=[$sshsecgroup,$kafkasecgroup] userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/redhat/kafka.sh
+broker_1 = create instance name=broker_1 distro=redhat type={broker.instance.type} keypair={keypair.name} subnet=$subnet role=EC2ReadonlyRole securitygroup=[$sshsecgroup,$kafkasecgroup] userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/redhat/kafka.sh
+broker_2 = create instance name=broker_2 distro=redhat type={broker.instance.type} keypair={keypair.name} subnet=$subnet role=EC2ReadonlyRole securitygroup=[$sshsecgroup,$kafkasecgroup] userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/redhat/kafka.sh
+broker_3 = create instance name=broker_3 distro=redhat type={broker.instance.type} keypair={keypair.name} subnet=$subnet role=EC2ReadonlyRole securitygroup=[$sshsecgroup,$kafkasecgroup] userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/redhat/kafka.sh
 ```
 
 

@@ -1,4 +1,5 @@
 # Launch new instance running remote user data script installing awless
-# CLIExample: awless run repo:install_awless_scheduler ubuntu.ami=$(aw search images canonical:ubuntu --latest-id)
+# CLIExample: awless run repo:install_awless_scheduler
+# MinimalVersion: v0.1.7
 
-create instance name={instance.name} image={ubuntu.ami} type=t2.nano keypair={ssh.keypair} userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/ubuntu/install_awless_scheduler.sh role={role.name}
+create instance name={instance.name} distro=canonical:ubuntu type=t2.nano keypair={ssh.keypair} userdata=https://raw.githubusercontent.com/wallix/awless-templates/master/userdata/ubuntu/install_awless_scheduler.sh role={role.name}

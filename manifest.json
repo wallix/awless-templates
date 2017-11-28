@@ -30,14 +30,16 @@
  },
  {
   "Title": "Create an insecure CockroachDB cluster",
-  "CLIExample": "awless run repo:cockroach_insecure_cluster ubuntu.image.id=$(awless search images canonical --latest-id)",
+  "CLIExample": "awless run repo:cockroach_insecure_cluster",
   "Description": "Deploying a multi-AZ CockroachDB insecure cluster (3 nodes) with AWS TCP \u0026 HTTP load balancing. See https://www.cockroachlabs.com/docs/stable/deploy-cockroachdb-on-aws-insecure.html",
+  "MinimalVersion": "v0.1.7",
   "Name": "cockroach_insecure_cluster",
   "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/cockroach_insecure_cluster.aws"
  },
  {
   "Title": "Create a postgres instance",
   "Description": "Create a private basic postgres instance with firewall. As an example, instance has only basic required properties filled in",
+  "MinimalVersion": "v0.1.7",
   "Name": "db_postgres",
   "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/db_postgres.aws"
  },
@@ -53,7 +55,7 @@
  },
  {
   "Title": "Highly-available wordpress infrastructure",
-  "MinimalVersion": "v0.1.3",
+  "MinimalVersion": "v0.1.7",
   "Tags": [
    "infra"
   ],
@@ -62,7 +64,8 @@
  },
  {
   "Title": "Install awless scheduler",
-  "CLIExample": "awless run repo:install_awless_scheduler ubuntu.ami=$(aw search images canonical:ubuntu --latest-id)",
+  "CLIExample": "awless run repo:install_awless_scheduler",
+  "MinimalVersion": "v0.1.7",
   "Name": "install_awless_scheduler",
   "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/install_awless_scheduler.aws"
  },
@@ -102,9 +105,9 @@
  },
  {
   "Title": "Create a classic Kafka infra",
-  "CLIExample": "awless run repo:kafka_infra redhat-ami=$(awless search images redhat --latest-id) remote-access.cidr=$(awless whoami --ip-only)/32 broker-instance-type=t2.medium zookeeper-instance-type=t2.medium",
+  "CLIExample": "awless run repo:kafka_infra remote-access.cidr=$(awless whoami --ip-only)/32 broker.instance.type=t2.medium zookeeper.instance.type=t2.medium",
   "Description": "Create a classic Kafka infra: brokers, 1 zookeeper instance",
-  "MinimalVersion": "v0.1.3",
+  "MinimalVersion": "v0.1.7",
   "Name": "kafka_infra",
   "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/kafka_infra.aws"
  },
