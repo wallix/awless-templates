@@ -180,4 +180,5 @@ var stubFillers = map[string]interface{}{
 	"image.filepath":                 "./verifyall_test.go",
 	"subnet1.zone":                   "stub",
 	"subnet2.zone":                   "stub",
+	"launchconfiguration.image":      "stub",
 }
