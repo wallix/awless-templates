@@ -12,6 +12,7 @@ import (
 	"github.com/wallix/awless/aws/spec"
 	"github.com/wallix/awless/config"
 	"github.com/wallix/awless/template"
+	"github.com/wallix/awless/template/env"
 )
 
 func TestCompileAllTemplates(t *testing.T) {
@@ -85,16 +86,16 @@ func TestCompileAllTemplates(t *testing.T) {
 
 	for _, name := range templateNames {
 		tpl := templates[name]
-		env := template.NewEnv()
-		env.AddFillers(stubFillers)
-		env.Lookuper = func(tokens ...string) interface{} {
+		cenv := template.NewEnv().WithLookupCommandFunc(func(tokens ...string) interface{} {
 			newCommandFunc := awsspec.MockAWSSessionFactory.Build(strings.Join(tokens, ""))
 			if newCommandFunc == nil {
 				return nil
 			}
 			return newCommandFunc()
-		}
-		if _, _, err := template.Compile(tpl, env, template.NewRunnerCompileMode); err != nil {
+		}).Build()
+		cenv.Push(env.FILLERS, stubFillers)
+
+		if _, _, err := template.Compile(tpl, cenv, template.NewRunnerCompileMode); err != nil {
 			t.Fatalf("cannot compile template '%s'\n%s", name, err)
 		} else {
 			log.Printf("successfully parsed and compiled '%s'\n", name)
