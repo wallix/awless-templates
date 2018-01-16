@@ -2,7 +2,7 @@
 
 apt-get -y install ntp
 
-PACKAGE=cockroach-v1.0.6.linux-amd64
+PACKAGE=cockroach-v1.1.4.linux-amd64
 
 curl -O https://binaries.cockroachdb.com/$PACKAGE.tgz
 

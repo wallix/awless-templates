@@ -29,14 +29,6 @@
   "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/awless_readwrite_group.aws"
  },
  {
-  "Title": "Create an insecure CockroachDB cluster",
-  "CLIExample": "awless run repo:cockroach_insecure_cluster",
-  "Description": "Deploying a multi-AZ CockroachDB insecure cluster (3 nodes) with AWS TCP \u0026 HTTP load balancing. See https://www.cockroachlabs.com/docs/stable/deploy-cockroachdb-on-aws-insecure.html",
-  "MinimalVersion": "v0.1.7",
-  "Name": "cockroach_insecure_cluster",
-  "Link": "https://raw.githubusercontent.com/wallix/awless-templates/master/cockroach_insecure_cluster.aws"
- },
- {
   "Title": "Create a postgres instance",
   "Description": "Create a private basic postgres instance with firewall. As an example, instance has only basic required properties filled in",
   "MinimalVersion": "v0.1.7",
