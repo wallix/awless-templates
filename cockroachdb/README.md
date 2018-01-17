@@ -10,7 +10,9 @@ You will be able to access the web UI, the SQL cluster and each private cluster 
 
 #### Pre-requisites
 
-Install [awless](https://github.com/wallix/awless#why-awless). Then clone the `awless` templates repository:
+Install [awless](https://github.com/wallix/awless#why-awless)
+
+Get the CockroachDB template directory (i.e. awless template + corresponding userdata) locally by cloning this repository:
 
         cd  ~/tmp
         git clone https://github.com/wallix/awless-templates
@@ -34,6 +36,8 @@ Note that you will be prompted with _smart completion_ for any missing info. You
 Get an overview of the infrastructure you created:
 
         awless show cockroachdb-vpc --local
+
+(Note the `--local` flag allows to look up cloud data synchronized locally by `awless` instead of fetching everything again remotely)
 
 #### Play
 
