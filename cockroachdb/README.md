@@ -31,18 +31,22 @@ Run the template with `awless`:
 
 Note that you will be prompted with _smart completion_ for any missing info. You will have time to review and confirm the template before running it.
 
+Get an overview of the infrastructure you created:
+
+        awless show cockroachdb-vpc --local
+
 #### Play
 
 Interacting with your deployed infrastructure you can now for instance:
 
-1. Retrieve the loadbalancer public DNS and connect to the cluster UI in a browser with http://{PUBLIC_DNS}:8080 . You can use `awless show cockroachdb-cluster --local` to get the value of the public DNS
-    
-2. Or connect using sql to the cluster with (with a pre-installed cockroach binary) `cockroach sql --insecure --host {TCP_PUBLIC_DNS}`. Get the TCP load balancer public DNS with `awless show cockroachdb-cluster-tcp --local`. 
-
-3. You can also use `awless ssh` and the jump server to SSH connect to a specific nodes:
+1. You can SSH connect to each of the cluster private nodes by going through the public proxy created using `awless ssh`:
 
     `awless list instances`  
     `awless ssh cockroachdb-node-1 --through jump-server` 
+
+2. Retrieve the loadbalancer public DNS and connect to the cluster UI in a browser with http://{PUBLIC_DNS}:8080 . You can use `awless show cockroachdb-cluster --local` to get the value of the public DNS
+    
+3. Or connect using sql to the cluster with (with a pre-installed cockroach binary) `cockroach sql --insecure --host {TCP_PUBLIC_DNS}`. Get the TCP load balancer public DNS with `awless show cockroachdb-cluster-tcp --local`.  
 
 #### Tear down ... and stop paying!
 
