@@ -2,8 +2,6 @@
 
 Create and take down a multi-AZ CockroachDB insecure cluster (3 nodes) with AWS TCP & HTTP load balancing. 
 
-See https://www.cockroachlabs.com/docs/stable/deploy-cockroachdb-on-aws-insecure.html
-
 You will be able to access the web UI, the SQL cluster and each private cluster nodes through a jump server. 
 
 ## Steps
@@ -58,3 +56,7 @@ When done, tear down the infrastructure completely with:
 
         awless log                
         awless revert $(awless log -n1 --id-only)  # will revert last run template
+
+#### Notes
+
+The template follow the recommended official deployment at https://www.cockroachlabs.com/docs/stable/deploy-cockroachdb-on-aws-insecure.html
