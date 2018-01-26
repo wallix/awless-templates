@@ -16,10 +16,16 @@ import (
 )
 
 func TestCompileAllTemplates(t *testing.T) {
-	path := filepath.Join(".", "*.aws")
-	files, err := filepath.Glob(path)
-	if err != nil {
+	var files []string
+	if indir, err := filepath.Glob(filepath.Join("*.aws")); err != nil {
 		t.Fatal(err)
+	} else {
+		files = append(files, indir...)
+	}
+	if otherdirs, err := filepath.Glob(filepath.Join("**", "*.aws")); err != nil {
+		t.Fatal(err)
+	} else {
+		files = append(files, otherdirs...)
 	}
 
 	templates := make(map[string]*template.Template)
