@@ -81,10 +81,10 @@ func TestCompileAllTemplates(t *testing.T) {
 	awsspec.DefaultImageResolverCache.Store("amazonlinux::hvm:x86_64:hvm:ebs", []*awsspec.AwsImage{
 		&awsspec.AwsImage{Id: "stub-6543210"},
 	})
-	awsspec.DefaultImageResolverCache.Store("debian:debian:jessie:x86_64:hvm:ebs", []*awsspec.AwsImage{
+	awsspec.DefaultImageResolverCache.Store("debian:debian:stretch:x86_64:hvm:ebs", []*awsspec.AwsImage{
 		&awsspec.AwsImage{Id: "stub-45637289"},
 	})
-	awsspec.DefaultImageResolverCache.Store("redhat:rhel:7.3:x86_64:hvm:ebs", []*awsspec.AwsImage{
+	awsspec.DefaultImageResolverCache.Store("redhat:rhel:7.4:x86_64:hvm:ebs", []*awsspec.AwsImage{
 		&awsspec.AwsImage{Id: "stub-wuvebfoq"},
 	})
 
@@ -188,4 +188,6 @@ var stubFillers = map[string]interface{}{
 	"subnet1.zone":                   "stub",
 	"subnet2.zone":                   "stub",
 	"launchconfiguration.image":      "stub",
+	"public.subnet":                  "stub",
+	"securitygroup.for.instance":     "stub",
 }
