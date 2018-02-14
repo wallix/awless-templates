@@ -15,9 +15,7 @@ Install [Vuls](https://vuls.io/) with `awless` and scan Linux instances for vuln
 
 #### Run
 
-This step create an instance with Vuls on it using a dedicated `awless` template. Go into the vulnerability scanners template directory:
-
-        cd awless-templates/vuln_scanners
+This step create an instance with Vuls using a dedicated `awless` template.
 
 1. Verify you current AWS region/profile and switch to any necessary:
 
@@ -31,17 +29,17 @@ awless switch eu-west-2 admin
 
 3. If you do not have a AWS keypair yet in this region to SSH to your instances, create one securely with:  `awless create keypair name=ANY_NAME`
 
-4. Run the template:
+4.  Run the template:
 
 ```sh
+cd awless-templates/vuln_scanners
+# then
 awless run futurearchitect_vuls.aws
-# or 
-awless run futurearchitect_vuls.aws image=ami-123456     # to install it on a specific Linux AMI
+# or to install it on a specific Linux AMI
+awless run futurearchitect_vuls.aws image=ami-123456     
 ```
 
-You will be prompted with _smart completion_ for any missing info (ex: distro, etc.).
-
-You will have time to review and confirm the compiled template before running anything.
+You will be prompted with _smart completion_ for any missing info (ex: distro, etc.). Also, you will have time to review and confirm the compiled template before running anything.
 
 5. After a successfull run, get an overview of what you created with:
 
