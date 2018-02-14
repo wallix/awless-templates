@@ -1,6 +1,6 @@
 # Agentless vulnerability scanner for Linux/FreeBSD
 
-Deploy [Vuls](https://vuls.io/) on AWS with `awless` and scan Linux instances for vulnerabilities (CVE, OVAL and NVD)
+Deploy [Vuls](https://vuls.io/) with `awless` and scan Linux instances for vulnerabilities (CVE, OVAL and NVD)
 
 ## Steps
 
