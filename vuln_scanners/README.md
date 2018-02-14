@@ -1,6 +1,6 @@
 # Agentless vulnerability scanner for Linux/FreeBSD
 
-Install [Vuls](https://vuls.io/) with `awless` and scan Linux instances for vulnerabilities.
+Install [Vuls](https://vuls.io/) with `awless` and scan Linux instances for vulnerabilities (CVE, OVAL and NVD)
 
 ## Steps
 
