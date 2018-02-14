@@ -37,8 +37,7 @@ $ awless create keypair name=ANY_NAME
 4.  Run the template:
 
 ```sh
-cd awless-templates/vuln_scanners
-# then
+$ cd awless-templates/vuln_scanners
 $ awless run futurearchitect_vuls.aws
 # or to install it on a specific Linux AMI
 $ awless run futurearchitect_vuls.aws image=ami-123456     
