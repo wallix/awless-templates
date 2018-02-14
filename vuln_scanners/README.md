@@ -69,13 +69,13 @@ Once on the instance:
 
 You can now:
 
-* Scan the local machine with `sudo $(which vuls) scan` or `vuls scan`
+* Scan the local machine with `vuls scan` (or `sudo $(which vuls) scan` if necessary)
 
 To scan remote instance from this instance do the following:
 
 1. Update the `$HOME/config.toml` accordingly (see an example in the toml file itself)
 2. Copy the public key `$HOME/.ssh/id_rsa.pub` on the target to be scanned remotely under `$HOME/.ssh/authorized_keys`
-3. From the Vuls instance run: `sudo $(which vuls) scan` or `vuls scan`
+3. From the Vuls instance run `vuls scan` (or `sudo $(which vuls) scan` if necessary)
 
 #### Tear down ... and stop paying!
 
