@@ -19,29 +19,37 @@ This step create an instance with Vuls on it using a dedicated `awless` template
 
         cd awless-templates/vuln_scanners
 
-Verify where `awless` will deploy your infrastructure by displaying you current AWS region/profile with:
+1. Verify you current AWS region/profile and switch to any necessary:
 
-        awless switch      # or shorcut `awless sw`
+```sh
+# display your current region and profile
+awless switch      # or shorcut `awless sw`
 
-(If you do not have a AWS keypair yet in this region to SSH to your instances, create one securely with `awless create keypair name=ANY_NAME`)
+# switch to any region/profile with
+awless switch eu-west-2 admin
+```
 
-Run the template with `awless`:
+3. If you do not have a AWS keypair yet in this region to SSH to your instances, create one securely with:  `awless create keypair name=ANY_NAME`
 
-        awless run futurearchitect_vuls.aws
+4. Run the template:
 
-        # or 
+```sh
+awless run futurearchitect_vuls.aws
+# or 
+awless run futurearchitect_vuls.aws image=ami-123456     # to install it on a specific Linux AMI
+```
 
-        awless run futurearchitect_vuls.aws image=ami-123456     # to install it on a specific AMI
+You will be prompted with _smart completion_ for any missing info (ex: distro, etc.).
 
-You will be prompted with _smart completion_ for any missing info (ex: distro, etc.). You will have time to review and confirm the compiled template before running anything.
+You will have time to review and confirm the compiled template before running anything.
 
-After a successfull run, get an overview of what you created with:
+5. After a successfull run, get an overview of what you created with:
 
-        awless ls instances
-
-        # and/or
-
-        awless show NAME_OF_MY_INSTANCE --local
+```sh
+awless ls instances
+# and/or
+awless show NAME_OF_MY_INSTANCE --local
+```
 
 (Note the `--local` (or `-l`) flag allows to look up cloud data synchronized locally by `awless` instead of fetching everything again remotely)
 

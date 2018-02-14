@@ -87,12 +87,12 @@ port        = "local"
 # host      = "..."    # remote host address
 # port      = "22"     # for remote ssh scans
 # user      = "admin"  # user for remote ssh scans
-# keyPath   = "$HOME/.ssh/id_rsa" # Local priv key to SSH connect to scanned target. Targets need to have pub key in their ~/.ssh/authorized_keys
+# keyPath   = "$USER_HOME/.ssh/id_rsa" # Local priv key to SSH connect to scanned target. Targets need to have pub key in their ~/.ssh/authorized_keys
 EOF
 
 FETCH_DATA_FILENAME=fetch-nvd-oval-cve-data.sh
 /bin/cat > $USER_HOME/$FETCH_DATA_FILENAME <<EOF
-source \$PROFILE_PATH
+source $PROFILE_PATH
 
 # Fetch vulnerability data from NVD
 # Takes about 10 minutes
