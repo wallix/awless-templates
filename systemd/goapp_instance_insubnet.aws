@@ -1,0 +1,2 @@
+application_name = {application_name}
+create instance subnet={instance.subnet} securitygroup={instance.securitygroup} keypair={my.ssh.keypair} type={instance.type} userdata=./userdata/goapp_systemd.sh
