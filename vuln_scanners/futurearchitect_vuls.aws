@@ -1,2 +1,1 @@
-## Create the cockroachdb nodes
 create instance subnet={public.subnet} securitygroup={securitygroup.for.instance} keypair={my.ssh.keypair} type={instance.type} userdata=./userdata/vuls_install.sh
