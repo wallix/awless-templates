@@ -54,9 +54,9 @@ You can now interact with the deployed infrastructure. For instance:
 
 When done, tear down the infrastructure completely with:
 
-        awless log                
-        awless revert $(awless log -n1 --id-only)  # will revert last run template
+        awless log # to find the id of the previous awless run command        
+        awless revert {id}
 
 #### Notes
 
-The template follow the recommended official deployment at https://www.cockroachlabs.com/docs/stable/deploy-cockroachdb-on-aws-insecure.html
+The template follows the recommended official deployment at https://www.cockroachlabs.com/docs/stable/deploy-cockroachdb-on-aws-insecure.html
