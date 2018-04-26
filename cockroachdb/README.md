@@ -4,6 +4,8 @@ Create and take down a multi-AZ CockroachDB 2.0.x _insecure_ cluster (3 nodes) w
 
 You will be able to access the web UI, the SQL cluster and each private cluster nodes through a jump server. 
 
+![Cockroach Dashboard](cockroachdb-dashboard.png)
+
 ## Steps
 
 #### Pre-requisites
@@ -47,9 +49,7 @@ You can now interact with the deployed infrastructure. For instance:
     `awless ssh cockroachdb-node-1 --through jump-server` 
 
 2. Retrieve the loadbalancer public DNS and connect to the cluster UI in a browser with http://{PUBLIC_DNS}:8080 . You can use `awless show cockroachdb-cluster --local` to get the value of the public DNS
-
-![Cockroach Dashboard](cockroachdb-dashboard.png)
-    
+  
 3. Connect using sql to the cluster with (with a pre-installed cockroach binary) `cockroach sql --insecure --host {TCP_PUBLIC_DNS}`. Get the TCP load balancer public DNS with `awless show cockroachdb-cluster-tcp --local`.  
 
 #### Tear down ... and stop paying!
