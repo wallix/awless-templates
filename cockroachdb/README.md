@@ -1,6 +1,6 @@
 # Multi-AZ CockroachDB insecure cluster
 
-Create and take down a multi-AZ CockroachDB 2.0.x _insecure_ cluster (3 nodes) with AWS TCP & HTTP load balancing. 
+Create and take down a multi-AZ CockroachDB (2.0.x) 3 nodes cluster with both AWS TCP & HTTP load balancing. 
 
 You will be able to access the web UI, the SQL cluster and each private cluster nodes through a jump server. 
 
