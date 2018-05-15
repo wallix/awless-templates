@@ -1,0 +1,24 @@
+# Loadb sec group
+loadb-secgroup = create securitygroup vpc={vpc} description="Incoming traffic to classic loadb" name=classicloadb-traffic
+# Authorize incoming traffic on port 80
+update securitygroup id=$loadb-secgroup inbound=authorize protocol=tcp cidr=0.0.0.0/0 portrange=80
+
+subnet = {main-subnet}
+
+loadb = create classicloadbalancer name={load-balancer-name} subnets=[$subnet] listeners=TCP:80:TCP:8080 tags=Env:Test,Created:Awless securitygroups=$loadb-secgroup
+
+# Instances sec group
+inst-secgroup = create securitygroup vpc={vpc} description="Incoming traffic to classic loadb" name=loadb-instances-traffic
+# Authorize incoming traffic on port 8080 and SSH
+update securitygroup id=$inst-secgroup inbound=authorize protocol=tcp cidr=0.0.0.0/0 portrange=8080
+update securitygroup id=$inst-secgroup inbound=authorize protocol=tcp cidr=0.0.0.0/0 portrange=22
+
+# Create instances with a simple netcat responding on 8080
+inst_1 = create instance name={instance-1-name} securitygroup=$inst-secgroup subnet=$subnet distro=canonical:ubuntu type=t2.micro keypair={my-ssh-key} userdata="#!/bin/bash\nwhile true; do nc -l 8080; done"
+inst_2 = create instance name={instance-2-name} securitygroup=$inst-secgroup subnet=$subnet distro=canonical:ubuntu type=t2.micro keypair={my-ssh-key} userdata="#!/bin/bash\nwhile true; do nc -l 8080; done"
+
+check instance id=$inst_1 state=running timeout=180
+check instance id=$inst_2 state=running timeout=180
+
+attach classicloadbalancer name=$loadb instance=$inst_1
+attach classicloadbalancer name=$loadb instance=$inst_2
