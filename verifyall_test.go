@@ -78,13 +78,13 @@ func TestCompileAllTemplates(t *testing.T) {
 	awsspec.DefaultImageResolverCache.Store("canonical:ubuntu:xenial:x86_64:hvm:ebs", []*awsspec.AwsImage{
 		&awsspec.AwsImage{Id: "stub-6543210"},
 	})
-	awsspec.DefaultImageResolverCache.Store("amazonlinux::hvm:x86_64:hvm:ebs", []*awsspec.AwsImage{
+	awsspec.DefaultImageResolverCache.Store("amazonlinux:amzn:hvm:x86_64:hvm:ebs", []*awsspec.AwsImage{
 		&awsspec.AwsImage{Id: "stub-6543210"},
 	})
 	awsspec.DefaultImageResolverCache.Store("debian:debian:stretch:x86_64:hvm:ebs", []*awsspec.AwsImage{
 		&awsspec.AwsImage{Id: "stub-45637289"},
 	})
-	awsspec.DefaultImageResolverCache.Store("redhat:rhel:7.4:x86_64:hvm:ebs", []*awsspec.AwsImage{
+	awsspec.DefaultImageResolverCache.Store("redhat:rhel:7.5:x86_64:hvm:ebs", []*awsspec.AwsImage{
 		&awsspec.AwsImage{Id: "stub-wuvebfoq"},
 	})
 
