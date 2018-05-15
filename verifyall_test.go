@@ -102,7 +102,7 @@ func TestCompileAllTemplates(t *testing.T) {
 		cenv.Push(env.FILLERS, stubFillers)
 
 		if _, _, err := template.Compile(tpl, cenv, template.NewRunnerCompileMode); err != nil {
-			t.Fatalf("cannot compile template '%s'\n%s", name, err)
+			t.Errorf("cannot compile template '%s'\n%s", name, err)
 		} else {
 			log.Printf("successfully parsed and compiled '%s'\n", name)
 		}
@@ -190,4 +190,9 @@ var stubFillers = map[string]interface{}{
 	"launchconfiguration.image":      "stub",
 	"public.subnet":                  "stub",
 	"securitygroup.for.instance":     "stub",
+	"instance.1.name":                "stub",
+	"instance.2.name":                "stub",
+	"loadbalancer.name":              "stub",
+	"main.subnet":                    "stub",
+	"main.vpc":                       "stub",
 }
